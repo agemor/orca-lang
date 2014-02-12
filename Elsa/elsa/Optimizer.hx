@@ -1,12 +1,13 @@
-package elsa.syntax;
+package elsa;
 
 /**
  * ...
  * @author 김 현준
  */
-class InstanceSyntax implements Syntax {
+class Optimizer {
 
 	public function new() {
 		
-	}	
+	}
+	
 }

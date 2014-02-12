@@ -364,14 +364,15 @@ class Lexer {
 		Token.define("true", Token.Type.TRUE, true);
 		Token.define("false", Token.Type.FALSE, true);
 		Token.define("as", Token.Type.AS, true);
-
+		Token.define("in", Token.Type.AS, true);
+		
 		Token.define("[", Token.Type.ARRAY_OPEN, false);
 		Token.define("]", Token.Type.ARRAY_CLOSE, false);
 		Token.define("{", Token.Type.BLOCK_OPEN, false);
 		Token.define("}", Token.Type.BLOCK_CLOSE, false);
 		Token.define("(", Token.Type.SHELL_OPEN, false);
 		Token.define(")", Token.Type.SHELL_CLOSE, false);
-		Token.define("->", Token.Type.RIGHT, false);
+		Token.define("...", Token.Type.FROM, false);
 		Token.define(".", Token.Type.DOT, false);
 		Token.define(",", Token.Type.COMMA, false);
 		Token.define(":", Token.Type.COLON, false);
@@ -449,7 +450,8 @@ class Lexer {
 				var buffer:String =  "";
 				for (j in 0...tree.branch[i].lexData.length) {
 					var token:Token = tree.branch[i].lexData[j];
-					buffer += StringTools.trim(token.value) + "@" + token.type + ",";
+					buffer += StringTools.trim(token.value) + "@" + token.type;
+					if (j != tree.branch[i].lexData.length - 1) buffer += ",  ";
 				}
 				Sys.print(space + buffer+"\n");
 			}

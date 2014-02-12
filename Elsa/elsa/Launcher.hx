@@ -7,18 +7,18 @@ import sys.io.File;
 class Launcher {
 	
 	public static function main() {
-		for( i in 0...10)
-		trace(Token.Affix.SUFFIX);
+		
+		haxe.Log.trace = function (log, ?d) Sys.print(log +  "\n");
 		
 		var token:Token = new Token(Token.Type.ADDITION);
 		var lexer:Lexer = new Lexer();
 		
 		var source:String = File.getContent("test_code.el");
-		trace(source);
-		
 		var lextree:Lexer.Lextree = lexer.analyze(source);
-		lexer.viewHierarchy(lextree, 0);
+		//lexer.viewHierarchy(lextree, 0);
 		
+		//TokenTools.view2D(TokenTools.getArguments(lexer.analyze("A,B,C,D,E,,F     G,G").branch[0].lexData));
+		TokenTools.view2D(TokenTools.split(lexer.analyze("A,B,C,D,E,,F     G,G").branch[0].lexData, Token.Type.COMMA));
 		Sys.sleep(10000);
 		
 	}

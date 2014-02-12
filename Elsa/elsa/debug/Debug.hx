@@ -10,4 +10,6 @@ class Debug {
 		trace(errorType + ":" + errorMessage + " at " + cast(lineNumber, String));
 	}
 	
+	
+	
 }
