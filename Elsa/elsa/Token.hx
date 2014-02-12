@@ -147,7 +147,7 @@ class Token {
 	public static function findByValue(value:String, wholeWord:Bool):Token {
 		
 		// 빈 값이면 아무것도 출력하지 않는다.
-		if (value.length == 0)
+		if (StringTools.trim(value).length == 0)
 			return null;
 		
 		// 단어 단위 검색일 경우, 심볼 전체가 매치될 경우에만 해당
@@ -156,7 +156,7 @@ class Token {
 				if (definitions[i].wholeWord && definitions[i].value == value)
 					return definitions[i];
 			}
-			return null;
+			return new Token(Type.ID, value);
 		}
 		
 		// 전 범위 검색일 경우
