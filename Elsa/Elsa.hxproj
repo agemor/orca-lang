@@ -4,13 +4,13 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="result" />
+    <movie path="result.n" />
     <movie fps="30" />
     <movie width="800" />
     <movie height="600" />
-    <movie version="11" />
-    <movie minorVersion="1" />
-    <movie platform="Flash Player" />
+    <movie version="1" />
+    <movie minorVersion="0" />
+    <movie platform="Neko" />
     <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
@@ -34,10 +34,6 @@
   <compileTargets>
     <!-- example: <compile path="..." /> -->
   </compileTargets>
-  <!-- Assets to embed into the output SWF -->
-  <library>
-    <!-- example: <asset path="..." id="..." update="..." glyphs="..." mode="..." place="..." sharepoint="..." /> -->
-  </library>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
     <hidden path="obj" />
@@ -48,9 +44,9 @@
   <postBuildCommand alwaysRun="False" />
   <!-- Other project options -->
   <options>
-    <option showHiddenPaths="False" />
-    <option testMovie="Default" />
-    <option testMovieCommand="" />
+    <option showHiddenPaths="True" />
+    <option testMovie="Custom" />
+    <option testMovieCommand="neko C:\Users\현준\git\elsa\Elsa\result.n" />
   </options>
   <!-- Plugin storage -->
   <storage />
