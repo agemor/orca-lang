@@ -22,7 +22,18 @@ class Machine {
 		program = parse(code);
 	}
 	public function parse(code: String): Array<Instruction> {
-		return []; // TODO
+		var instructions: Array<Instruction> = [];
+		var lines = code.split("\n");
+		var instructionNumber = 0;
+		for (line in lines.iterator()) {
+			var id = line.substring(0, 3);
+			var args = if (line.length < 4) []
+				else line.substring(4).split(",").map(function (argument) {
+				return StringTools.trim(argument);
+			});
+			instructions[instructionNumber++] = new Instruction(id, args);
+		}
+		return instructions;
 	}
 	public function run() {
 		// TODO
