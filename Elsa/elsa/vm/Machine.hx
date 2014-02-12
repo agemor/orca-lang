@@ -68,14 +68,14 @@ class Data {
 	public function new(data: Dynamic) {
 		this.data = data;
 	}
-	public function set_data(value: Dynamic) {
+	function set_data(value: Dynamic) {
 		data = value;
 		isReference = Type.getClass(data) == Data;
 		isRegistry = Type.getClass(data) == String &&
 					data.length > 0 && data.charAt(0) == "@";
 		return data;
 	}
-	public function get_string(): String {
+	function get_string(): String {
 		return if (isReference) data.string else Std.string(data);
 	}
 }
