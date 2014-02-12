@@ -430,15 +430,14 @@ class Lexer {
 		
 		for (i in 0...level)
 			space += "      ";
-		
 			
 		for (i in 0...tree.branch.length) {
 			
 			// 새 가지일 때
 			if (tree.branch[i].hasBranch) {
-				trace(space + "<begin>");
+				Sys.print(space + "<begin>\n");
 				viewHierarchy(tree.branch[i], level + 1);
-				trace(space + "<end>");
+				Sys.print(space + "<end>\n");
 			}
 			
 			// 어휘 데이터일 때
@@ -452,7 +451,7 @@ class Lexer {
 					var token:Token = tree.branch[i].lexData[j];
 					buffer += StringTools.trim(token.value) + "@" + token.type + ",";
 				}
-				trace(space + buffer);
+				Sys.print(space + buffer+"\n");
 			}
 		}
 	}
