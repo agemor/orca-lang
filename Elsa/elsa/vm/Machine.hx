@@ -3,6 +3,8 @@ package elsa.vm;
 import haxe.ds.GenericStack;
 import haxe.ds.Vector;
 
+import elsa.debug.Debug;
+
 class Machine {
 	public var stack: GenericStack<Data>;
 	public var register: Vector<Data>;
@@ -36,7 +38,25 @@ class Machine {
 		return instructions;
 	}
 	public function run() {
-		// TODO
+		pointer = 0;
+		while (true) {
+			var instruction = program[pointer];
+			switch (instruction.id) {
+			case "EXE": switch (getStringValue(instruction.args[0])) {
+				case "print": Debug.trace(getStringValue(instruction.args[1]));
+				case "whoami": Debug.trace("ELSA VM unstable");
+				}
+			case "END": return;
+			}
+			++pointer;
+		}
+	}
+	public function getStringValue(data: String): String {
+		return if (data.length < 1) "" else switch (data.charAt(0)) {
+		case "&": getStringValue(register[Std.parseInt(data.substring(1))].string);
+		case "@": getStringValue(memory[Std.parseInt(data.substring(1))].string);
+		default: data;
+		}
 	}
 }
 
@@ -44,6 +64,7 @@ class Data {
 	public var isReference: Bool;
 	public var isRegistry: Bool;
 	public var data (default, set): Dynamic;
+	public var string (get, never): String;
 	public function new(data: Dynamic) {
 		this.data = data;
 	}
@@ -53,6 +74,9 @@ class Data {
 		isRegistry = Type.getClass(data) == String &&
 					data.length > 0 && data.charAt(0) == "@";
 		return data;
+	}
+	public function get_string(): String {
+		return if (isReference) data.string else Std.string(data);
 	}
 }
 
