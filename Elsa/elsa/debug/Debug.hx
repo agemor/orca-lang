@@ -9,6 +9,10 @@ class Debug {
 	public static function report(errorType:String, errorMessage:String, lineNumber:Int = 1):Void {
 		trace(errorType + ":" + errorMessage + " at " + cast(lineNumber, String));
 	}
+
+	public static function trace(message: Dynamic) {
+		Sys.println(message);
+	}
 	
 	
 	
