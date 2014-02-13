@@ -8,7 +8,7 @@ class Launcher {
 	
 	public static function main() {
 		
-		haxe.Log.trace = function (log, ?d) Sys.print(log +  "\n");
+		haxe.Log.trace = function (log, ?d) Sys.println(log);
 		
 		trace("Orca Compiler 2.0 (Unstable)");
 		
