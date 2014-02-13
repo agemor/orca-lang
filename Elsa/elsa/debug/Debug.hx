@@ -6,12 +6,14 @@ package elsa.debug;
  */
 class Debug {
 	
+	public static var supressed:Bool = false;
+	
 	public static function report(errorType:String, errorMessage:String, lineNumber:Int = 1):Void {
-		trace(errorType + ":" + errorMessage + " at " + cast(lineNumber, String));
+		if(!supressed) trace(errorType + ":" + errorMessage + " at " + cast(lineNumber, String));
 	}
-
-	public static function trace(message: Dynamic) {
-		Sys.println(message);
+	
+	public static function supressError(status:Bool):Void {
+		supressed = status;
 	}
 	
 	

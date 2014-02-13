@@ -7,11 +7,11 @@ import elsa.debug.Debug;
 /**
  * 조건문 구문 패턴
  * 
- * 형식: if( C )
+ * 형식: elif( C )
  * 
  * @author 김 현준
  */
-class IfSyntax implements Syntax {
+class ElseIfSyntax implements Syntax {
 
 	public var condition:Array<Token>;
 	
@@ -26,7 +26,7 @@ class IfSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.IF)
+		if (tokens.length > 0 && tokens[0].type == Token.Type.ELSE_IF)
 			return true;
 		return false;
 	}
@@ -38,7 +38,7 @@ class IfSyntax implements Syntax {
 	 * @param	lineNumber
 	 * @return
 	 */
-	public static function analyze(tokens:Array<Token>, lineNumber:Int):IfSyntax {
+	public static function analyze(tokens:Array<Token>, lineNumber:Int):ElseIfSyntax {
 		
 		// 미완성된 제어문의 경우
 		if (tokens.length < 4) {
@@ -58,6 +58,6 @@ class IfSyntax implements Syntax {
 			return null;
 		}
 
-		return new IfSyntax(tokens.slice(2, tokens.length - 1));
+		return new ElseIfSyntax(tokens.slice(2, tokens.length - 1));
 	}
 }

@@ -13,12 +13,10 @@ import elsa.debug.Debug;
  */
 class ElseSyntax implements Syntax {
 
-	public function new() {
-		
-	}	
+	public function new() {	}	
 	
 	/**
-	 * 토큰열이 ... 구문 패턴과 일치하는지 확인한다.
+	 * 토큰열이 Else 구문 패턴과 일치하는지 확인한다.
 	 * 
 	 * @param	tokens
 	 * @return
@@ -30,7 +28,7 @@ class ElseSyntax implements Syntax {
 	}
 	
 	/**
-	 * 토큰열을 분석하여 ... 구문 요소를 추출한다.
+	 * 토큰열을 분석하여 Else 구문 요소를 추출한다.
 	 * 
 	 * @param	tokens
 	 * @param	lineNumber

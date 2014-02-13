@@ -35,8 +35,7 @@ class Lexer {
 		
 		var i:Int = -1;
 		
-		while(i <= code.length){			
-			i ++;
+		while( ++i < code.length){		
 			
 			var char:String = code.charAt(i);
 			
@@ -174,8 +173,7 @@ class Lexer {
 
 		var i:Int = -1;
 		
-		while (i < code.length) { 
-			i ++;
+		while ( ++i < code.length) {
 			
 			var char:String = code.charAt(i);
 

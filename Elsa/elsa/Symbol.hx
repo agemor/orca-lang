@@ -1,4 +1,5 @@
 package elsa;
+import elsa.nlib.NativeFunction;
 
 /**
  * 심볼 클래스

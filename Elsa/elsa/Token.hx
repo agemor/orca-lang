@@ -23,8 +23,8 @@ class Token {
 	/**
 	 * 토큰 태그 정보
 	 */
-	public var tag:String;
-	public var tagged:Bool = false;
+	private var tag:Symbol;
+	private var tagged:Bool = false;
 	
 	/**
 	 * 어휘 분석 시 단어별로 처리할 것인지의 여부
@@ -60,6 +60,34 @@ class Token {
 		if (affix == Affix.SUFFIX)
 			return true;
 		return false;
+	}
+	
+	/**
+	 * 토큰의 태그를 취득한다.
+	 * 
+	 * @return
+	 */
+	public function getTag():Symbol {
+		return tag;
+	}
+	
+	/**
+	 * 토큰에 태그를 설정한다.
+	 * 
+	 * @param	tag
+	 * @return
+	 */
+	public function setTag(tag:Symbol):Symbol {
+		this.tag = tag;
+		tagged = true;
+	}
+	
+	/**
+	 * 토큰에서 태그를 제거한다.
+	 */
+	public function removeTag():Void {
+		this.tag = null;
+		this.tagged = false;
 	}
 	
 	/**
