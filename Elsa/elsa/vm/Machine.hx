@@ -43,8 +43,8 @@ class Machine {
 			var instruction = program[pointer];
 			switch (instruction.id) {
 			case "EXE": switch (getStringValue(instruction.args[0])) {
-				case "print": Debug.trace(getStringValue(instruction.args[1]));
-				case "whoami": Debug.trace("ELSA VM unstable");
+				case "print": Debug.print(getStringValue(instruction.args[1]));
+				case "whoami": Debug.print("ELSA VM unstable");
 				}
 			case "END": return;
 			}

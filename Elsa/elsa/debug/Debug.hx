@@ -16,5 +16,9 @@ class Debug {
 	public static function supressError(status:Bool):Void {
 		supressed = status;
 	}
+
+	public static function print(value) {
+		Sys.println(value);
+	}
 	
 }
