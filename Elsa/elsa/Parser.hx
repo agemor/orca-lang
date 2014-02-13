@@ -93,28 +93,30 @@ class Parser {
 		assembly.freeze();
 
 		// 리터럴을 어셈블리에 쓴다.
-		for (Symbol.Literal literal : symbolTable.literal) {
-
+		for ( i in symbolTable.literal.length) {
+			
+			var literal:Symbol.Literal = symbolTable.literal[i];
+			
 			// 실수형 리터럴인 경우
-			if (literal.type.equals(Symbol.Literal.NUMBER)) {
-				assembly.writeCode("SNA @" + literal.address);
+			if (literal.type == Symbol.Literal.NUMBER) {
+				assembly.writeCode("SNA @" + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("NDW @" + literal.address + ", " + literal.value);
+				assembly.writeCode("NDW @" + Std.string(literal.address) + ", " + literal.value);
 			}
 
 			// 문자형 리터럴인 경우
-			else if (literal.type.equals(Symbol.Literal.STRING)) {
-				assembly.writeCode("SSA @" + literal.address);
+			else if (literal.type == Symbol.Literal.STRING) {
+				assembly.writeCode("SSA @" + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("SDW @" + literal.address + ", " + literal.value);
+				assembly.writeCode("SDW @" + Std.string(literal.address) + ", " + literal.value);
 			}
 
 		}
 
 		assembly.melt();
-		assembly.code += "END";
+		assembly.writeCode("END");
 
 		// 모든 파싱이 끝나면 어셈블리 코드를 최적화한다.
 		assembly.code = optimizer.optimize(assembly.code);
@@ -874,53 +876,50 @@ class Parser {
 					}
 
 					// 파라미터를 쌓는다.
-					parsedArguments[i] = parsedArgument.data;
+					parsedArguments.push(parsedArgument.data);
 				}
-
-				// 쌓은 파라미터를 합쳐서 리턴한다.
-				Token[] joinedArguments = TokenUtil.join(parsedArguments, 0, 1);
-				joinedArguments[joinedArguments.length - 1] = syntax.procedure;
-
-				return ParsedPair(joinedArguments, function.type);
-
+				
+				parsedArguments.push([syntax.functionName]);
+				
+				return ParsedPair(TokenTools.merge(parsedArguments), functn.type);
 			}
 
 			// 매개 변수가 없을 경우
 			else {
-				return ParsedPair(new Token[] { tokens[0] }, function.type);
+				return ParsedPair([syntax.functionName], functn.type);
 			}
 		}
 
 		/**
 		 * 배열 생성 : [A, B, C, D, ... , ZZZ]
 		 */
-		else if (Array.match(tokens)) {
+		else if (ArraySyntax.match(tokens)) {
 
-			Array syntax = Array.analyze(tokens, lineNumber);
+			var syntax:ArraySyntax = ArraySyntax.analyze(tokens, lineNumber);
 
 			// 배열 리터럴 파싱 과정에 에러가 발생했다면 건너 뛴다.
 			if (syntax == null)
 				return null;
-
-			Token[][] parsedArguments = new Token[syntax.arguments.length][];
+			
+			var parsedElements:Array<Array<Token>> = new Array<Array<Token>>();
 
 			// 배열 리터럴의 각 원소를 파싱한 후 스택에 쌓는다.
-			for (int i = 0; i < syntax.arguments.length; i++) {
+			for ( i in 0...syntax.elements.length) { 
 
 				// 배열의 원소가 유효한지 체크한다.
-				if (syntax.arguments[i].length < 1) {
+				if (syntax.elements[i].length < 1) {
 					Debug.report("구문 오류", "배열에 불필요한 ','가 쓰였습니다.", lineNumber);
 					return null;
 				}
 
 				// 배열의 원소를 파싱한다.
-				Pair<Token[], String> parsedArgument = parse(syntax.arguments[i], lineNumber);
+				var parsedElement:ParsedPair = parseLine(syntax.elements[i], lineNumber);
 
 				// 원소에 에러가 있다면 건너 뛴다.
-				if (parsedArgument == null)
+				if (parsedElement == null)
 					return null;
 
-				parsedArguments[i] = parsedArgument.first;
+				parsedElements.push(parsedElement.data);
 			}
 
 			/*
@@ -928,42 +927,39 @@ class Parser {
 			 * 
 			 * A1, A2, A3, ... An, ARRAY_LITERAL(n)
 			 */
-			Token[] arrayLiteral = TokenUtil.join(parsedArguments, 0, 1);
-			arrayLiteral[arrayLiteral.length - 1] = new Token(Token.Type.ARRAY,
-					String.valueOf(parsedArguments.length));
+			var mergedElements:Array<Token> = TokenTools.merge(parsedElements);
+			mergedElements.push(new Token(Token.Type.ARRAY, Std.string(parsedElements.length)));
 
-			return ParsedPair(arrayLiteral, "array");
-
+			return ParsedPair(mergedElements, "array");
 		}
 
 		/**
 		 * 객체 생성 : new A
 		 */
-		else if (Instance.match(tokens)) {
+		else if (InstanceCreationSyntax.match(tokens)) {
 
 			// 객체 정보 취득
-			Instance syntax = Instance.analyze(tokens, lineNumber);
+			var syntax:InstanceCreationSyntax = InstanceCreationSyntax.analyze(tokens, lineNumber);
 
 			// 오브젝트 네임의 유효성 검증
-			if (!symbolTable.isValidClassID(syntax.object.value)) {
+			if (!symbolTable.isValidClassID(syntax.instanceType.value)) {
 				Debug.report("구문 오류", "유효하지 않은 오브젝트입니다.", lineNumber);
 				return null;
 			}
 
 			// 오브젝트 심볼 취득
-			Symbol.Class klass = (Symbol.Class) symbolTable.find(syntax.object.value);
+			var targetClass:Symbol.Class = cast(symbolTable.find(syntax.instanceType.value), Symbol.Class);
 
 			// 토큰에 오브젝트 태그
-			syntax.object.setTag(klass);
+			syntax.instanceType.setTag(targetClass);
 
-			return ParsedPair(new Token[] { syntax.object, Token.find(Token.Type.INSTANCE) }, klass.id);
-
+			return ParsedPair([syntax.instanceType, Token.findByType(Token.Type.INSTANCE)], targetClass.id);
 		}
 
 		/**
 		 * 인스턴스 참조 : A.B.C
 		 */
-		else if (InstanceReference.match(tokens)) {
+		else if (MemberReferenceSyntax.match(tokens)) {
 
 			/*
 			 * 도트 연산자는 우선순위가 가장 높기 때문에 파싱 트리의 최하단에 위치한 토큰열이 반환되게 된다. 따라서 도트 연산자로
@@ -972,25 +968,25 @@ class Parser {
 			 */
 
 			// 참조 정보 취득
-			InstanceReference syntax = InstanceReference.analyze(tokens, lineNumber);
+			var syntax:MemberReferenceSyntax = MemberReferenceSyntax.analyze(tokens, lineNumber);
 
 			// 파싱된 참조열
-			Token[][] parsedReferences = new Token[syntax.referneces.length][];
+			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
 
 			// 컨텍스트
-			Symbol.Class targetClass = null;
+			var targetClass:Symbol.Class = null;
 
 			// 리턴 타입
-			String returnType = null;
+			var returnType:String = null;
 
 			// 참조를 차례대로 파싱한다.
-			for (int i = 0; i < syntax.referneces.length; i++) {
-				Token[] reference = syntax.referneces[i];
+			for ( i in 0...syntax.referneces.length) { 
+				var reference:Array<Token> = syntax.referneces[i];
 
 				// 참조는 컨텍스트 내에서만 찾는다. (targetClass가 처음에는 null 이므로 첫 번째 실행에서는
 				// 전역에서 심볼을 찾는다.)
 				if (targetClass != null) {
-					Symbol member = targetClass.findMember(reference[0].value);
+					var member:Symbol = targetClass.findMemberByID(reference[0].value);
 
 					if (member == null) {
 						Debug.report("undefined 오류", "속성을 찾을 수 없습니다.", lineNumber);
@@ -1010,45 +1006,45 @@ class Parser {
 						Debug.report("undefined 오류", "정의되지 않은 인스턴스입니다.", lineNumber);
 						return null;
 					}
-
 				}
 
 				// 참조를 파싱한다.
-				Pair<Token[], String> parsedReference = parse(reference, lineNumber);
+				var parsedReference:ParsedPair = parseLine(reference, lineNumber);
 
 				// 참조 파싱 중 에러가 발생헀다면 건너 뛴다.
 				if (parsedReference == null)
 					return null;
 
 				// targetClass 업데이트
-				targetClass = (Symbol.Class) symbolTable.find(parsedReference.second);
+				targetClass = cast(symbolTable.findInLocal(parsedReference.type), Symbol.Class);
 
 				// 컨텍스트 로드 토큰
-				Token loadContext = new Token(Token.Type.LOAD_CONTEXT);
+				var loadContext:Token = new Token(Token.Type.LOAD_CONTEXT);
 				loadContext.setTag(targetClass);
 
-				Token[] result;
+				var result:Array<Token>;
 
 				// 맨 마지막을 제외하고 컨텍스트 로드를 추가한다.
-				if (i != syntax.referneces.length - 1)
-					result = TokenUtil.join(parsedReference.first, new Token[] { loadContext });
-				else
-					result = parsedReference.first;
-
+				if (i != syntax.referneces.length - 1){
+					result = parsedReference.data;
+					result.push(loadContext);
+				} else {
+					result = parsedReference.data;
+				}
 				// 리턴 타입을 업데이트한다.
-				returnType = parsedReference.second;
+				returnType = parsedReference.type;
 
-				parsedReferences[i] = result;
+				parsedReferences.push(result);
 			}
 
 			// 파싱된 참조열을 리턴한다.
-			return ParsedPair(TokenUtil.join(parsedReferences, 0, 0), returnType);
+			return ParsedPair(TokenTools.merge(parsedReferences), returnType);
 		}
 
 		/**
 		 * 배열 참조: a[1][2]
 		 */
-		else if (ArrayReference.match(tokens)) {
+		else if (ArrayReferenceSyntax.match(tokens)) {
 
 			/*
 			 * 배열 인덱스 연산자는 우선순위가 가장 높고, 도트보다 뒤에 처리되므로 배열 인덱스 열기 문자 ('[')로 구분되는
@@ -1059,7 +1055,7 @@ class Parser {
 			 */
 
 			// 배열 참조 구문을 분석한다.
-			ArrayReference syntax = ArrayReference.analyze(tokens, lineNumber);
+			var syntax:ArrayReferenceSyntax = ArrayReferenceSyntax.analyze(tokens, lineNumber);
 
 			// 구문 오류가 있을 경우 리턴
 			if (syntax == null)
@@ -1073,122 +1069,127 @@ class Parser {
 				}
 
 				// 토큰에 배열 심볼을 태그한다.
-				syntax.array.setTag(symbolTable.find(syntax.array.value));
+				syntax.array.setTag(symbolTable.findInLocal(syntax.array.value));
 			}
 
-			Symbol.Variable array = (Symbol.Variable) syntax.array.getTag();
+			var array:Symbol.Variable = cast(syntax.array.getTag(), Symbol.Variable);
 
 			// 변수가 배열이 아닐 경우
-			if (!array.type.equals("array")) {
+			if (array.type != "array") {
 
 				// 변수가 문자열도 아니면, 에러
-				if (!array.type.equals("string")) {
-					Debugger.error(Debugger.TypeError, "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
+				if (array.type != "string") {
+					Debug.report("타입 오류", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
 					return null;
 				}
 
 				// 문자열 인덱스 참조 명령을 처리한다.
 				if (syntax.references.length != 1) {
-					Debugger.error(Debugger.TypeError, "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
+					Debug.report("타입 오류", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
 					return null;
 				}
 
 				// index A CharAt 의 순서로 배열한다.
-				Pair<Token[], String> parsedIndex = parse(syntax.references[0], lineNumber);
+				var parsedIndex:ParsedPair = parseLine(syntax.references[0], lineNumber);
 
 				// 인덱스 파싱 중 에러가 발생했다면 건너 뛴다.
 				if (parsedIndex == null)
 					return null;
 
 				// 인덱스가 정수가 아닐 경우
-				if (!parsedIndex.second.equals("number")) {
-					Debugger.error(Debugger.TypeError, "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
+				if (parsedIndex.type != "number") {
+					Debug.report("타입 오류", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
 					return null;
 				}
-
+				
+				var result:Array<Token> = new Array<Token>();
+				result.push(syntax.array);
+				result = result.concat(parsedIndex.data);
+				result.push(Token.findByType(Token.Type.CHAR_AT));
+				
 				// 결과를 리턴한다.
-				return ParsedPair(TokenUtil.join(new Token[] { syntax.array }, parsedIndex.first, new Token[] { Token
-						.find(Token.Type.CHAR_AT) }), "string");
+				return ParsedPair(result, "string");
 			}
 
 			// 파싱된 인덱스들
-			Token[][] parsedReferences = new Token[syntax.references.length][];
-
+			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
+			
 			// 가장 높은 인덱스부터 차례로 파싱한다.
-			for (int i = 0; i < syntax.references.length; i++) {
+			for (i in 0...syntax.references.length) { 
 
-				Token[] reference = syntax.references[i];
+				var reference:Array<Token> = syntax.references[i];
 
-				Pair<Token[], String> parsedReference = parse(reference, lineNumber);
+				var parsedReference:ParsedPair = parseLine(reference, lineNumber);
 
 				if (parsedReference == null)
 					continue;
 
 				// 인덱스가 정수가 아닐 경우
-				if (!parsedReference.second.equals("number")) {
-					Debugger.error(Debugger.TypeError, "배열의 인덱스가 정수가 아닙니다.", lineNumber);
+				if (parsedReference.type != "number") {
+					Debug.report("타입 오류", "배열의 인덱스가 정수가 아닙니다.", lineNumber);
 					continue;
 				}
 
 				// 할당
-				parsedReferences[i] = parsedReference.first;
+				parsedReferences.push(parsedReference.data);
 			}
 
 			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
 
-			Token[] result = TokenUtil.join(parsedReferences, 0, 2);
-			result[result.length - 1] = new Token(Token.Type.ARRAY_REFERENCE,
-					String.valueOf(parsedReferences.length));
-			result[result.length - 2] = syntax.array;
+			var result:Array<Token> = TokenTools.merge(parsedReferences);
+			result.push(syntax.array);
+			result.push(new Token(Token.Type.ARRAY_REFERENCE, String.valueOf(parsedReferences.length)));
 
 			// 리턴 타입은 어떤 타입이라도 될 수 있다.
 			return ParsedPair(result, "*");
-
 		}
 
 		/**
 		 * 캐스팅: stuff as number
 		 */
-		else if (Casting.match(tokens)) {
+		else if (CastingSyntax.match(tokens)) {
 
-			Casting syntax = Casting.analyze(tokens, lineNumber);
+			var syntax:CastingSyntax = CastingSyntax.analyze(tokens, lineNumber);
 
 			if (syntax == null)
 				return null;
 
 			// 캐스팅 대상을 파싱한 후 끝에 캐스팅 명령을 추가한다.
-			Pair<Token[], String> parsedTarget = parse(syntax.target, lineNumber);
+			var parsedTarget:ParsedPair = parseLine(syntax.target, lineNumber);
 
 			if (parsedTarget == null)
 				return null;
 
 			// 문자형으로 캐스팅
-			if (syntax.castingType.equals("string")) {
+			if (syntax.castingType == "string") {
 
 				// 아직은 숫자 -> 문자만 가능하다.
-				if (!parsedTarget.second.equals("number")) {
-					Debugger.error(Debugger.TypeError, "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
+				if (parsedTarget.type != "number") {
+					Debug.report("타입 오류", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
-
+				
+				var result:Array<Token> = parsedTarget.data;
+				result.push(Token.findByType(Token.Type.CAST_TO_STRING));
+				
 				// 캐스팅된 문자열을 출력
-				return ParsedPair(TokenUtil.join(parsedTarget.first, new Token[] { Token
-						.find(Token.Type.CAST_TO_STRING) }), "string");
-
+				return ParsedPair(result "string");
 			}
 
 			// 실수형으로 캐스팅
-			else if (syntax.castingType.equals("number")) {
+			else if (syntax.castingType == "number") {
 
 				// 아직은 문자 -> 숫자만 가능하다.
-				if (!parsedTarget.second.equals("string")) {
-					Debugger.error(Debugger.TypeError, "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
+				if (parsedTarget.type != "string") {
+					Debug.report("타입 오류", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
-
+	
+				var result:Array<Token> = parsedTarget.data;
+				result.push(Token.findByType(Token.Type.CAST_TO_NUMBER));
+				
 				// 캐스팅된 문자열을 출력
-				return ParsedPair(TokenUtil.join(parsedTarget.first, new Token[] { Token
-						.find(Token.Type.CAST_TO_NUMBER) }), "number");
+				return ParsedPair(result, "number");
 			}
 
 			// 그 외의 경우
@@ -1201,7 +1202,7 @@ class Parser {
 				}
 
 				// 표면적으로만 캐스팅한다. -> [경고] 실질적인 형 검사가 되지 않기 때문에 VM이 죽을 수도 있다.
-				return ParsedPair(parsedTarget.first, syntax.castingType);
+				return ParsedPair(parsedTarget.data, syntax.castingType);
 			}
 
 		}
@@ -1209,9 +1210,9 @@ class Parser {
 		/**
 		 * 접두형 단항 연산자: !(true) , ++a
 		 */
-		else if (Prefix.match(tokens)) {
+		else if (PrefixSyntax.match(tokens)) {
 
-			Prefix syntax = Prefix.analyze(tokens, lineNumber);
+			var syntax:PrefixSyntax = PrefixSyntax.analyze(tokens, lineNumber);
 
 			if (syntax == null)
 				return null;
@@ -1219,115 +1220,118 @@ class Parser {
 			// 뒤 항은 단항 ID만 가능하다.
 			if (syntax.operator.type == Token.Type.PREFIX_DECREMENT
 					|| syntax.operator.type == Token.Type.PREFIX_INCREMENT) {
-
+				
 				// 단항 ID가 아닐 경우
 				if (syntax.operand.length != 1 || syntax.operand[0].type != Token.Type.ID) {
-					Debugger.error(Debugger.TypeError, "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+					Debug.report("타입 오류", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}
 			}
 
 			// 피연산자를 파싱한다.
-			Pair<Token[], String> parsed = parse(syntax.operand, lineNumber);
+			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
 
-			if (parsed == null)
+			if (parsedOperand == null)
 				return null;
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
-			if (!(parsed.second.equals("number") || parsed.second.equals("*"))) {
-				Debugger.error(Debugger.TypeError, "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
+			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
+				Debug.report("타입 오류", "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
 				return null;
 			}
-
+			
+			var result:Array<Token> = parsedOperand.data;
+			result.push(syntax.operator);
+			
 			// 결과를 리턴한다.
-			return ParsedPair(TokenUtil.join(parsed.first, new Token[] { syntax.operator }), parsed.second);
-
+			return ParsedPair(result, parsedOperand.type);
 		}
 
 		/**
 		 * 접미형 단항 연산자: a++
 		 */
-		else if (Suffix.match(tokens)) {
+		else if (SuffixSyntax.match(tokens)) {
 
-			Suffix syntax = Suffix.analyze(tokens, lineNumber);
+			var syntax:SuffixSyntax = SuffixSyntax.analyze(tokens, lineNumber);
 
 			if (syntax == null)
 				return null;
 
 			// 단항 ID가 아닐 경우
 			if (syntax.operand.length != 1 || syntax.operand[0].type != Token.Type.ID) {
-				Debugger.error(Debugger.TypeError, "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+				Debug.report("타입 오류", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 				return null;
 			}
 
 			// 피연산자를 파싱한다.
-			Pair<Token[], String> parsed = parse(syntax.operand, lineNumber);
+			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
 
-			if (parsed == null)
+			if (parsedOperand == null)
 				return null;
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
-			if (!(parsed.second.equals("number") || parsed.second.equals("*"))) {
-				Debugger.error(Debugger.TypeError, "접미형 연산자 앞에는 실수형 데이터만 올 수 있습니다.", lineNumber);
+			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
+				Debug.report("타입 오류", "접미형 연산자 앞에는 실수형 데이터만 올 수 있습니다.", lineNumber);
 				return null;
 			}
 
+			var result:Array<Token> = parsedOperand.data;
+			result.push(syntax.operator);
+			
 			// 결과를 리턴한다.
-			return ParsedPair(TokenUtil.join(parsed.first, new Token[] { syntax.operator }), parsed.second);
-
+			return ParsedPair(result, parsedOperand.type);
 		}
 
 		/**
 		 * 이항 연산자: a+b
 		 */
-		else if (Infix.match(tokens)) {
+		else if (InfixSyntax.match(tokens)) {
 
-			Infix syntax = Infix.analyze(tokens, lineNumber);
+			var syntax:InfixSyntax = InfixSyntax.analyze(tokens, lineNumber);
 
 			// 양 항을 모두 파싱한다.
-			Pair<Token[], String> left = parse(syntax.left, lineNumber);
-			Pair<Token[], String> right = parse(syntax.right, lineNumber);
+			var left:ParsedPair = parseLine(syntax.left, lineNumber);
+			var right:ParsedPair = parseLine(syntax.right, lineNumber);
 
 			if (right == null || right == null)
 				return null;
 
 			// 와일드카드 처리, 와일드카드가 양 변에 한 쪽이라도 있으면
-			if (left.second.equals("*") || right.second.equals("*")) {
+			if (left.type == "*" || right.type == "*") {
 
 				// 와일드카드가 없는 쪽으로 통일한다.
-				if (!left.second.equals("*"))
-					right.second = left.second;
+				if (left.type != "*")
+					right.type = left.type;
 
-				else if (!right.second.equals("*"))
-					left.second = right.second;
+				else if (right.type != "*")
+					left.type = right.type;
 
 				// 모두 와일드카드라면
 				else {
-					Debugger.error(Debugger.TypeError, "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
+					Debug.report("타입 오류", "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
 					return null;
 				}
 			}
 
 			// 형 체크 프로세스: 두 항 타입이 같을 경우
-			if (left.second.equals(right.second)) {
+			if (left.type == right.type) {
 
 				// 만약 문자열에 대한 이항 연산이라면, 대입/더하기만 허용한다.
-				if (left.second.equals("string")) {
+				if (left.type == "string") {
 
 					// 산술 연산자를 문자열 연산자로 수정한다.
 					switch (syntax.operator.type) {
 					case ADDITION_ASSIGNMENT:
-						syntax.operator = Token.find(Token.Type.APPEND_ASSIGNMENT);
+						syntax.operator = Token.findByType(Token.Type.APPEND_ASSIGNMENT);
 						break;
 					case ADDITION:
-						syntax.operator = Token.find(Token.Type.APPEND);
+						syntax.operator = Token.findByType(Token.Type.APPEND);
 						break;
 
 					// 문자열 - 문자열 대입이면 SDW명령을 활성화시킨다.
 					case ASSIGNMENT:
 						syntax.operator.value = "string";
-					case EQUAL_TO:
-					case NOT_EQUAL_TO:
+					case EQUAL_TO, NOT_EQUAL_TO:
 						break;
 					default:
 						Debug.report("구문 오류", "이 연산자로 문자열 연산을 수행할 수 없습니다.", lineNumber);
@@ -1337,7 +1341,7 @@ class Parser {
 				}
 
 				// 숫자에 대한 이항 연산일 경우
-				else if (left.second.equals("number")) {
+				else if (left.type == "number") {
 
 					switch (syntax.operator.type) {
 					// 실수형 - 실수형 대입이면 NDW명령을 활성화시킨다.
@@ -1373,26 +1377,24 @@ class Parser {
 				case ADDITION:
 
 					// 문자 + 숫자
-					if (left.second.equals("string") && right.second.equals("number")) {
+					if (left.type == "string" && right.type == "number") {
 
-						right.first = TokenUtil.join(right.first, new Token[] { Token
-								.find(Token.Type.CAST_TO_STRING) });
-						right.second = "string";
+						right.data.push(Token.findByType(Token.Type.CAST_TO_STRING));
+						right.type = "string";
 
 						// 연산자를 APPEND로 수정한다.
-						syntax.operator = Token.find(Token.Type.APPEND);
+						syntax.operator = Token.findByType(Token.Type.APPEND);
 
 					}
 
 					// 숫자 + 문자
-					else if (right.second.equals("string") && left.second.equals("number")) {
+					else if (left.type == "number" && right.type == "string") {
 
-						left.first = TokenUtil.join(left.first, new Token[] { Token
-								.find(Token.Type.CAST_TO_STRING) });
-						left.second = "string";
+						left.data.push(Token.findByType(Token.Type.CAST_TO_STRING));
+						left.type = "string";
 
 						// 연산자를 APPEND로 수정한다.
-						syntax.operator = Token.find(Token.Type.APPEND);
+						syntax.operator = Token.findByType(Token.Type.APPEND);
 
 					}
 
@@ -1409,10 +1411,11 @@ class Parser {
 			}
 
 			// 형 체크가 끝나면 좌, 우 변을 잇고 리턴한다.
-			Token[] result = TokenUtil
-					.join(left.first, right.first, new Token[] { syntax.operator });
-			return ParsedPair(result, right.second);
-
+			var result:Array<Token> = left.data;
+			result.push(right.data);
+			result.push(syntax.operator);
+			
+			return ParsedPair(result, right.type);
 		}
 
 		Debug.report("구문 오류", "연산자가 없는 식입니다.", lineNumber);
@@ -1591,6 +1594,44 @@ class Parser {
 			option.parentClass.members = members;
 		}
 	}	
+	
+	/**
+	 * 다다음 인덱스에 이어지는 조건문이 존재하는지 확인한다.
+	 * 
+	 * 
+	 * @param tree
+	 * @param index
+	 * @return
+	 */
+	private function hasNextConditional(tree:Lextree, index:Int):Bool {
+
+		// 다다음 인덱스가 존재하고,
+		if (index + 2 < tree.branch.length) {
+
+			var possibleBranch:Lextree = tree.branch[index + 2];
+			if (!possibleBranch.hasBranch && possibleBranch.lexData.length > 0) {
+				var firstToken:Token = possibleBranch.lexData[0];
+
+				// 이어지는 조건문이 있을 경우
+				if (firstToken.type == Token.Type.ELSE || firstToken.type == Token.Type.ELSE_IF)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 다음 코드 블록이 존재하는지의 여부를 리턴한다.
+	 * 
+	 * @param tree
+	 * @param index
+	 * @return
+	 */
+	private function hasNextBlock(tree:Lextree, index:Int):Bool {
+		if ((!(index < tree.branch.length)) || !tree.branch[index + 1].hasBranch)
+			return false;
+		return true;
+	}
 	
 }
 
