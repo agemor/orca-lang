@@ -2,13 +2,15 @@ package elsa;
 
 import elsa.debug.Debug;
 import elsa.Lexer.Lextree;
+import elsa.nlib.NativeLibrary;
 import elsa.Parser.Instruction;
 import elsa.Parser.ParsedPair;
 import elsa.Parser.ParseOption;
 import elsa.Parser.ScanOption;
 import elsa.Symbol.Function;
-import elsa.Symbol.Literal;
+import elsa.Symbol.Class;
 import elsa.Symbol.Variable;
+import elsa.Symbol.Literal;
 import elsa.syntax.ArrayReferenceSyntax;
 import elsa.syntax.ArraySyntax;
 import elsa.syntax.CastingSyntax;
@@ -80,6 +82,7 @@ class Parser {
 		flagCount = 0;
 
 		// 네이티브 라이브러리를 로드한다.
+		NativeLibrary.initialize();
 		NativeLibrary.load(symbolTable);
 		
 		// 어휘 트리를 취득한다.
@@ -95,10 +98,10 @@ class Parser {
 		// 리터럴을 어셈블리에 쓴다.
 		for ( i in symbolTable.literal.length) {
 			
-			var literal:Symbol.Literal = symbolTable.literal[i];
+			var literal:Literal = symbolTable.literal[i];
 			
 			// 실수형 리터럴인 경우
-			if (literal.type == Symbol.Literal.NUMBER) {
+			if (literal.type == Literal.NUMBER) {
 				assembly.writeCode("SNA @" + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
@@ -106,7 +109,7 @@ class Parser {
 			}
 
 			// 문자형 리터럴인 경우
-			else if (literal.type == Symbol.Literal.STRING) {
+			else if (literal.type == Literal.STRING) {
 				assembly.writeCode("SSA @" + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
@@ -202,11 +205,11 @@ class Parser {
 					continue;
 				}
 
-				var variable:Symbol.Variable = null;
+				var variable:Variable = null;
 
 				// 구조체 정의인 경우 이미 스캔이 된 상태이므로 테이블에서 불러온다.
 				if (option.inStructure) {
-					variable = cast(symbolTable.findInLocal(syntax.variableName.value), Symbol.Variable);
+					variable = cast(symbolTable.findInLocal(syntax.variableName.value), Variable);
 				}
 
 				// 구조체 정의가 아닌 경우 변수 심볼을 생성하고 테이블에 추가한다.
@@ -218,7 +221,7 @@ class Parser {
 						continue;
 					}
 
-					variable = new Symbol.Variable(syntax.variableName.value, syntax.variableType.value);
+					variable = new Variable(syntax.variableName.value, syntax.variableType.value);
 					symbolTable.add(variable);
 				}
 
@@ -260,7 +263,7 @@ class Parser {
 				if (syntax == null)	continue;
 
 				// 테이블에서 함수 심볼을 가져온다. (이미 스캐닝 과정에서 함수가 테이블에 등록되었으므로)
-				var functn:Symbol.Function = cast(symbolTable.find(syntax.name.value), Symbol.Function);
+				var functn:Function = cast(symbolTable.find(syntax.name.value), Function);
 
 				// 함수 토큰을 태그한다.
 				syntax.functionName.setTag(functn);
@@ -335,7 +338,7 @@ class Parser {
 				if (option.inStructure) {
 
 					// 클래스 정의를 취득한다.
-					var classs:Symbol.Class = cast(symbolTable.findInLocal(syntax.className.value), Symbol.Class);
+					var classs:Class = cast(symbolTable.findInLocal(syntax.className.value), Class);
 
 					var innerScanOption:ScanOption = new ScanOption();
 					innerScanOption.inStructure = true;
@@ -523,7 +526,7 @@ class Parser {
 				
 
 				// 증감 변수를 생성한다.
-				var counter:Symbol.Variable = new Symbol.Variable(syntax.counter.value, "number");
+				var counter:Variable = new Variable(syntax.counter.value, "number");
 				counter.initialized = true;
 
 				// 증감 변수를 태그한다.
@@ -573,7 +576,7 @@ class Parser {
 
 				// 증감자의 값에서 -1을 해 준다.
 				assembly.writeCode("OPR 1, 2, @" + Std.string(counter.address) + ", @"
-						+ Std.string(symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address));
+						+ Std.string(symbolTable.getLiteral("1", Literal.NUMBER).address));
 				assembly.writeCode("NDW @" + Std.string(counter.address) + ", &1");
 
 				// 귀환 플래그를 심는다.
@@ -581,7 +584,7 @@ class Parser {
 
 				// 증감자 증감
 				assembly.writeCode("OPR 1, 1, @" + Std.string(counter.address) + ", @"
-						+ Std.string(symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address));
+						+ Std.string(symbolTable.getLiteral("1", Literal.NUMBER).address));
 				assembly.writeCode("NDW @" + Std.string(counter.address) + ", &1");
 
 				// 조건문이 거짓이면 탈출 플래그로 이동
@@ -785,28 +788,28 @@ class Parser {
 				}
 
 				// 심볼 테이블에서 변수를 취득한다.
-				var variable:Symbol.Variable = cast(tokens[0].getTag(), Symbol.Variable);
+				var variable:Variable = cast(tokens[0].getTag(), Variable);
 
 				return new ParsedPair(tokens, variable.type);
 			}
 
 			// 리터럴 값
-			var literal:Symbol.Literal;
+			var literal:Literal;
 
 			switch (tokens[0].type) {
 
 			// true/false 토큰은 각각 1/0으로 처리한다.
 			case TRUE:
-				literal = symbolTable.getLiteral("1", Symbol.Literal.NUMBER);
+				literal = symbolTable.getLiteral("1", Literal.NUMBER);
 				break;
 			case FALSE:
-				literal = symbolTable.getLiteral("0", Symbol.Literal.NUMBER);
+				literal = symbolTable.getLiteral("0", Literal.NUMBER);
 				break;
 			case NUMBER:
-				literal = symbolTable.getLiteral(tokens[0].value, Symbol.Literal.NUMBER);
+				literal = symbolTable.getLiteral(tokens[0].value, Literal.NUMBER);
 				break;
 			case STRING:
-				literal = symbolTable.getLiteral(tokens[0].value, Symbol.Literal.STRING);
+				literal = symbolTable.getLiteral(tokens[0].value, Literal.STRING);
 				break;
 			default:
 				Debug.report("구문 오류", "심볼의 타입을 찾을 수 없습니다.", lineNumber);
@@ -840,7 +843,7 @@ class Parser {
 			}
 
 			// 심볼 테이블에서 프로시저를 취득한다.
-			var functn:Symbol.Function = cast(syntax.functionName.getTag(), Symbol.Function);
+			var functn:Function = cast(syntax.functionName.getTag(), Function);
 
 			// 매개 변수의 수 일치를 확인한다.
 			if (functn.parameters.length != syntax.functionArguments.length) {
@@ -948,7 +951,7 @@ class Parser {
 			}
 
 			// 오브젝트 심볼 취득
-			var targetClass:Symbol.Class = cast(symbolTable.find(syntax.instanceType.value), Symbol.Class);
+			var targetClass:Class = cast(symbolTable.find(syntax.instanceType.value), Class);
 
 			// 토큰에 오브젝트 태그
 			syntax.instanceType.setTag(targetClass);
@@ -974,7 +977,7 @@ class Parser {
 			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
 
 			// 컨텍스트
-			var targetClass:Symbol.Class = null;
+			var targetClass:Class = null;
 
 			// 리턴 타입
 			var returnType:String = null;
@@ -1016,7 +1019,7 @@ class Parser {
 					return null;
 
 				// targetClass 업데이트
-				targetClass = cast(symbolTable.findInLocal(parsedReference.type), Symbol.Class);
+				targetClass = cast(symbolTable.findInLocal(parsedReference.type), Class);
 
 				// 컨텍스트 로드 토큰
 				var loadContext:Token = new Token(Token.Type.LOAD_CONTEXT);
@@ -1072,7 +1075,7 @@ class Parser {
 				syntax.array.setTag(symbolTable.findInLocal(syntax.array.value));
 			}
 
-			var array:Symbol.Variable = cast(syntax.array.getTag(), Symbol.Variable);
+			var array:Variable = cast(syntax.array.getTag(), Variable);
 
 			// 변수가 배열이 아닐 경우
 			if (array.type != "array") {
@@ -1470,7 +1473,7 @@ class Parser {
 					continue;
 
 				// 변수 심볼을 생성한다.
-				var variable:Symbol.Variable = new Symbol.Variable(syntax.variableName.value, syntax.variableType.value);
+				var variable:Variable = new Variable(syntax.variableName.value, syntax.variableType.value);
 
 				// 이미 사용되고 있는 변수인지 체크
 				if (symbolTable.isValidVariableID(variable.id)) {
@@ -1498,7 +1501,7 @@ class Parser {
 
 				Debug.supressError(false);
 				
-				var parameters:Array<Symbol.Variable> = new Array<Symbol.Variable>();
+				var parameters:Array<Variable> = new Array<Variable>();
 
 				// 매개 변수 정의가 존재하면
 				if (syntax.parameters != null) {
@@ -1530,7 +1533,7 @@ class Parser {
 						}
 
 						// 매개 변수 심볼을 생성한다
-						var parameter:Symbol.Variable = new Symbol.Variable(syntax.parameterName.value, syntax.parameterType.value);
+						var parameter:Variable = new Variable(syntax.parameterName.value, syntax.parameterType.value);
 
 						parameterSyntax.parameterName.setTag(parameter);
 
@@ -1540,7 +1543,7 @@ class Parser {
 					}
 				}
 				
-				var functn:Symbol.Function = new Symbol.Function(syntax.functionName.value, syntax.returnType.value, parameters);
+				var functn:Function = new Function(syntax.functionName.value, syntax.returnType.value, parameters);
 
 				// 프로시져를 심볼 테이블에 추가한다.
 				symbolTable.add(functn);
@@ -1572,7 +1575,7 @@ class Parser {
 				}
 
 				// 오브젝트를 심볼 테이블에 추가한다.
-				var classs:Symbol.Class = new Symbol.Class(syntax.className.value);
+				var classs:Class = new Class(syntax.className.value);
 
 				symbolTable.add(classs);
 
@@ -1671,7 +1674,7 @@ class ParseOption {
 	/**
 	 * 함수 내부일 경우의 함수 참조
 	 */
-	public var parentFunction:Symbol.Function;
+	public var parentFunction:Function;
 	
 	/**
 	 * 파싱 옵션 복사
@@ -1707,7 +1710,7 @@ class ScanOption {
 	/**
 	 * 함수 내부일 경우의 함수 참조
 	 */
-	public var parentClass:Symbol.Class;
+	public var parentClass:Class;
 	
 	/**
 	 * 스캔 옵션 복사
