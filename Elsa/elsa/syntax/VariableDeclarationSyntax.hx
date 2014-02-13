@@ -33,7 +33,7 @@ class VariableDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.VARIABLE)
+		if (tokens.length > 0 && tokens[0].type == Type.VARIABLE)
 			return true;
 		return false;
 	}
@@ -53,19 +53,19 @@ class VariableDeclarationSyntax implements Syntax {
 		}
 
 		// 식별자가 ID형식인지 검사한다.
-		if (tokens[1].type != Token.Type.ID) {
+		if (tokens[1].type != Type.ID) {
 			Debug.report("구문 오류", "변수의 식별자가 올바르지 않습니다.", lineNumber);
 			return null;
 		}
 
 		// 콜론의 사용이 올바른지 체크한다.
-		if (tokens[2].type != Token.Type.COLON) {
+		if (tokens[2].type != Type.COLON) {
 			Debug.report("구문 오류", "데이터 타입을 지정하기 위한 콜론(':')이 필요합니다.", lineNumber);
 			return null;
 		}
 
 		// 변수 타입이 ID형식인지 검사한다.
-		if (tokens[3].type != Token.Type.ID) {
+		if (tokens[3].type != Type.ID) {
 			Debug.report("구문 오류", "변수의 타입이 올바르지 않습니다.", lineNumber);
 			return null;
 		}
@@ -75,7 +75,7 @@ class VariableDeclarationSyntax implements Syntax {
 		if (tokens.length > 5) {
 
 			// 초기화문의 형식을 갖추었을 경우
-			if (tokens[4].type == Token.Type.ASSIGNMENT) {
+			if (tokens[4].type == Type.ASSIGNMENT) {
 				hasInitializer = true;
 			}
 
@@ -88,7 +88,12 @@ class VariableDeclarationSyntax implements Syntax {
 			Debug.report("구문 오류", "변수 선언문의 끝에 불필요한 추가 문자가 있습니다.", lineNumber);
 			return null;
 		}
-
-		return new VariableDeclarationSyntax(tokens[1], tokens[3], hasInitializer ? tokens.slice(4, tokens.length).insert(0, tokens[1]) : null);
+		
+		var result:Array<Token> = null;
+		if (hasInitializer){
+			result = tokens.slice(4, tokens.length);
+			result.insert(0, tokens[1]);
+		}
+		return new VariableDeclarationSyntax(tokens[1], tokens[3], hasInitializer ? result : null);
 	}
 }

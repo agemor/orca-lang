@@ -30,6 +30,8 @@ class Variable extends Symbol {
 	public var initialized:Bool = false;
 
 	public function new(id:String, type:String) { 
+		super();
+		
 		this.id = id;
 		this.type = type;
 	}
@@ -84,6 +86,8 @@ class Function extends Symbol {
 	public var nativeFunction:NativeFunction;
 	
 	public function new(id:String, type:String, parameters:Array<Variable> = null) {
+		super();
+		
 		this.id = id;
 		this.type = type;
 	}
@@ -111,6 +115,8 @@ class Class extends Symbol {
 	public var members:Array<Symbol>;
 	
 	public function new(id:String) {
+		super();
+		
 		this.id = id;
 	}
 
@@ -141,6 +147,8 @@ class Literal extends Symbol {
 	public var value:String;
 
 	public function new(value:String, type:String) {
+		super();
+		
 		this.value = value;
 		this.type = type;
 	}

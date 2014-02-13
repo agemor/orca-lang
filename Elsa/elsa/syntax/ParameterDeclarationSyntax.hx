@@ -26,7 +26,7 @@ class ParameterDeclarationSyntax implements Syntax {
 	 */
 	public static function match(tokens:Array<Token>):Bool {
 		if (tokens.length == 3)
-			if (tokens[0].type == Token.Type.ID && tokens[1].type == Token.Type.COLON &&tokens[2].type == Token.Type.ID)
+			if (tokens[0].type == Type.ID && tokens[1].type == Type.COLON &&tokens[2].type == Type.ID)
 				return true;
 		return false;
 	}

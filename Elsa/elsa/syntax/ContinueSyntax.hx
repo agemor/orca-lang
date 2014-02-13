@@ -20,7 +20,7 @@ class ContinueSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.CONTINUE)
+		if (tokens.length > 0 && tokens[0].type == Type.CONTINUE)
 			return true;
 		return false;
 	}

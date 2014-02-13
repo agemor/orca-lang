@@ -34,7 +34,7 @@ class ArrayReferenceSyntax implements Syntax {
 		if (indexOfLPO < 0)
 			return false;
 
-		if (tokens[indexOfLPO].type != Token.Type.ARRAY_OPEN)
+		if (tokens[indexOfLPO].type != Type.ARRAY_OPEN)
 			return false;
 			
 		return true;
@@ -47,21 +47,21 @@ class ArrayReferenceSyntax implements Syntax {
 	 * @param	lineNumber
 	 * @return
 	 */
-	public static function analyze(tokens:Array<Token>, lineNumber:Int):ArraySyntax {
+	public static function analyze(tokens:Array<Token>, lineNumber:Int):ArrayReferenceSyntax {
 
 		var depth:Int = 0;
 		var seperations:Array<Int> = new Array<Int>();
 
 		for ( i in 0...tokens.length) { 
-			if (tokens[i].type == Token.Type.ARRAY_OPEN) {
+			if (tokens[i].type == Type.ARRAY_OPEN) {
 				if (depth == 0)
-					seperations.add(i);
+					seperations.push(i);
 				depth++;
 			}
 
-			else if (tokens[i].type == Token.Type.ARRAY_CLOSE) {
+			else if (tokens[i].type == Type.ARRAY_CLOSE) {
 				if (depth == 1)
-					seperations.add(i);
+					seperations.push(i);
 				depth--;
 			}
 		}
@@ -77,7 +77,7 @@ class ArrayReferenceSyntax implements Syntax {
 		}
 
 		// 대상 변수의 타입이 ID가 아닐 경우 에러 발생
-		if (tokens[0].type != Token.Type.ID) {
+		if (tokens[0].type != Type.ID) {
 			Debug.report("구문 오류", "유효하지 않은 배열입니다.", lineNumber);	
 			return null;
 		}

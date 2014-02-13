@@ -46,7 +46,7 @@ class SymbolTable {
 	public function add(symbol:Symbol):Symbol {
 
 		// 맵에 추가한다.
-		local.se(symbol.id, symbol);
+		local.set(symbol.id, symbol);
 		global.set(availableAddress++, symbol);
 
 		// 메모리 어드레스 할당
@@ -103,7 +103,7 @@ class SymbolTable {
 		
 		// 로컬 스코프에서 찾을 수 있으면 유효한 id이다.
 		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), Symbol.Variable)
+			if (Std.is(findInLocal(id), Symbol.Variable))
 				return true;
 				
 		return false;
@@ -119,7 +119,7 @@ class SymbolTable {
 
 		// 로컬 스코프에서 찾을 수 있으면 유효한 id이다.
 		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), Symbol.Function)
+			if (Std.is(findInLocal(id), Symbol.Function))
 				return true;
 
 		return false;
@@ -138,7 +138,7 @@ class SymbolTable {
 
 		// 커스텀 타입일 경우 심볼 테이블에서 찾아 유효성을 검증한다.
 		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), Symbol.Class)
+			if (Std.is(findInLocal(id), Symbol.Class))
 				return true;
 				
 		return false;

@@ -46,14 +46,14 @@ class SuffixSyntax implements Syntax {
 	 * @param	lineNumber
 	 * @return
 	 */
-	public static function analyze(tokens:Array<Token>, lineNumber:Int):PrefixSyntax {
+	public static function analyze(tokens:Array<Token>, lineNumber:Int):SuffixSyntax {
 		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
-			if (tokens[i - 1].type == Token.Type.SHELL_OPEN)
+			if (tokens[i - 1].type == Type.SHELL_OPEN)
 				depth++;
-			else if (tokens[i - 1].type == Token.Type.SHELL_CLOSE)
+			else if (tokens[i - 1].type == Type.SHELL_CLOSE)
 				depth--;
 		}
 
@@ -65,6 +65,6 @@ class SuffixSyntax implements Syntax {
 		if (depth != 0)
 			return null;
 
-		return new PrefixSyntax(tokens[LPOIndex], tokens.slice(0, LPOIndex));
+		return new SuffixSyntax(tokens[indexOfLPO], tokens.slice(0, indexOfLPO));
 	}
 }

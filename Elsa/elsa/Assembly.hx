@@ -116,9 +116,7 @@ class Assembly {
 				writeCode("POP 0");
 				writeCode("OPR 1, " + getOperatorNumber(token.type) + ", &0");
 				writeCode("PSH &1");
-
-				break;
-
+				
 			// 값을 증감시킨 다음 푸쉬한다.
 			case PREFIX_DECREMENT, PREFIX_INCREMENT:
 
@@ -127,9 +125,7 @@ class Assembly {
 						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
 				writeCode("NDW &0, &1");
 				writeCode("PSH &0");
-
-				break;
-
+				
 			// 값을 푸쉬한 다음 증감시킨다.
 			case SUFFIX_DECREMENT, SUFFIX_INCREMENT:
 
@@ -138,8 +134,6 @@ class Assembly {
 				writeCode("OPR 1, " + (token.type == Token.Type.PREFIX_INCREMENT ? 1 : 2) + ", &0, @"
 						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
 				writeCode("NDW &0, &1");
-
-				break;
 
 			// 이항 연산자
 			case ADDITION, SUBTRACTION, DIVISION,
@@ -155,8 +149,6 @@ class Assembly {
 				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", &1, &0");
 				writeCode("PSH &2");
 
-				break;
-
 			// 이항 연산 후 대입 연산자
 			case ADDITION_ASSIGNMENT, SUBTRACTION_ASSIGNMENT, DIVISION_ASSIGNMENT,
 				 MULTIPLICATION_ASSIGNMENT, MODULO_ASSIGNMENT, BITWISE_AND_ASSIGNMENT,
@@ -168,8 +160,6 @@ class Assembly {
 				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", &1, &0");
 				writeCode("NDW &1, &2");
 
-				break;
-
 			// NDW -> SDW
 			case APPEND_ASSIGNMENT:
 
@@ -177,8 +167,6 @@ class Assembly {
 				writeCode("POP 1");
 				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", &1, &0");
 				writeCode("SDW &1, &2");
-
-				break;
 
 			// 이항 대입 연산자
 			case ASSIGNMENT:
@@ -193,22 +181,17 @@ class Assembly {
 				case "number":
 
 					writeCode("NDW &1 ,&0");
-					break;
 
 				// 문자형
 				case "string":
 
 					writeCode("SDW &1 ,&0");
-					break;
 
 				// 레퍼런스형
 				case "reference":
 
 					writeCode("RDW &1 ,&0");
-					break;
 				}
-
-				break;
 
 			// 배열 참조 연산자
 			case ARRAY_REFERENCE:
@@ -232,8 +215,6 @@ class Assembly {
 
 				// 결과를 메인 스택에 집어넣는다.
 				writeCode("PSH &0");
-
-				break;
 
 			// 함수 호출 / 어드레스 등의 역할
 			case ID:
@@ -305,8 +286,6 @@ class Assembly {
 
 				// 리터럴의 값을 추가한다.
 				writeCode("PSH @" + literal.address);
-				
-				break;
 
 			case LOAD_CONTEXT:
 
@@ -330,9 +309,7 @@ class Assembly {
 					// 공유 맴버의 레퍼런스를 업데이트한다.
 					writeCode("RDW " + member.address + ", &1");
 				}
-
-				break;
-
+				
 			case ARRAY:
 
 				// 현재 토큰의 값이 인수의 갯수가 된다.
@@ -352,8 +329,6 @@ class Assembly {
 
 				// 배열을 리턴한다.
 				writeCode("PSH &0");
-
-				break;
 
 			case writeCodeTANCE:
 
@@ -392,10 +367,6 @@ class Assembly {
 
 				// 배열을 리턴한다.
 				writeCode("PSH &0");
-
-				break;
-			default:
-				break;
 			}
 		}
 	}
@@ -428,10 +399,10 @@ class Instruction {
 	
 	public static var STATIC_STRING_ALLOCATION:String = "SSA";
 	public static var STATIC_NUMBER_ALLOCATION:String = "SNA";
-	public static var STATIC_ARRAY_ALLOCATION:String = "SAA"
+	public static var STATIC_ARRAY_ALLOCATION:String = "SAA";
 	public static var DYNAMIC_STRING_ALLOCATION:String = "DSA";
 	public static var DYNAMIC_NUMBER_ALLOCATION:String = "DNA";
-	public static var DYNAMIC_ARRAY_ALLOCATION:String = "DAA"	
+	public static var DYNAMIC_ARRAY_ALLOCATION:String = "DAA";	
 	public static var NUMBER_DATA_WRITING:String = "NDW";
 	public static var STRING_DATA_WRITING:String = "SDW";
 	public static var REFERENCE_DATA_WRITING:String = "RDW";

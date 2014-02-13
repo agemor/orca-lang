@@ -1,6 +1,7 @@
 package elsa.syntax;
 
 import elsa.Token;
+import elsa.Token.Type;
 
 /**
  * Return 구문 패턴
@@ -24,7 +25,7 @@ class ReturnSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.RETURN)
+		if (tokens.length > 0 && tokens[0].type == Type.RETURN)
 			return true;
 		return false;
 	}

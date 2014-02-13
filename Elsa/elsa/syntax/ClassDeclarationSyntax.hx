@@ -26,7 +26,7 @@ class ClassDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.CLASS)
+		if (tokens.length > 0 && tokens[0].type == Type.CLASS)
 			return true;
 		return false;
 	}
@@ -47,7 +47,7 @@ class ClassDeclarationSyntax implements Syntax {
 		}
 
 		// 식별자가 ID형식인지 검증한다.
-		if (tokens[1].type != Token.Type.ID) {
+		if (tokens[1].type != Type.ID) {
 			Debug.report("구문 오류", "오브젝트의 식별자가 올바르지 않습니다.", lineNumber);		
 			return null;
 		}

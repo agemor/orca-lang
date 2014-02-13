@@ -26,7 +26,7 @@ class IfSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.IF)
+		if (tokens.length > 0 && tokens[0].type == Type.IF)
 			return true;
 		return false;
 	}
@@ -47,13 +47,13 @@ class IfSyntax implements Syntax {
 		}
 
 		// 괄호로 시작하는지 확인한다
-		if (tokens[1].type != Token.Type.SHELL_OPEN) {
+		if (tokens[1].type != Type.SHELL_OPEN) {
 			Debug.report("구문 오류", "괄호 열기 문자('(')가 부족합니다.", lineNumber);
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
-		if (tokens[tokens.length - 1].type != Token.Type.SHELL_CLOSE) {
+		if (tokens[tokens.length - 1].type != Type.SHELL_CLOSE) {
 			Debug.report("구문 오류", "괄호가 닫히지 않았습니다.", lineNumber);
 			return null;
 		}

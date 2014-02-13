@@ -14,9 +14,9 @@ import elsa.debug.Debug;
 class FunctionCallSyntax implements Syntax {
 
 	public var functionName:Token;
-	public var functionArguments:Array<Token>;
+	public var functionArguments:Array<Array<Token>>;
 	
-	public function new(functionName:Token, functionArguments:Array<Token>) {
+	public function new(functionName:Token, functionArguments:Array<Array<Token>>) {
 		this.functionName = functionName;
 		this.functionArguments = functionArguments;
 	}	
@@ -31,10 +31,10 @@ class FunctionCallSyntax implements Syntax {
 		if (tokens.length >= 3)
 		
 			// 토큰열의 머리 부분을 체크한다.
-			if (tokens[0].type == Token.Type.ID)
+			if (tokens[0].type == Type.ID)
 			
 				// 괄호 조건을 만족하는지 체크한다.
-				if (tokens[1].type == Token.Type.SHELL_OPEN)
+				if (tokens[1].type == Type.SHELL_OPEN)
 					if (TokenTools.indexOfShellClose(tokens, 2) == tokens.length - 1)
 						return true;
 

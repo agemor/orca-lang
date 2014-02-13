@@ -31,7 +31,7 @@ class MemberReferenceSyntax implements Syntax {
 		if (indexOfLPO < 0)
 			return false;
 
-		if (tokens[indexOfLPO].type == Token.Type.DOT)
+		if (tokens[indexOfLPO].type == Type.DOT)
 			return true;
 			
 		return false;
@@ -45,6 +45,6 @@ class MemberReferenceSyntax implements Syntax {
 	 * @return
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):MemberReferenceSyntax {
-		return new MemberReferenceSyntax(TokenTools.split(tokens, Token.Type.DOT, true));
+		return new MemberReferenceSyntax(TokenTools.split(tokens, Type.DOT, true));
 	}
 }

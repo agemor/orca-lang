@@ -51,9 +51,9 @@ class PrefixSyntax implements Syntax {
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
-			if (tokens[i - 1].type == Token.Type.SHELL_OPEN)
+			if (tokens[i - 1].type == Type.SHELL_OPEN)
 				depth++;
-			else if (tokens[i - 1].type == Token.Type.SHELL_CLOSE)
+			else if (tokens[i - 1].type == Type.SHELL_CLOSE)
 				depth--;
 		}
 
@@ -65,6 +65,6 @@ class PrefixSyntax implements Syntax {
 		if (depth != 0)
 			return null;
 
-		return new PrefixSyntax(tokens[LPOIndex], tokens.slice(LPOIndex + 1, tokens.length));
+		return new PrefixSyntax(tokens[indexOfLPO], tokens.slice(indexOfLPO + 1, tokens.length));
 	}
 }

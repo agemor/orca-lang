@@ -44,7 +44,7 @@ class Optimizer {
 			}
 			// 라벨 플래그 생성이라면
 			if (lines[i].substring(0, 5) == "FLG %")
-				flags.set(Integer.parseInt(lines[i].substring(5)), totalLines);
+				flags.set(Std.parseInt(lines[i].substring(5)), totalLines);
 			else
 				totalLines++;
 
@@ -76,8 +76,8 @@ class Optimizer {
 		for (i in 0...lines.length) { 
 			if (lines[i].length < 1)
 				continue;
-			if (!lines[i].substring(0, 3) == "FLG")
-				buffer += line + "\n";
+			if (lines[i].substring(0, 3) == "FLG")
+				buffer += lines[i] + "\n";
 		}
 
 		return buffer;

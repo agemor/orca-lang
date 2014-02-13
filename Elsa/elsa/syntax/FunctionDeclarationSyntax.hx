@@ -16,9 +16,9 @@ class FunctionDeclarationSyntax implements Syntax {
 	public var functionName:Token;
 	public var returnType:Token;
 
-	public var parameters:Array<Token>;
+	public var parameters:Array<Array<Token>>;
 	
-	public function new(functionName:Token, returnType:Token, parameters:Array<Token> = null) {
+	public function new(functionName:Token, returnType:Token, parameters:Array<Array<Token>> = null) {
 		this.functionName = functionName;
 		this.returnType = returnType;
 		this.parameters = parameters;
@@ -31,7 +31,7 @@ class FunctionDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Token.Type.FUNCTION)
+		if (tokens.length > 0 && tokens[0].type == Type.FUNCTION)
 			return true;
 		return false;
 	}
@@ -54,7 +54,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		// 함수 구성 요소
 		var functionName:Token;
 		var returnType:Token;
-		var parameters:Array<Token>;
+		var parameters:Array<Array<Token>> = null;
 
 		// 선언문이 너무 짧을 경우
 		if (tokens.length < 6) {
@@ -69,7 +69,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		}
 
 		// 식별자가 ID형식인지 검사한다.
-		if (tokens[1].type != Token.Type.ID) {
+		if (tokens[1].type != Type.ID) {
 			Debug.report("구문 오류", "프로시져의 식별자가 올바르지 않습니다.", lineNumber);	
 			return null;
 		}
@@ -81,12 +81,12 @@ class FunctionDeclarationSyntax implements Syntax {
 		if (isOmittedForm) {
 
 			// 프로시져의 리턴 타입을 취득한다.
-			if (tokens[2].type != Token.Type.COLON) {
+			if (tokens[2].type != Type.COLON) {
 				Debug.report("구문 오류", "프로시져의 리턴 타입을 지정하기 위한 콜론이 없습니다.", lineNumber);
 				return null;
 			}
 
-			if (tokens[3].type != Token.Type.ID) {
+			if (tokens[3].type != Type.ID) {
 				Debug.report("구문 오류", "프로시져의 리턴 타입이 올바르지 않습니다.", lineNumber);
 				return null;
 			}
@@ -99,7 +99,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		else {
 
 			// 괄호로 열려 있어야 한다.
-			if (tokens[2].type != Token.Type.SHELL_OPEN) {
+			if (tokens[2].type != Type.SHELL_OPEN) {
 				Debug.report("구문 오류", "프로시저의 매개 변수 정의는 반드시 괄호 안에 있어야 합니다.", lineNumber);
 				return null;
 			}
@@ -119,12 +119,12 @@ class FunctionDeclarationSyntax implements Syntax {
 				hasParameters = true;
 
 			// 프로시져 타입을 취득한다.
-			if (tokens[tokens.length - 2].type != Token.Type.COLON) {
+			if (tokens[tokens.length - 2].type != Type.COLON) {
 				Debug.report("구문 오류", "프로시져의 리턴 타입을 지정하기 위한 콜론이 없습니다.", lineNumber);
 				return null;
 			}
 
-			if (tokens[tokens.length - 1].type != Token.Type.ID) {
+			if (tokens[tokens.length - 1].type != Type.ID) {
 				Debug.report("구문 오류", "프로시져의 리턴 타입이 올바르지 않습니다.", lineNumber);
 				return null;
 			}
@@ -132,6 +132,6 @@ class FunctionDeclarationSyntax implements Syntax {
 			returnType = tokens[tokens.length - 1];
 		}
 
-		return new FunctionDeclaration(functionName, returnType, hasParameters ? parameters : null);
+		return new FunctionDeclarationSyntax(functionName, returnType, hasParameters ? parameters : null);
 	}
 }

@@ -26,9 +26,9 @@ class NativeLibrary {
 		classes = new Array<NativeClass>();
 		functions = new Array<NativeFunction>();
 
-		var number:NativeClass = new NativeClass("number");
-		var string:NativeClass = new NativeClass("string");
-		var array:NativeClass = new NativeClass("array");
+		var number:NativeClass = new NativeClass("number", []);
+		var string:NativeClass = new NativeClass("string", []);
+		var array:NativeClass = new NativeClass("array", []);
 
 		var print:NativeFunction = new NativeFunction("print", ["string"], "void");
 		print.write("POP 0");
@@ -45,14 +45,12 @@ class NativeLibrary {
 		addFunction(whoami);
 	}
 
-	public NativeLibrary() { }
-
 	/**
 	 * 네이티브 라이브러리에 클래스를 추가한다.
 	 * 
 	 * @param	nativeClass
 	 */
-	public static function addClass(nativeClass:NativeClass):void {
+	public static function addClass(nativeClass:NativeClass):Void {
 		classes.push(nativeClass);
 	}
 
@@ -61,7 +59,7 @@ class NativeLibrary {
 	 * 
 	 * @param	nativeFunction
 	 */
-	public static function addFunction(nativeFunction:NativeFunction):void {
+	public static function addFunction(nativeFunction:NativeFunction):Void {
 		functions.push(nativeFunction);
 	}
 

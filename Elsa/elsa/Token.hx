@@ -24,7 +24,7 @@ class Token {
 	 * 토큰 태그 정보
 	 */
 	private var tag:Symbol;
-	private var tagged:Bool = false;
+	public var tagged:Bool = false;
 	
 	/**
 	 * 어휘 분석 시 단어별로 처리할 것인지의 여부
@@ -77,7 +77,7 @@ class Token {
 	 * @param	tag
 	 * @return
 	 */
-	public function setTag(tag:Symbol):Symbol {
+	public function setTag(tag:Symbol):Void {
 		this.tag = tag;
 		tagged = true;
 	}

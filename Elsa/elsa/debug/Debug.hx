@@ -1,7 +1,8 @@
 package elsa.debug;
 
 /**
- * ...
+ * 디버거
+ * 
  * @author 김 현준
  */
 class Debug {
@@ -15,7 +16,5 @@ class Debug {
 	public static function supressError(status:Bool):Void {
 		supressed = status;
 	}
-	
-	
 	
 }

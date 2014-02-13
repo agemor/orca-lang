@@ -10,17 +10,13 @@ class Launcher {
 		
 		haxe.Log.trace = function (log, ?d) Sys.print(log +  "\n");
 		
-		var token:Token = new Token(Token.Type.ADDITION);
-		var lexer:Lexer = new Lexer();
+		trace("Orca Compiler 2.0 (Unstable)");
 		
 		var source:String = File.getContent("test_code.el");
-		var lextree:Lexer.Lextree = lexer.analyze(source);
-		//lexer.viewHierarchy(lextree, 0);
+		var parser:Parser = new Parser();
 		
-		//TokenTools.view2D(TokenTools.getArguments(lexer.analyze("A,B,C,D,E,,F     G,G").branch[0].lexData));
-		TokenTools.view2D(TokenTools.split(lexer.analyze("A,B,C,D,E,,F     G,G").branch[0].lexData, Token.Type.COMMA));
-		Sys.sleep(10000);
+		trace(parser.compile(source));
 		
-	}
-	
+		Sys.sleep(10000);	
+	}	
 }
