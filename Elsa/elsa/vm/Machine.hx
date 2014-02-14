@@ -42,6 +42,12 @@ class Machine {
 		while (true) {
 			var instruction = program[pointer];
 			switch (instruction.id) {
+			case "POP": register[getAddress(instruction.args[0])] = stack.pop();
+			case "PSH":
+				if (instruction.args[0].charAt(0) == "&")
+					stack.add(getData(instruction.args[0]).clone());
+				else
+					stack.add(new Data(instruction.args[0]));
 			case "EXE": switch (getStringValue(instruction.args[0])) {
 				case "print": Debug.print(getStringValue(instruction.args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
@@ -49,6 +55,23 @@ class Machine {
 			case "END": return;
 			}
 			++pointer;
+		}
+	}
+	public function getData(data: String): Data {
+		if (data.charAt(0) == "&") {
+			var candidate = register[Std.parseInt(data.substring(1))];
+			return if (candidate.isRegistry)
+				getData(candidate.string.substring(1)) else candidate;
+		}
+		else {
+			return memory[getAddress(data)];
+		}
+	}
+	public function getAddress(data: String): Int {
+		return switch (data.charAt(0)) {
+		case "&": getAddress(register[Std.parseInt(data.substring(1))].string);
+		case "@": Std.parseInt(data.substring(1));
+		default: Std.parseInt(data);
 		}
 	}
 	public function getStringValue(data: String): String {
@@ -67,6 +90,9 @@ class Data {
 	public var string (get, never): String;
 	public function new(data: Dynamic) {
 		this.data = data;
+	}
+	public function clone() {
+		return new Data(data);
 	}
 	function set_data(value: Dynamic) {
 		data = value;
