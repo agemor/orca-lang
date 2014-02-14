@@ -48,25 +48,25 @@ class VariableDeclarationSyntax implements Syntax {
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):VariableDeclarationSyntax {		
 
 		if (tokens.length < 3) {
-			Debug.report("구문 오류", "선언문이 너무 짧습니다.", lineNumber);
+			Debug.report("Syntax error", "Variable declaration syntax is too short", lineNumber);
 			return null;
 		}
 
 		// 식별자가 ID형식인지 검사한다.
 		if (tokens[1].type != Type.ID) {
-			Debug.report("구문 오류", "변수의 식별자가 올바르지 않습니다.", lineNumber);
+			Debug.report("Syntax error", "Variable name is not valid", lineNumber);
 			return null;
 		}
 
 		// 콜론의 사용이 올바른지 체크한다.
 		if (tokens[2].type != Type.COLON) {
-			Debug.report("구문 오류", "데이터 타입을 지정하기 위한 콜론(':')이 필요합니다.", lineNumber);
+			Debug.report("Syntax error", "Colon is needed to set type of the variable", lineNumber);
 			return null;
 		}
 
 		// 변수 타입이 ID형식인지 검사한다.
 		if (tokens[3].type != Type.ID) {
-			Debug.report("구문 오류", "변수의 타입이 올바르지 않습니다.", lineNumber);
+			Debug.report("Syntax error", "Variable type is not valid", lineNumber);
 			return null;
 		}
 
@@ -81,11 +81,11 @@ class VariableDeclarationSyntax implements Syntax {
 
 			// 길기만 하고 형식은 잘못되었을 경우
 			else {
-				Debug.report("구문 오류", "잘못된 초기화문입니다.", lineNumber);
+				Debug.report("Syntax error", "Variable initializing statement is not valid", lineNumber);
 				return null;
 			}
 		} else if (tokens.length == 5) {
-			Debug.report("구문 오류", "변수 선언문의 끝에 불필요한 추가 문자가 있습니다.", lineNumber);
+			Debug.report("Syntax error", "Variable declaration has meaningless words at the end", lineNumber);
 			return null;
 		}
 		

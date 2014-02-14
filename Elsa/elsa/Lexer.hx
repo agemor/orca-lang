@@ -40,9 +40,9 @@ class Lexer {
 			var char:String = code.charAt(i);
 			
 			// 줄바꿈 문자일 경우 줄 번호를 하나 증가시킨다.
-			if (char == "\n")
+			if (char == "\n") 
 				processingLine ++;
-				
+			
 			// 문자열의 시작과 종결 부분을 감지하여 상태를 업데이트한다.
 			if (char == "\"") {
 				isString = !isString;
@@ -225,7 +225,6 @@ class Lexer {
 					isFloat = false;					
 					i -= 2;
 					continue;
-					Debug.report("구문 오류", "소수점 표현이 잘못되었습니다.", processingLine);
 				} else {
 					isFloat = true;
 					buffer += char;
@@ -336,7 +335,7 @@ class Lexer {
 		}
 
 		if (isString)
-			Debug.report("구문 오류", "문자열이 종결되지 않았습니다.", processingLine);
+			Debug.report("Syntax error", "insert \" to complete expression", processingLine);
 
 		return tokens;
 	}

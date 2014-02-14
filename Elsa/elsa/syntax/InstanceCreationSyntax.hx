@@ -52,7 +52,7 @@ class InstanceCreationSyntax implements Syntax {
 
 		// 생성자의 길이는 2이다.
 		if (tokens.length != 2) {
-			Debug.report("구문 오류", "인스턴스 생성문의 끝에 불필요한 추가 문자가 있습니다.", lineNumber);
+			Debug.report("Syntax error", "New syntax is too long.", lineNumber);
 			return null;
 		}
 

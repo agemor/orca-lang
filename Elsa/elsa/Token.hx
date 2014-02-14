@@ -205,7 +205,7 @@ class Token {
 					}					
 				}
 				if (definitions[i].value.length == j && j > maxMatched) {
-					maxMatched = i;
+					maxMatched = j;
 					candidate = definitions[i];
 				}
 			}

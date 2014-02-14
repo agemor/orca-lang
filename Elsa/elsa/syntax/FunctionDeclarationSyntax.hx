@@ -63,14 +63,14 @@ class FunctionDeclarationSyntax implements Syntax {
 			if (tokens.length == 4)
 				isOmittedForm = true;
 			else {
-				Debug.report("구문 오류", "선언문이 너무 짧습니다", lineNumber);	
+				Debug.report("Syntax error", "Function declaration statement is too short.", lineNumber);	
 				return null;
 			}
 		}
 
 		// 식별자가 ID형식인지 검사한다.
 		if (tokens[1].type != Type.ID) {
-			Debug.report("구문 오류", "프로시져의 식별자가 올바르지 않습니다.", lineNumber);	
+			Debug.report("Syntax error", "Function name is not valid", lineNumber);	
 			return null;
 		}
 
@@ -82,12 +82,12 @@ class FunctionDeclarationSyntax implements Syntax {
 
 			// 프로시져의 리턴 타입을 취득한다.
 			if (tokens[2].type != Type.COLON) {
-				Debug.report("구문 오류", "프로시져의 리턴 타입을 지정하기 위한 콜론이 없습니다.", lineNumber);
+				Debug.report("Syntax error", "There is no colon to set return type of function.", lineNumber);
 				return null;
 			}
 
 			if (tokens[3].type != Type.ID) {
-				Debug.report("구문 오류", "프로시져의 리턴 타입이 올바르지 않습니다.", lineNumber);
+				Debug.report("Syntax error", "The return type of function is not valid", lineNumber);
 				return null;
 			}
 
@@ -100,13 +100,13 @@ class FunctionDeclarationSyntax implements Syntax {
 
 			// 괄호로 열려 있어야 한다.
 			if (tokens[2].type != Type.SHELL_OPEN) {
-				Debug.report("구문 오류", "프로시저의 매개 변수 정의는 반드시 괄호 안에 있어야 합니다.", lineNumber);
+				Debug.report("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
 			}
 
 			// 괄호로 닫혀 있어야 한다.
 			if (TokenTools.indexOfShellClose(tokens) == tokens.length - 3) {
-				Debug.report("구문 오류", "괄호가 종결되지 않았습니다.", lineNumber);
+				Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);	
 				return null;
 			}
 
@@ -120,12 +120,12 @@ class FunctionDeclarationSyntax implements Syntax {
 
 			// 프로시져 타입을 취득한다.
 			if (tokens[tokens.length - 2].type != Type.COLON) {
-				Debug.report("구문 오류", "프로시져의 리턴 타입을 지정하기 위한 콜론이 없습니다.", lineNumber);
+				Debug.report("Syntax error", "There is no colon to set return type of function.", lineNumber);
 				return null;
 			}
 
 			if (tokens[tokens.length - 1].type != Type.ID) {
-				Debug.report("구문 오류", "프로시져의 리턴 타입이 올바르지 않습니다.", lineNumber);
+				Debug.report("Syntax error", "The return type of function is not valid", lineNumber);
 				return null;
 			}
 
