@@ -41,15 +41,21 @@ class Machine {
 		pointer = 0;
 		while (true) {
 			var instruction = program[pointer];
+			var args = instruction.args;
 			switch (instruction.id) {
-			case "POP": register[getAddress(instruction.args[0])] = stack.pop();
+			case "POP": register[getAddress(args[0])] = stack.pop();
 			case "PSH":
-				if (instruction.args[0].charAt(0) == "&")
-					stack.add(getData(instruction.args[0]).clone());
+				if (args[0].charAt(0) == "&")
+					stack.add(getData(args[0]).clone());
 				else
-					stack.add(new Data(instruction.args[0]));
+					stack.add(new Data(args[0]));
+			case "ESI":
+				register[getAddress(args[0])].data =
+					memory[getAddress(args[1])].array[getIntegerValue(args[2])];
+			case "EAD":
+				memory[getAddress(args[0])].array.push(getAddress(args[0]));
 			case "EXE": switch (getStringValue(instruction.args[0])) {
-				case "print": Debug.print(getStringValue(instruction.args[1]));
+				case "print": Debug.print(getStringValue(args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
 				}
 			case "END": return;
