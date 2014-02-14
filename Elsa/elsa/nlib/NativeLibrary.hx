@@ -30,7 +30,7 @@ class NativeLibrary {
 		var string:NativeClass = new NativeClass("string", []);
 		var array:NativeClass = new NativeClass("array", []);
 
-		var print:NativeFunction = new NativeFunction("print", ["string"], "void");
+		var print:NativeFunction = new NativeFunction("print", ["*"], "void");
 		print.write("POP 0");
 		print.write("EXE print, &0");
 

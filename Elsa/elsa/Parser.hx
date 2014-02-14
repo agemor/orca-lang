@@ -146,7 +146,7 @@ class Parser {
 
 			// 다른 제어문의 도움 없이 코드 블록이 단독으로 사용될 수 없다.
 			if (line.hasBranch) {
-				Debug.report("Syntax error", "예상치 못한 코드 블록입니다.", lineNumber);
+				Debug.report("Syntax error 1", "Unexpected code block", lineNumber);
 				continue;
 			}
 
@@ -163,25 +163,25 @@ class Parser {
 				
 			case IF, ELSE_IF, ELSE, FOR, WHILE:
 				if (option.inStructure) {
-					Debug.report("Syntax error", "구조체 정의에서 제어문을 사용할 수 없습니다.", lineNumber);
+					Debug.report("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
 					continue;
 				}
 				
 			case CONTINUE, BREAK:
 				if (!option.inIterator) {
-					Debug.report("Syntax error", "제어 명령은 반복문 내에서만 사용할 수 있습니다.", lineNumber);
+					Debug.report("Syntax error 3", "제어 명령은 반복문 내에서만 사용할 수 있습니다.", lineNumber);
 					continue;
 				}
 				
 			case RETURN:
 				if (!option.inFunction) {
-					Debug.report("Syntax error", "리턴 명령은 함수 정의 내에서만 사용할 수 있습니다.", lineNumber);
+					Debug.report("Syntax error 4", "리턴 명령은 함수 정의 내에서만 사용할 수 있습니다.", lineNumber);
 					continue;
 				}
 				
 			default:
 				if (option.inStructure) {
-					Debug.report("Syntax error", "구조체 정의에서 연산 처리를 할 수 없습니다.", lineNumber);
+					Debug.report("Syntax error 5", "구조체 정의에서 연산 처리를 할 수 없습니다.", lineNumber);
 					continue;
 				}
 			}
@@ -197,7 +197,7 @@ class Parser {
 
 				// 변수 타입이 유효한지 확인한다.
 				if (!symbolTable.isValidClassID(syntax.variableType.value)) {
-					Debug.report("타입 오류", "유효하지 않은 변수 타입입니다.", lineNumber);
+					Debug.report("Type error 6", "유효하지 않은 변수 타입입니다.", lineNumber);
 					continue;
 				}
 
@@ -213,7 +213,7 @@ class Parser {
 
 					// 변수 정의가 유효한지 확인한다.
 					if (symbolTable.isValidVariableID(syntax.variableName.value)) {
-						Debug.report("정의 중복 오류", "변수 정의가 중복되었습니다.", lineNumber);
+						Debug.report("Duplication error", "변수 정의가 중복되었습니다.", lineNumber);
 						continue;
 					}
 
@@ -545,7 +545,7 @@ class Parser {
 					continue;
 				
 				if (parsedInitialValue.type != "number") {
-					Debug.report("타입 오류", "초기 값의 타입이 실수형이 아닙니다.", lineNumber);
+					Debug.report("Type error", "초기 값의 타입이 실수형이 아닙니다.", lineNumber);
 					continue;
 				}
 
@@ -788,7 +788,7 @@ class Parser {
 				// 태그되지 않은 변수일 경우 유효성을 검증한 후 태그한다.
 				if (!tokens[0].tagged) {
 					if (!symbolTable.isValidVariableID(tokens[0].value)) {
-						Debug.report("undefined 오류", tokens[0].value + "는 정의되지 않은 변수입니다.", lineNumber);
+						Debug.report("Undefined Error", tokens[0].value + "는 정의되지 않은 변수입니다.", lineNumber);
 						return null;
 					}
 					// 토큰에 변수를 태그한다.
@@ -838,7 +838,7 @@ class Parser {
 			if (!syntax.functionName.tagged) {
 
 				if (!symbolTable.isValidFunctionID(syntax.functionName.value)) {
-					Debug.report("undefined 오류", "유효하지 않은 프로시져입니다.", lineNumber);
+					Debug.report("Undefined Error", "유효하지 않은 프로시져입니다.", lineNumber);
 					return null;
 				}
 
@@ -877,8 +877,8 @@ class Parser {
 						return null;
 
 					// 파라미터의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하는지 검사한다.
-					if (functn.parameters[i].type != parsedArgument.type) {
-						Debug.report("타입 오류", "매개 변수의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하지 않습니다.", lineNumber);
+					if (functn.parameters[i].type != parsedArgument.type && functn.parameters[i].type != "*") {
+						Debug.report("Type error", "매개 변수의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하지 않습니다.", lineNumber);
 						return null;
 					}
 
@@ -996,7 +996,7 @@ class Parser {
 					var member:Symbol = targetClass.findMemberByID(reference[0].value);
 
 					if (member == null) {
-						Debug.report("undefined 오류", "속성을 찾을 수 없습니다.", lineNumber);
+						Debug.report("Undefined Error", "속성을 찾을 수 없습니다.", lineNumber);
 						return null;
 					}
 
@@ -1010,7 +1010,7 @@ class Parser {
 					// 유효하지 않다면 에러 출력
 					if (!symbolTable.isValidVariableID(reference[0].value)
 							&& !symbolTable.isValidFunctionID(reference[0].value)) {
-						Debug.report("undefined 오류", "정의되지 않은 인스턴스입니다.", lineNumber);
+						Debug.report("Undefined Error", "정의되지 않은 인스턴스입니다.", lineNumber);
 						return null;
 					}
 				}
@@ -1071,7 +1071,7 @@ class Parser {
 			// 배열이 태그되지 않은 경우 배열의 유효성을 검증한다.
 			if (!syntax.array.tagged) {
 				if (!symbolTable.isValidVariableID(syntax.array.value)) {
-					Debug.report("undefined 오류", "정의되지 않은 배열입니다.", lineNumber);
+					Debug.report("Undefined Error", "정의되지 않은 배열입니다.", lineNumber);
 					return null;
 				}
 
@@ -1086,13 +1086,13 @@ class Parser {
 
 				// 변수가 문자열도 아니면, 에러
 				if (array.type != "string") {
-					Debug.report("타입 오류", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
+					Debug.report("Type error", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
 					return null;
 				}
 
 				// 문자열 인덱스 참조 명령을 처리한다.
 				if (syntax.references.length != 1) {
-					Debug.report("타입 오류", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
+					Debug.report("Type error", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
 					return null;
 				}
 
@@ -1105,7 +1105,7 @@ class Parser {
 
 				// 인덱스가 정수가 아닐 경우
 				if (parsedIndex.type != "number") {
-					Debug.report("타입 오류", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
+					Debug.report("Type error", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
 					return null;
 				}
 				
@@ -1133,7 +1133,7 @@ class Parser {
 
 				// 인덱스가 정수가 아닐 경우
 				if (parsedReference.type != "number") {
-					Debug.report("타입 오류", "배열의 인덱스가 정수가 아닙니다.", lineNumber);
+					Debug.report("Type error", "배열의 인덱스가 정수가 아닙니다.", lineNumber);
 					continue;
 				}
 
@@ -1172,7 +1172,7 @@ class Parser {
 
 				// 아직은 숫자 -> 문자만 가능하다.
 				if (parsedTarget.type != "number") {
-					Debug.report("타입 오류", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
+					Debug.report("Type error", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
 				
@@ -1188,7 +1188,7 @@ class Parser {
 
 				// 아직은 문자 -> 숫자만 가능하다.
 				if (parsedTarget.type != "string") {
-					Debug.report("타입 오류", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
+					Debug.report("Type error", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
 	
@@ -1204,7 +1204,7 @@ class Parser {
 
 				// 캐스팅 타입이 적절한지 체크한다.
 				if (!symbolTable.isValidClassID(syntax.castingType)) {
-					Debug.report("undefined 오류", "올바르지 않은 타입입니다.", lineNumber);
+					Debug.report("Undefined Error", "올바르지 않은 타입입니다.", lineNumber);
 					return null;
 				}
 
@@ -1230,7 +1230,7 @@ class Parser {
 				
 				// 단항 ID가 아닐 경우
 				if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
-					Debug.report("타입 오류", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+					Debug.report("Type error", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}
 			}
@@ -1243,7 +1243,7 @@ class Parser {
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
 			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
-				Debug.report("타입 오류", "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
+				Debug.report("Type error", "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
 				return null;
 			}
 			
@@ -1266,7 +1266,7 @@ class Parser {
 
 			// 단항 ID가 아닐 경우
 			if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
-				Debug.report("타입 오류", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+				Debug.report("Type error", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 				return null;
 			}
 
@@ -1278,7 +1278,7 @@ class Parser {
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
 			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
-				Debug.report("타입 오류", "접미형 연산자 앞에는 실수형 데이터만 올 수 있습니다.", lineNumber);
+				Debug.report("Type error", "접미형 연산자 앞에는 실수형 데이터만 올 수 있습니다.", lineNumber);
 				return null;
 			}
 
@@ -1318,7 +1318,7 @@ class Parser {
 
 				// 모두 와일드카드라면
 				else {
-					Debug.report("타입 오류", "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
+					Debug.report("Type error", "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
 					return null;
 				}
 			}
@@ -1475,7 +1475,7 @@ class Parser {
 
 				// 이미 사용되고 있는 변수인지 체크
 				if (symbolTable.isValidVariableID(variable.id)) {
-					Debug.report("정의 중복 오류", "변수 정의가 충돌합니다.", lineNumber);
+					Debug.report("Duplication error", "변수 정의가 충돌합니다.", lineNumber);
 					continue;
 				}
 
@@ -1520,13 +1520,13 @@ class Parser {
 
 						// 매개 변수 이름의 유효성을 검증한다.
 						if (symbolTable.isValidVariableID(parameterSyntax.parameterName.value)) {
-							Debug.report("정의 중복 오류", "변수 정의가 충돌합니다.", lineNumber);
+							Debug.report("Duplication error", "변수 정의가 충돌합니다.", lineNumber);
 							continue;
 						}
 
 						// 매개 변수 타입의 유효성을 검증한다.
 						if (!symbolTable.isValidClassID(parameterSyntax.parameterType.value)) {
-							Debug.report("정의 중복 오류", "매개 변수 타입이 유효하지 않습니다.", lineNumber);
+							Debug.report("Duplication error", "매개 변수 타입이 유효하지 않습니다.", lineNumber);
 							continue;
 						}
 						
