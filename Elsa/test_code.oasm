@@ -1,0 +1,82 @@
+SNA @1
+NDW @1, 2
+SNA @2
+NDW @2, 9
+SNA @3
+NDW @3, 1
+SSA @5
+SDW @5, *
+SSA @6
+SDW @6, =
+PSH @1
+POP 0
+SNA @0
+NDW @0, &0
+OPR 1, 2, @0, @3
+NDW @0, &1
+OPR 1, 1, @0, @3
+NDW @0, &1
+PSH @0
+PSH @2
+POP 0
+POP 1
+OPR 2, 17, &1, &0
+PSH &2
+POP 0
+JMP &0, 81
+PSH @3
+POP 0
+SNA @4
+NDW @4, &0
+OPR 1, 2, @4, @3
+NDW @4, &1
+OPR 1, 1, @4, @3
+NDW @4, &1
+PSH @4
+PSH @2
+POP 0
+POP 1
+OPR 2, 17, &1, &0
+PSH &2
+POP 0
+JMP &0, 80
+PSH @0
+POP 0
+OPR 1, 23, &0
+PSH &1
+PSH @5
+PSH @4
+POP 0
+OPR 1, 23, &0
+PSH &1
+PSH @6
+PSH @0
+PSH @4
+POP 0
+POP 1
+OPR 2, 4, &1, &0
+PSH &2
+POP 0
+OPR 1, 23, &0
+PSH &1
+POP 0
+POP 1
+OPR 2, 21, &1, &0
+PSH &2
+POP 0
+POP 1
+OPR 2, 21, &1, &0
+PSH &2
+POP 0
+POP 1
+OPR 2, 21, &1, &0
+PSH &2
+POP 0
+POP 1
+OPR 2, 21, &1, &0
+PSH &2
+POP 0
+EXE print, &0
+JMP 0, 32
+JMP 0, 16
+END
