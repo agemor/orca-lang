@@ -54,6 +54,12 @@ class Machine {
 					memory[getAddress(args[1])].array[getIntegerValue(args[2])];
 			case "EAD":
 				memory[getAddress(args[0])].array.push(getAddress(args[0]));
+			case "NDW":
+				memory[getAddress(args[0])].data = getIntegerValue(args[1]);
+			case "SDW":
+				memory[getAddress(args[0])].data = getStringValue(args[1]);
+			case "RDW":
+				memory[getAddress(args[0])].data = memory[getIntegerValue(args[1])];
 			case "EXE": switch (getStringValue(instruction.args[0])) {
 				case "print": Debug.print(getStringValue(args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
