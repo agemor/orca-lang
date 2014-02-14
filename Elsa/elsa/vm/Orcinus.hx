@@ -361,6 +361,8 @@ class Orcinus {
 			// 각각의 매개변수를 trim한다.
 			for ( i in 0...args.length) {
 				args[i] = StringTools.trim(args[i]);
+				if (args[i].indexOf("/") > 0)
+					args[i] = args[i].substring(0, args[i].indexOf("/"));
 			}
 
 			// 명령 객체를 생성한다.

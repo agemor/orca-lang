@@ -1,9 +1,10 @@
-var A:number = 1+2+3; // 6
-var B:number = 14 * 14 / 14; // 14
-var C:number = "2" as number;
+var A:number = (1+2+3)*6; // 26
+var B:number = 14 * 14 / 14 % 14; // 1
+var C:number = "2.3" as number;
 var D:number = ( A + B ) / C;
 
 print(A);
 print(B);
 print(C);
 print(D);
+print("1 + 1 is " + ( 1 + 1 ));

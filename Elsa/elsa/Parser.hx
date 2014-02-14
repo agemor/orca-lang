@@ -113,7 +113,7 @@ class Parser {
 				assembly.writeCode("SSA " + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("SDW " + Std.string(literal.address) + ", " + literal.value);
+				assembly.writeCode("SDW " + Std.string(literal.address) + ", " + literal.value + "/");
 			}
 
 		}

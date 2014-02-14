@@ -25,21 +25,15 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(temp_test);
+		var compiledCode:String = parser.compile(variable_test);
 		trace(compiledCode);
 		
 		var orcinus:Orcinus = new Orcinus(1024 * 20);
 		orcinus.load(compiledCode);
-		orcinus.run();
 		
-		/*var machine: elsa.vm.Machine = new elsa.vm.Machine(1024 * 20, 20);
-		//var oasm = File.getContent("test_code.oasm");
-		trace("-- orca assembly --");
-		//trace(oasm);
-		machine.load(compiledCode);
-		//machine.load("EXE print, test\nEXE whoami\nEND");
-		machine.run();
-		*/
+		trace("-----initiated-----");
+		orcinus.run();		
+		trace("-------------------");
 		Sys.sleep(10000);	
 	}	
 }
