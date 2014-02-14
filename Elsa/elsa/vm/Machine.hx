@@ -13,6 +13,7 @@ class Machine {
 	public var pointer: Int;
 	public var registerSize: Int;
 	public var memorySize: Int;
+	public var freememoryIndex: Int;
 	public function new(memorySize: Int, registerSize: Int) {
 		this.memorySize = memorySize;
 		this.registerSize = registerSize;
@@ -39,6 +40,7 @@ class Machine {
 	}
 	public function run() {
 		pointer = 0;
+		freememoryIndex = 100;
 		while (true) {
 			var instruction = program[pointer++];
 			var args = instruction.args;
@@ -63,6 +65,12 @@ class Machine {
 			case "JMP":
 				if (getIntegerValue(args[0]) == 0)
 					pointer = getIntegerValue(args[1]);
+			case "DSA", "DNA":
+				memory[freememoryIndex] = new Data(null);
+				register[getIntegerValue(args[0])].data = freememoryIndex++;
+			case "DAA":
+				memory[freememoryIndex] = new Data([]);
+				register[getIntegerValue(args[0])].data = freememoryIndex++;
 			case "EXE": switch (getStringValue(instruction.args[0])) {
 				case "print": Debug.print(getStringValue(args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
