@@ -76,12 +76,12 @@ class Orcinus {
 				
 				// 스택에서 값을 꺼내 레지스터에 저장한다.
 				case "POP":
-					register[parseIndicator(opcode.args[0])] = stack.pop();
+					register[parseIndicator(opcode.args[0])] = stack.pop();	
 					
 				// 값을 스택으로 밀어 넣는다.	
 				case "PSH":
 					stack.push(parseValue(opcode.args[0]));
-				
+					
 				// 연산 처리	
 				case "OPR":
 					// 변수명 할당을 위한 인위적 스코프
@@ -264,7 +264,6 @@ class Orcinus {
 					
 				// 프로그램 종료	
 				case "END":
-					trace("Terminated.");
 					break;
 					
 				// 정의되지 않은 명령	

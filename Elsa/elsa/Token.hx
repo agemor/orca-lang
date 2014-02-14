@@ -29,7 +29,8 @@ class Token {
 	/**
 	 * 어휘 분석 시 단어별로 처리할 것인지의 여부
 	 */
-	public var wholeWord = false;
+	public var wholeWord:Bool = false;
+	public var useAsAddress:Bool = false;
 	
 	/**
 	 * 토큰을 생성한다. 두 번째 인수를 넣을 경우 이 토큰은 데이터 토큰이 된다.

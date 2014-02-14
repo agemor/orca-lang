@@ -1342,6 +1342,7 @@ class Parser {
 					// 문자열 - 문자열 대입이면 SDW명령을 활성화시킨다.
 					case ASSIGNMENT:
 						syntax.operator.value = "string";
+						left.data[0].useAsAddress = true;
 					case EQUAL_TO, NOT_EQUAL_TO:
 					default:
 						Debug.report("Syntax error", "이 연산자로 문자열 연산을 수행할 수 없습니다.", lineNumber);
@@ -1357,6 +1358,7 @@ class Parser {
 					// 실수형 - 실수형 대입이면 NDW명령을 활성화시킨다.
 					case ASSIGNMENT:
 						syntax.operator.value = "number";
+						left.data[0].useAsAddress = true;
 					default:
 					}
 
@@ -1368,6 +1370,7 @@ class Parser {
 					// 인스턴스 - 인스턴스 대입이면 NDW명령을 활성화시킨다.
 					case ASSIGNMENT:
 						syntax.operator.value = "instance";
+						left.data[0].useAsAddress = true;
 					default:
 						Debug.report("Syntax error", "대입 명령을 제외한 이항 연산자는 문자/숫자 이외의 처리를 할 수 없습니다.", lineNumber);
 						return null;

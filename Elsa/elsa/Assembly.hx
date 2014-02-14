@@ -180,17 +180,17 @@ class Assembly {
 				// 실수형
 				case "number":
 
-					writeCode("NDW &1 ,&0");
+					writeCode("NDW &1, &0");
 
 				// 문자형
 				case "string":
 
-					writeCode("SDW &1 ,&0");
+					writeCode("SDW &1, &0");
 
 				// 레퍼런스형
 				case "reference":
 
-					writeCode("RDW &1 ,&0");
+					writeCode("RDW &1, &0");
 				}
 
 			// 배열 참조 연산자
@@ -223,9 +223,11 @@ class Assembly {
 
 				// 변수일 경우				
 				if (Std.is(symbol, Symbol.Variable)) {
-
-					// 변수의 메모리 어드레스를 추가한다.
-					writeCode("PSH @" + symbol.address);
+					
+					if (token.useAsAddress)
+						writeCode("PSH " + symbol.address);
+					else
+						writeCode("PSH @" + symbol.address);					
 				}
 
 				// 함수일 경우
