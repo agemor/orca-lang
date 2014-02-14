@@ -15,7 +15,7 @@ class TokenTools {
 	 * @return
 	 */
 	public static function getArguments(tokens:Array<Token>):Array<Array<Token>> {
-		return split(tokens, Token.Type.COMMA, true);
+		return split(tokens, Token.Type.Comma, true);
 	}
 	
 	/**
@@ -42,13 +42,13 @@ class TokenTools {
 		
 		// 현재 스코프에서 유효한 매개변수 구분 문자를 찾는다.
 		while (i < tokens.length) {
-			if (tokens[i].type == Token.Type.ARRAY_OPEN)
+			if (tokens[i].type == Token.Type.ArrayOpen)
 				subscriptDepth++;
-			else if (tokens[i].type == Token.Type.ARRAY_CLOSE)
+			else if (tokens[i].type == Token.Type.ArrayClose)
 				subscriptDepth--;
-			else if (tokens[i].type == Token.Type.SHELL_OPEN)
+			else if (tokens[i].type == Token.Type.ShellOpen)
 				shellDepth++;
-			else if (tokens[i].type == Token.Type.SHELL_CLOSE)
+			else if (tokens[i].type == Token.Type.ShellClose)
 				shellDepth--;
 			else if (tokens[i].type == delimiter && ((subscriptDepth == 0 && shellDepth == 0) || !sensitive))				
 				elements.push(tokens.slice(lastIndex + 1, lastIndex = i)); 			
@@ -66,7 +66,7 @@ class TokenTools {
 	 * @return
 	 */
 	public static function pill(tokens:Array<Token>):Array<Token>  {
-		if (tokens[0].type == Token.Type.SHELL_OPEN)
+		if (tokens[0].type == Token.Type.ShellOpen)
 			if (indexOfShellClose(tokens, 1) == tokens.length - 1)
 				return tokens.slice(1, tokens.length - 1);
 		return tokens;
@@ -97,7 +97,7 @@ class TokenTools {
 	 * @return
 	 */
 	public static function indexOfShellClose(tokens:Array<Token>, start:Int = 1):Int {
-		return indexOfClose(tokens, Token.Type.SHELL_OPEN, Token.Type.SHELL_CLOSE, start);
+		return indexOfClose(tokens, Token.Type.ShellOpen, Token.Type.ShellClose, start);
 	}
 
 	/**
@@ -110,7 +110,7 @@ class TokenTools {
 	 * @return
 	 */
 	public static function indexOfArrayClose(tokens:Array<Token>, start:Int = 1):Int {
-		return indexOfClose(tokens, Token.Type.ARRAY_OPEN, Token.Type.ARRAY_CLOSE, start);
+		return indexOfClose(tokens, Token.Type.ArrayOpen, Token.Type.ArrayClose, start);
 	}
 	
 	/**
@@ -163,9 +163,9 @@ class TokenTools {
 		for (i in start...tokens.length) { 
 
 			// 중간에 괄호 부분(비유효 구간) 이 나오면 건너뛴다.
-			if (tokens[i].type == Token.Type.SHELL_OPEN)
+			if (tokens[i].type == Token.Type.ShellOpen)
 				shellDepth++;
-			else if (tokens[i].type == Token.Type.SHELL_CLOSE)
+			else if (tokens[i].type == Token.Type.ShellClose)
 				shellDepth--;
 
 			// 유효 구간에서 연산자가 발견되면 후보 여부를 검토한다.
@@ -177,9 +177,9 @@ class TokenTools {
 				}
 			}
 
-			if (tokens[i].type == Token.Type.ARRAY_OPEN)
+			if (tokens[i].type == Token.Type.ArrayOpen)
 				subscriptDepth++;
-			else if (tokens[i].type == Token.Type.ARRAY_CLOSE)
+			else if (tokens[i].type == Token.Type.ArrayClose)
 				subscriptDepth--;
 		}
 

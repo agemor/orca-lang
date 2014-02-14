@@ -33,7 +33,7 @@ class VariableDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.VARIABLE)
+		if (tokens.length > 0 && tokens[0].type == Type.Variable)
 			return true;
 		return false;
 	}
@@ -59,7 +59,7 @@ class VariableDeclarationSyntax implements Syntax {
 		}
 
 		// 콜론의 사용이 올바른지 체크한다.
-		if (tokens[2].type != Type.COLON) {
+		if (tokens[2].type != Type.Colon) {
 			Debug.report("Syntax error", "Colon is needed to set type of the variable", lineNumber);
 			return null;
 		}
@@ -75,7 +75,7 @@ class VariableDeclarationSyntax implements Syntax {
 		if (tokens.length > 5) {
 
 			// 초기화문의 형식을 갖추었을 경우
-			if (tokens[4].type == Type.ASSIGNMENT) {
+			if (tokens[4].type == Type.Assignment) {
 				hasInitializer = true;
 			}
 

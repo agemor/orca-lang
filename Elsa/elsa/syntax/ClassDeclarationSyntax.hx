@@ -26,7 +26,7 @@ class ClassDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.CLASS)
+		if (tokens.length > 0 && tokens[0].type == Type.Class)
 			return true;
 		return false;
 	}

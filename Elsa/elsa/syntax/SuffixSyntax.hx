@@ -51,9 +51,9 @@ class SuffixSyntax implements Syntax {
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
-			if (tokens[i].type == Type.SHELL_OPEN)
+			if (tokens[i].type == Type.ShellOpen)
 				depth++;
-			else if (tokens[i].type == Type.SHELL_CLOSE)
+			else if (tokens[i].type == Type.ShellClose)
 				depth--;
 		}
 

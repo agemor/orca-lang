@@ -34,7 +34,7 @@ class FunctionCallSyntax implements Syntax {
 			if (tokens[0].type == Type.ID)
 			
 				// 괄호 조건을 만족하는지 체크한다.
-				if (tokens[1].type == Type.SHELL_OPEN)
+				if (tokens[1].type == Type.ShellOpen)
 					if (TokenTools.indexOfShellClose(tokens, 2) == tokens.length - 1)
 						return true;
 

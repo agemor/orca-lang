@@ -25,7 +25,7 @@ class ArraySyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens[0].type == Type.ARRAY_OPEN) 
+		if (tokens[0].type == Type.ArrayOpen) 
 			if (TokenTools.indexOfArrayClose(tokens) == tokens.length - 1)
 				return true;		
 		return false;

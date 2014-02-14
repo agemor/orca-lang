@@ -33,7 +33,7 @@ class ForSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.FOR)
+		if (tokens.length > 0 && tokens[0].type == Type.For)
 			return true;
 		return false;
 	}
@@ -53,13 +53,13 @@ class ForSyntax implements Syntax {
 		}
 
 		// 괄호로 시작하는지 확인한다
-		if (tokens[1].type != Type.SHELL_OPEN) {
+		if (tokens[1].type != Type.ShellOpen) {
 			Debug.report("Syntax error", "For condition must start with \"(\"", lineNumber);		
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
-		if (tokens[tokens.length - 1].type != Type.SHELL_CLOSE) {
+		if (tokens[tokens.length - 1].type != Type.ShellClose) {
 			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);
 			return null;
 		}
@@ -69,7 +69,7 @@ class ForSyntax implements Syntax {
 			return null;
 		}
 		
-		if (tokens[3].type != Type.IN) {
+		if (tokens[3].type != Type.In) {
 			Debug.report("Syntax error", "Could not find token 'in'", lineNumber);
 			return null;
 		}
@@ -78,7 +78,7 @@ class ForSyntax implements Syntax {
 		var range:Array<Token> = tokens.slice(4, tokens.length - 1);
 
 		// 범위지정 토큰의 위치를 찾는다.
-		var indexOfRange:Int = TokenTools.indexOf(range, Type.FROM);
+		var indexOfRange:Int = TokenTools.indexOf(range, Type.From);
 
 		if (indexOfRange < 0) {
 			Debug.report("Syntax error", "Could not find token '...'", lineNumber);

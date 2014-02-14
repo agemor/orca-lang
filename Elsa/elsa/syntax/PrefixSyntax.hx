@@ -51,9 +51,9 @@ class PrefixSyntax implements Syntax {
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
-			if (tokens[i - 1].type == Type.SHELL_OPEN)
+			if (tokens[i - 1].type == Type.ShellOpen)
 				depth++;
-			else if (tokens[i - 1].type == Type.SHELL_CLOSE)
+			else if (tokens[i - 1].type == Type.ShellClose)
 				depth--;
 		}
 

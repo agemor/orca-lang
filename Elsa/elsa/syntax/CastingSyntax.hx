@@ -36,7 +36,7 @@ class CastingSyntax implements Syntax {
 		if (indexOfLPO < 0)
 			return false;
 
-		if (tokens[indexOfLPO].type != Type.AS)
+		if (tokens[indexOfLPO].type != Type.As)
 			return false;
 			
 		return true;

@@ -101,41 +101,41 @@ class Token {
 	 */
 	public function getPrecedence():Int {
 		switch (type) {
-		case DOT:
+		case Type.Dot:
 			return 1;
-		case ARRAY_OPEN:
+		case Type.ArrayOpen:
 			return 2;
-		case AS:
+		case Type.As:
 			return 3;
-		case SUFFIX_INCREMENT, SUFFIX_DECREMENT:
+		case Type.SuffixIncrement, Type.SuffixDecrement:
 			return 4;
-		case PREFIX_INCREMENT, PREFIX_DECREMENT, UNRARY_PLUS,
-			 UNRARY_MINUS, LOGICAL_NOT, BITWISE_NOT:
+		case Type.PrefixIncrement, Type.PrefixDecrement, Type.UnraryMinus,
+			 Type.UnraryPlus, Type.LogicalNot, Type.BitwiseNot:
 			return 5;
-		case MULTIPLICATION, DIVISION, MODULO:
+		case Type.Multiplication, Type.Division, Type.Modulo:
 			return 6;
-		case ADDITION, SUBTRACTION:
+		case Type.Addition, Type.Subtraction:
 			return 7;
-		case BITWISE_LEFT_SHIFT, BITWISE_RIGHT_SHIFT:
+		case Type.BitwiseLeftShift, Type.BitwiseRightShift:
 			return 8;
-		case LESS_THAN, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO:
+		case Type.LessThan, Type.LessThanOrEqualTo, Type.GreaterThan, Type.GreaterThanOrEqualTo:
 			return 9;
-		case EQUAL_TO, NOT_EQUAL_TO:
+		case Type.EqualTo, Type.NotEqualTo:
 			return 10;
-		case BITWISE_AND:
+		case Type.BitwiseAnd:
 			return 11;
-		case BITWISE_XOR:
+		case Type.BitwiseXor:
 			return 12;
-		case BITWISE_OR:
+		case Type.BitwiseOr:
 			return 13;
-		case LOGICAL_AND:
+		case Type.LogicalAnd:
 			return 14;
-		case LOGICAL_OR:
+		case Type.LogicalOr:
 			return 15;
-		case ASSIGNMENT, ADDITION_ASSIGNMENT, SUBTRACTION_ASSIGNMENT,
-			 MULTIPLICATION_ASSIGNMENT, DIVISION_ASSIGNMENT, MODULO_ASSIGNMENT,
-			 BITWISE_AND_ASSIGNMENT, BITWISE_XOR_ASSIGNMENT, BITWISE_OR_ASSIGNMENT,
-			 BITWISE_LEFT_SHIFT_ASSIGNMENT, BITWISE_RIGHT_SHIFT_ASSIGNMENT:
+		case Type.Assignment, Type.AdditionAssignment, Type.SubtractionAssignment,
+			 Type.MultiplicationAssignment, Type.DivisionAssignment, Type.ModuloAssignment,
+			 Type.BitwiseAndAssignment, Type.BitwiseXorAssignment, Type.BitwiseOrAssignment,
+			 Type.BitwiseLeftShiftAssignment, Type.BitwiseRightShiftAssignment:
 			return 16;
 		default:
 			return 0;
@@ -229,34 +229,34 @@ enum Affix {
  * 토큰 종류
  */
 enum Type {
-	ID; VARIABLE; FUNCTION; CLASS; NEW; ARRAY_REFERENCE;
+	ID; Variable; Function; Class; New; ArrayReference;
 	
-	IF; ELSE_IF; ELSE; FOR; WHILE;
-	CONTINUE; BREAK; RETURN;
+	If; ElseIf; Else; For; While;
+	Continue; Break; Return;
 	
-	TRUE; FALSE; STRING; NUMBER; ARRAY;
+	True; False; String; Number; Array;
 	
-	ARRAY_OPEN; ARRAY_CLOSE;
-	BLOCK_OPEN; BLOCK_CLOSE;
-	SHELL_OPEN; SHELL_CLOSE;
+	ArrayOpen; ArrayClose;
+	BlockOpen; BlockClose;
+	ShellOpen; ShellClose;
 	
-	DOT; COMMA; COLON; SEMICOLON; FROM; IN;
+	Dot; Comma; Colon; Semicolon; From; In;
 	
-	PREFIX_INCREMENT; PREFIX_DECREMENT; SUFFIX_INCREMENT; SUFFIX_DECREMENT;
-	UNRARY_PLUS; UNRARY_MINUS;	
+	PrefixIncrement; PrefixDecrement; SuffixIncrement; SuffixDecrement;
+	UnraryPlus; UnraryMinus;	
 	
-	ADDITION; APPEND; SUBTRACTION; MULTIPLICATION; DIVISION; MODULO;
-	ASSIGNMENT; ADDITION_ASSIGNMENT; APPEND_ASSIGNMENT; SUBTRACTION_ASSIGNMENT; MULTIPLICATION_ASSIGNMENT; DIVISION_ASSIGNMENT; MODULO_ASSIGNMENT;
+	Addition; Append; Subtraction; Multiplication; Division; Modulo;
+	Assignment; AdditionAssignment; AppendAssignment; SubtractionAssignment; MultiplicationAssignment; DivisionAssignment; ModuloAssignment;
 	
-	BITWISE_NOT; BITWISE_AND; BITWISE_OR; BITWISE_XOR; BITWISE_LEFT_SHIFT; BITWISE_RIGHT_SHIFT;
-	BITWISE_AND_ASSIGNMENT; BITWISE_XOR_ASSIGNMENT; BITWISE_OR_ASSIGNMENT; BITWISE_LEFT_SHIFT_ASSIGNMENT; BITWISE_RIGHT_SHIFT_ASSIGNMENT;
+	BitwiseNot; BitwiseAnd; BitwiseOr; BitwiseXor; BitwiseLeftShift; BitwiseRightShift;
+	BitwiseAndAssignment; BitwiseXorAssignment; BitwiseOrAssignment; BitwiseLeftShiftAssignment; BitwiseRightShiftAssignment;
 	
-	EQUAL_TO; NOT_EQUAL_TO; GREATER_THAN; GREATER_THAN_OR_EQUAL_TO; LESS_THAN; LESS_THAN_OR_EQUAL_TO;
-	LOGICAL_NOT; LOGICAL_AND; LOGICAL_OR;
+	EqualTo; NotEqualTo; GreaterThan; GreaterThanOrEqualTo; LessThan; LessThanOrEqualTo;
+	LogicalNot; LogicalAnd; LogicalOr;
 	
-	CAST_TO_NUMBER; CAST_TO_STRING;
+	CastToNumber; CastToString;
 	
-	INSTANCE; LOAD_CONTEXT;
-	CHAR_AT; AS;
+	Instance; LoadContext;
+	CharAt; As;
 	
 }

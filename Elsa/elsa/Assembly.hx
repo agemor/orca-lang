@@ -1,4 +1,5 @@
 package elsa;
+import elsa.Token.Type;
 import elsa.Symbol.Class;
 import elsa.Symbol.Function;
 import elsa.Symbol.Literal;
@@ -43,55 +44,55 @@ class Assembly {
 	 */
 	public static function getOperatorNumber(type:Token.Type):Int {
 		switch (type) {
-		case ADDITION:
+		case Type.Addition:
 			return 1;
-		case SUBTRACTION:
+		case Type.Subtraction:
 			return 2;
-		case DIVISION:
+		case Type.Division:
 			return 3;
-		case MULTIPLICATION:
+		case Type.Multiplication:
 			return 4;
-		case MODULO:
+		case Type.Modulo:
 			return 5;
-		case BITWISE_AND:
+		case Type.BitwiseAnd:
 			return 6;
-		case BITWISE_OR:
+		case Type.BitwiseOr:
 			return 7;
-		case BITWISE_XOR:
+		case Type.BitwiseXor:
 			return 8;
-		case BITWISE_NOT:
+		case Type.BitwiseNot:
 			return 9;
-		case BITWISE_LEFT_SHIFT:
+		case Type.BitwiseLeftShift:
 			return 10;
-		case BITWISE_RIGHT_SHIFT:
+		case Type.BitwiseRightShift:
 			return 11;
-		case EQUAL_TO:
+		case Type.EqualTo:
 			return 12;
-		case NOT_EQUAL_TO:
+		case Type.NotEqualTo:
 			return 13;
-		case GREATER_THAN:
+		case Type.GreaterThan:
 			return 14;
-		case GREATER_THAN_OR_EQUAL_TO:
+		case Type.GreaterThanOrEqualTo:
 			return 15;
-		case LESS_THAN:
+		case Type.LessThan:
 			return 16;
-		case LESS_THAN_OR_EQUAL_TO:
+		case Type.LessThanOrEqualTo:
 			return 17;
-		case LOGICAL_AND:
+		case Type.LogicalAnd:
 			return 18;
-		case LOGICAL_OR:
+		case Type.LogicalOr:
 			return 19;
-		case LOGICAL_NOT:
+		case Type.LogicalNot:
 			return 20;
-		case APPEND:
+		case Type.Append:
 			return 21;
-		case CAST_TO_NUMBER:
+		case Type.CastToNumber:
 			return 22;
-		case CAST_TO_STRING:
+		case Type.CastToString:
 			return 23;
-		case CHAR_AT:
+		case Type.CharAt:
 			return 24;
-		case UNRARY_MINUS:
+		case Type.UnraryMinus:
 			return 25;
 		default:
 			return 0;
@@ -110,39 +111,39 @@ class Assembly {
 			switch (token.type) {
 
 			// 접두형 단항 연산자
-			case CAST_TO_NUMBER, CAST_TO_STRING, LOGICAL_NOT,
-				 BITWISE_NOT, UNRARY_MINUS:
+			case Type.CastToNumber, Type.CastToString, Type.LogicalNot,
+				 Type.BitwiseNot, Type.UnraryMinus:
 
 				writeCode("POP 0");
 				writeCode("OPR 1, " + getOperatorNumber(token.type) + ", &0");
 				writeCode("PSH &1");
 				
 			// 값을 증감시킨 다음 푸쉬한다.
-			case PREFIX_DECREMENT, PREFIX_INCREMENT:
+			case Type.PrefixDecrement, Type.PrefixIncrement:
 
 				writeCode("POP 0");
-				writeCode("OPR 1, " + (token.type == Token.Type.PREFIX_INCREMENT ? 1 : 2) + ", &0, @"
+				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &0, @"
 						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
 				writeCode("NDW &0, &1");
 				writeCode("PSH &0");
 				
 			// 값을 푸쉬한 다음 증감시킨다.
-			case SUFFIX_DECREMENT, SUFFIX_INCREMENT:
+			case Type.SuffixDecrement, Type.SuffixIncrement:
 
 				writeCode("POP 0");
 				writeCode("PSH &0");
-				writeCode("OPR 1, " + (token.type == Token.Type.PREFIX_INCREMENT ? 1 : 2) + ", &0, @"
+				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &0, @"
 						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
 				writeCode("NDW &0, &1");
 
 			// 이항 연산자
-			case ADDITION, SUBTRACTION, DIVISION,
-				 MULTIPLICATION, MODULO, BITWISE_AND,
-				 BITWISE_OR, BITWISE_XOR, BITWISE_LEFT_SHIFT,
-				 BITWISE_RIGHT_SHIFT, LOGICAL_AND, LOGICAL_OR,
-				 APPEND, EQUAL_TO, NOT_EQUAL_TO,
-				 GREATER_THAN, GREATER_THAN_OR_EQUAL_TO, LESS_THAN,
-				 LESS_THAN_OR_EQUAL_TO, CHAR_AT:
+			case Type.Addition, Type.Subtraction, Type.Division,
+				 Type.Multiplication, Type.Modulo, Type.BitwiseAnd,
+				 Type.BitwiseOr, Type.BitwiseXor, Type.BitwiseLeftShift,
+				 Type.BitwiseRightShift, Type.LogicalAnd, Type.LogicalOr,
+				 Type.Append, Type.EqualTo, Type.NotEqualTo,
+				 Type.GreaterThan, Type.GreaterThanOrEqualTo, Type.LessThan,
+				 Type.LessThanOrEqualTo, Type.CharAt:
 
 				writeCode("POP 0");
 				writeCode("POP 1");
@@ -150,10 +151,10 @@ class Assembly {
 				writeCode("PSH &2");
 
 			// 이항 연산 후 대입 연산자
-			case ADDITION_ASSIGNMENT, SUBTRACTION_ASSIGNMENT, DIVISION_ASSIGNMENT,
-				 MULTIPLICATION_ASSIGNMENT, MODULO_ASSIGNMENT, BITWISE_AND_ASSIGNMENT,
-				 BITWISE_OR_ASSIGNMENT, BITWISE_XOR_ASSIGNMENT, BITWISE_LEFT_SHIFT_ASSIGNMENT,
-				 BITWISE_RIGHT_SHIFT_ASSIGNMENT:
+			case Type.AdditionAssignment, Type.SubtractionAssignment, Type.DivisionAssignment,
+				 Type.MultiplicationAssignment, Type.ModuloAssignment, Type.BitwiseAndAssignment,
+				 Type.BitwiseOrAssignment, Type.BitwiseXorAssignment, Type.BitwiseLeftShiftAssignment,
+				 Type.BitwiseRightShiftAssignment:
 
 				writeCode("POP 0");
 				writeCode("POP 1");
@@ -161,7 +162,7 @@ class Assembly {
 				writeCode("NDW &1, &2");
 
 			// NDW -> SDW
-			case APPEND_ASSIGNMENT:
+			case Type.AppendAssignment:
 
 				writeCode("POP 0");
 				writeCode("POP 1");
@@ -169,7 +170,7 @@ class Assembly {
 				writeCode("SDW &1, &2");
 
 			// 이항 대입 연산자
-			case ASSIGNMENT:
+			case Type.Assignment:
 
 				writeCode("POP 0");
 				writeCode("POP 1");
@@ -194,7 +195,7 @@ class Assembly {
 				}
 
 			// 배열 참조 연산자
-			case ARRAY_REFERENCE:
+			case Type.ArrayReference:
 
 				// 배열의 차원수를 취득한다.
 				var dimensions:Int = Std.parseInt(token.value);
@@ -217,7 +218,7 @@ class Assembly {
 				writeCode("PSH &0");
 
 			// 함수 호출 / 어드레스 등의 역할
-			case ID:
+			case Type.ID:
 
 				var symbol:Symbol = token.getTag();
 
@@ -279,7 +280,7 @@ class Assembly {
 					}
 				}
 
-			case STRING, NUMBER:
+			case Type.String, Type.Number:
 
 				// 리터럴 심볼을 취득한다.
 				var literal:Literal = cast(token.getTag(), Symbol.Literal);
@@ -287,7 +288,7 @@ class Assembly {
 				// 리터럴의 값을 추가한다.
 				writeCode("PSH @" + literal.address);
 
-			case LOAD_CONTEXT:
+			case Type.LoadContext:
 
 				// 클래스를 취득한다.
 				var classs:Symbol.Class = cast(token.getTag(), Symbol.Class);
@@ -310,7 +311,7 @@ class Assembly {
 					writeCode("RDW " + member.address + ", &1");
 				}
 				
-			case ARRAY:
+			case Type.Class:
 
 				// 현재 토큰의 값이 인수의 갯수가 된다.
 				var numberOfArguments:Int = Std.parseInt(token.value);
@@ -330,7 +331,7 @@ class Assembly {
 				// 배열을 리턴한다.
 				writeCode("PSH &0");
 
-			case writeCodeTANCE:
+			case Type.Instance:
 
 				// 앞 토큰은 인스턴스의 클래스이다.
 				var targetClass:Symbol.Class = cast(tokens[i - 1].getTag(), Symbol.Class);
@@ -367,6 +368,7 @@ class Assembly {
 
 				// 배열을 리턴한다.
 				writeCode("PSH &0");
+				default:
 			}
 		}
 	}

@@ -3,8 +3,6 @@ var result:array;
 
 var k:number = 0;
 
-result[k++] = 34;
-
 for( i in 2...checkUntil ){
 	var flag:number = 1;
 	

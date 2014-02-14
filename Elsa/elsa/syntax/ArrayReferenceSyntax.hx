@@ -34,7 +34,7 @@ class ArrayReferenceSyntax implements Syntax {
 		if (indexOfLPO < 0)
 			return false;
 
-		if (tokens[indexOfLPO].type != Type.ARRAY_OPEN)
+		if (tokens[indexOfLPO].type != Type.ArrayOpen)
 			return false;
 			
 		return true;
@@ -53,13 +53,13 @@ class ArrayReferenceSyntax implements Syntax {
 		var seperations:Array<Int> = new Array<Int>();
 
 		for ( i in 0...tokens.length) { 
-			if (tokens[i].type == Type.ARRAY_OPEN) {
+			if (tokens[i].type == Type.ArrayOpen) {
 				if (depth == 0)
 					seperations.push(i);
 				depth++;
 			}
 
-			else if (tokens[i].type == Type.ARRAY_CLOSE) {
+			else if (tokens[i].type == Type.ArrayClose) {
 				if (depth == 1)
 					seperations.push(i);
 				depth--;

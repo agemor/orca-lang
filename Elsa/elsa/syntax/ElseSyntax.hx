@@ -22,7 +22,7 @@ class ElseSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.ELSE)
+		if (tokens.length > 0 && tokens[0].type == Type.Else)
 			return true;
 		return false;
 	}

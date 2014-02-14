@@ -31,7 +31,7 @@ class FunctionDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.FUNCTION)
+		if (tokens.length > 0 && tokens[0].type == Type.Function)
 			return true;
 		return false;
 	}
@@ -81,7 +81,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		if (isOmittedForm) {
 
 			// 프로시져의 리턴 타입을 취득한다.
-			if (tokens[2].type != Type.COLON) {
+			if (tokens[2].type != Type.Colon) {
 				Debug.report("Syntax error", "There is no colon to set return type of function.", lineNumber);
 				return null;
 			}
@@ -99,7 +99,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		else {
 
 			// 괄호로 열려 있어야 한다.
-			if (tokens[2].type != Type.SHELL_OPEN) {
+			if (tokens[2].type != Type.ShellOpen) {
 				Debug.report("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
 			}
@@ -119,7 +119,7 @@ class FunctionDeclarationSyntax implements Syntax {
 				hasParameters = true;
 
 			// 프로시져 타입을 취득한다.
-			if (tokens[tokens.length - 2].type != Type.COLON) {
+			if (tokens[tokens.length - 2].type != Type.Colon) {
 				Debug.report("Syntax error", "There is no colon to set return type of function.", lineNumber);
 				return null;
 			}

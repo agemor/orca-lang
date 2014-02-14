@@ -25,7 +25,7 @@ class ReturnSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.RETURN)
+		if (tokens.length > 0 && tokens[0].type == Type.Return)
 			return true;
 		return false;
 	}

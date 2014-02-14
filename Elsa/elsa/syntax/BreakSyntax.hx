@@ -20,7 +20,7 @@ class BreakSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.BREAK)
+		if (tokens.length > 0 && tokens[0].type == Type.Break)
 			return true;
 		return false;
 	}

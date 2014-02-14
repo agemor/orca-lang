@@ -162,21 +162,21 @@ class Parser {
 			// 현재 내려진 명령이 유효한지 확인한다.
 			switch (tokens[0].type) {
 				
-			case CLASS, VARIABLE, ARRAY, FUNCTION:
+			case Type.Class, Type.Variable, Type.Array, Type.Function:
 				
-			case IF, ELSE_IF, ELSE, FOR, WHILE:
+			case Type.If, Type.ElseIf, Type.Else, Type.For, Type.While:
 				if (option.inStructure) {
 					Debug.report("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
 					continue;
 				}
 				
-			case CONTINUE, BREAK:
+			case Type.Continue, Type.Break:
 				if (!option.inIterator) {
 					Debug.report("Syntax error 3", "제어 명령은 반복문 내에서만 사용할 수 있습니다.", lineNumber);
 					continue;
 				}
 				
-			case RETURN:
+			case Type.Return:
 				if (!option.inFunction) {
 					Debug.report("Syntax error 4", "리턴 명령은 함수 정의 내에서만 사용할 수 있습니다.", lineNumber);
 					continue;
@@ -554,7 +554,7 @@ class Parser {
 
 				// for문의 기본 구성인 n -> k 에서 이는 기본적으로 while(n <= k)를 의미하므로 동치인 명령을
 				// 생성한다.
-				var condition:Array<Token> = TokenTools.merge([[syntax.counter, Token.findByType(Type.LESS_THAN_OR_EQUAL_TO)], syntax.end]);
+				var condition:Array<Token> = TokenTools.merge([[syntax.counter, Token.findByType(Type.LessThanOrEqualTo)], syntax.end]);
 				var parsedCondition:ParsedPair = parseLine(condition, lineNumber);
 				
 				if (parsedCondition == null)
@@ -810,13 +810,13 @@ class Parser {
 			switch (tokens[0].type) {
 
 			// true/false 토큰은 각각 1/0으로 처리한다.
-			case TRUE:
+			case Type.True:
 				literal = symbolTable.getLiteral("1", Literal.NUMBER);
-			case FALSE:
+			case Type.False:
 				literal = symbolTable.getLiteral("0", Literal.NUMBER);
-			case NUMBER:
+			case Type.Number:
 				literal = symbolTable.getLiteral(tokens[0].value, Literal.NUMBER);
-			case STRING:
+			case Type.String:
 				literal = symbolTable.getLiteral(tokens[0].value, Literal.STRING);
 			default:
 				Debug.report("Syntax error", "심볼의 타입을 찾을 수 없습니다.", lineNumber);
@@ -938,7 +938,7 @@ class Parser {
 			 * A1, A2, A3, ... An, ARRAY_LITERAL(n)
 			 */
 			var mergedElements:Array<Token> = TokenTools.merge(parsedElements);
-			mergedElements.push(new Token(Type.ARRAY, Std.string(parsedElements.length)));
+			mergedElements.push(new Token(Type.Array, Std.string(parsedElements.length)));
 
 			return new ParsedPair(mergedElements, "array");
 		}
@@ -963,7 +963,7 @@ class Parser {
 			// 토큰에 오브젝트 태그
 			syntax.instanceType.setTag(targetClass);
 
-			return new ParsedPair([syntax.instanceType, Token.findByType(Type.INSTANCE)], targetClass.id);
+			return new ParsedPair([syntax.instanceType, Token.findByType(Type.Instance)], targetClass.id);
 		}
 
 		/**
@@ -1029,7 +1029,7 @@ class Parser {
 				targetClass = cast(symbolTable.findInLocal(parsedReference.type), Class);
 
 				// 컨텍스트 로드 토큰
-				var loadContext:Token = new Token(Type.LOAD_CONTEXT);
+				var loadContext:Token = new Token(Type.LoadContext);
 				loadContext.setTag(targetClass);
 
 				var result:Array<Token>;
@@ -1115,7 +1115,7 @@ class Parser {
 				var result:Array<Token> = new Array<Token>();
 				result.push(syntax.array);
 				result = result.concat(parsedIndex.data);
-				result.push(Token.findByType(Type.CHAR_AT));
+				result.push(Token.findByType(Type.CharAt));
 				
 				// 결과를 리턴한다.
 				return new ParsedPair(result, "string");
@@ -1148,7 +1148,7 @@ class Parser {
 
 			var result:Array<Token> = TokenTools.merge(parsedReferences);
 			result.push(syntax.array);
-			result.push(new Token(Type.ARRAY_REFERENCE, Std.string(parsedReferences.length)));
+			result.push(new Token(Type.ArrayReference, Std.string(parsedReferences.length)));
 
 			// 리턴 타입은 어떤 타입이라도 될 수 있다.
 			return new ParsedPair(result, "*");
@@ -1180,7 +1180,7 @@ class Parser {
 				}
 				
 				var result:Array<Token> = parsedTarget.data;
-				result.push(Token.findByType(Type.CAST_TO_STRING));
+				result.push(Token.findByType(Type.CastToString));
 				
 				// 캐스팅된 문자열을 출력
 				return new ParsedPair(result, "string");
@@ -1196,7 +1196,7 @@ class Parser {
 				}
 	
 				var result:Array<Token> = parsedTarget.data;
-				result.push(Token.findByType(Type.CAST_TO_NUMBER));
+				result.push(Token.findByType(Type.CastToNumber));
 				
 				// 캐스팅된 문자열을 출력
 				return new ParsedPair(result, "number");
@@ -1228,8 +1228,8 @@ class Parser {
 				return null;
 
 			// 뒤 항은 단항 ID만 가능하다.
-			if (syntax.operator.type == Type.PREFIX_DECREMENT
-					|| syntax.operator.type == Type.PREFIX_INCREMENT) {
+			if (syntax.operator.type == Type.PrefixDecrement
+					|| syntax.operator.type == Type.PrefixIncrement) {
 				
 				// 단항 ID가 아닐 경우
 				if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
@@ -1334,16 +1334,16 @@ class Parser {
 
 					// 산술 연산자를 문자열 연산자로 수정한다.
 					switch (syntax.operator.type) {
-					case ADDITION_ASSIGNMENT:
-						syntax.operator = Token.findByType(Type.APPEND_ASSIGNMENT);
-					case ADDITION:
-						syntax.operator = Token.findByType(Type.APPEND);
+					case Type.AdditionAssignment:
+						syntax.operator = Token.findByType(Type.AppendAssignment);
+					case Type.Addition:
+						syntax.operator = Token.findByType(Type.Append);
 
 					// 문자열 - 문자열 대입이면 SDW명령을 활성화시킨다.
-					case ASSIGNMENT:
+					case Type.Assignment:
 						syntax.operator.value = "string";
 						left.data[0].useAsAddress = true;
-					case EQUAL_TO, NOT_EQUAL_TO:
+					case Type.EqualTo, Type.NotEqualTo:
 					default:
 						Debug.report("Syntax error", "이 연산자로 문자열 연산을 수행할 수 없습니다.", lineNumber);
 						return null;
@@ -1356,7 +1356,7 @@ class Parser {
 
 					switch (syntax.operator.type) {
 					// 실수형 - 실수형 대입이면 NDW명령을 활성화시킨다.
-					case ASSIGNMENT:
+					case Type.Assignment:
 						syntax.operator.value = "number";
 						left.data[0].useAsAddress = true;
 					default:
@@ -1368,7 +1368,7 @@ class Parser {
 				else {
 					switch (syntax.operator.type) {
 					// 인스턴스 - 인스턴스 대입이면 NDW명령을 활성화시킨다.
-					case ASSIGNMENT:
+					case Type.Assignment:
 						syntax.operator.value = "instance";
 						left.data[0].useAsAddress = true;
 					default:
@@ -1384,27 +1384,27 @@ class Parser {
 
 				// 자동 캐스팅을 시도한다.
 				switch (syntax.operator.type) {
-				case ADDITION:
+				case Type.Addition:
 
 					// 문자 + 숫자
 					if (left.type == "string" && right.type == "number") {
 
-						right.data.push(Token.findByType(Type.CAST_TO_STRING));
+						right.data.push(Token.findByType(Type.CastToString));
 						right.type = "string";
 
 						// 연산자를 APPEND로 수정한다.
-						syntax.operator = Token.findByType(Type.APPEND);
+						syntax.operator = Token.findByType(Type.Append);
 
 					}
 
 					// 숫자 + 문자
 					else if (left.type == "number" && right.type == "string") {
 
-						left.data.push(Token.findByType(Type.CAST_TO_STRING));
+						left.data.push(Token.findByType(Type.CastToString));
 						left.type = "string";
 
 						// 연산자를 APPEND로 수정한다.
-						syntax.operator = Token.findByType(Type.APPEND);
+						syntax.operator = Token.findByType(Type.Append);
 
 					}
 
@@ -1620,7 +1620,7 @@ class Parser {
 				var firstToken:Token = possibleBranch.lexData[0];
 
 				// 이어지는 조건문이 있을 경우
-				if (firstToken.type == Type.ELSE || firstToken.type == Type.ELSE_IF)
+				if (firstToken.type == Type.Else || firstToken.type == Type.ElseIf)
 					return true;
 			}
 		}

@@ -31,7 +31,7 @@ class InstanceCreationSyntax implements Syntax {
 			return false;
 
 		// 토큰의 첫 원소가 new여야 한다.
-		if (tokens[0].type != Type.NEW)
+		if (tokens[0].type != Type.New)
 			return false;
 
 		// 토큰의 두 번째 원소가 id여야 한다.

@@ -26,7 +26,7 @@ class WhileSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.IF)
+		if (tokens.length > 0 && tokens[0].type == Type.If)
 			return true;
 		return false;
 	}
@@ -46,13 +46,13 @@ class WhileSyntax implements Syntax {
 		}
 
 		// 괄호로 시작하는지 확인한다
-		if (tokens[1].type != Type.SHELL_OPEN) {
+		if (tokens[1].type != Type.ShellOpen) {
 			Debug.report("Syntax error", "While condition must start with \"(\"", lineNumber);
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
-		if (tokens[tokens.length - 1].type != Type.SHELL_CLOSE) {
+		if (tokens[tokens.length - 1].type != Type.ShellClose) {
 			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);	
 			return null;
 		}

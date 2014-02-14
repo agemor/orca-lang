@@ -189,7 +189,7 @@ class Lexer {
 				
 				// 문자열이 종결되었을 때 문자열 토큰 추가
 				if (!isString)
-					tokens.push(new Token(Token.Type.STRING, buffer));
+					tokens.push(new Token(Token.Type.String, buffer));
 
 				// 버퍼 초기화
 				buffer = "";
@@ -217,7 +217,7 @@ class Lexer {
 				
 				// .이 여러번 쓰였다면, .을 여러 번 쓴 게 어떤 의미가 있는 것이다.		
 				if (isFloat) {
-					tokens.push(new Token(Token.Type.NUMBER, buffer.substring(0, buffer.length -1)));
+					tokens.push(new Token(Token.Type.Number, buffer.substring(0, buffer.length -1)));
 
 					// 버퍼 초기화
 					buffer = "";
@@ -235,7 +235,7 @@ class Lexer {
 			// 만약 그 외의 문자가 온다면 숫자 리터럴을 종료한다.
 			if (isNumber) {
 
-				tokens.push(new Token(Token.Type.NUMBER, buffer));
+				tokens.push(new Token(Token.Type.Number, buffer));
 
 				// 버퍼 초기화
 				buffer = "";
@@ -288,29 +288,29 @@ class Lexer {
 					// 더하기 연산자의 경우 앞에 더할 대상이 존재
 					if (tokens.length > 0
 							&& (previousToken.type == Token.Type.ID
-							|| previousToken.type == Token.Type.NUMBER
-							|| previousToken.type == Token.Type.STRING
-							|| previousToken.type == Token.Type.SHELL_CLOSE)) {
+							|| previousToken.type == Token.Type.Number
+							|| previousToken.type == Token.Type.String
+							|| previousToken.type == Token.Type.ShellClose)) {
 						previousTarget = true;
 					}
 
 					// 연산자 수정
-					if (result.type == Token.Type.ADDITION && !previousTarget)
-						result = Token.findByType(Token.Type.UNRARY_PLUS);
-					else if (result.type == Token.Type.UNRARY_PLUS && previousTarget)
-						result = Token.findByType(Token.Type.ADDITION);
-					else if (result.type == Token.Type.SUBTRACTION && !previousTarget)
-						result = Token.findByType(Token.Type.UNRARY_MINUS);
-					else if (result.type == Token.Type.UNRARY_MINUS && previousTarget)
-						result = Token.findByType(Token.Type.SUBTRACTION);
-					else if (result.type == Token.Type.SUFFIX_INCREMENT && !previousTarget)
-						result = Token.findByType(Token.Type.PREFIX_INCREMENT);
-					else if (result.type == Token.Type.PREFIX_INCREMENT && previousTarget)
-						result = Token.findByType(Token.Type.SUFFIX_INCREMENT);
-					else if (result.type == Token.Type.SUFFIX_DECREMENT && !previousTarget)
-						result = Token.findByType(Token.Type.PREFIX_DECREMENT);
-					else if (result.type == Token.Type.PREFIX_DECREMENT && previousTarget)
-						result = Token.findByType(Token.Type.SUFFIX_DECREMENT);
+					if (result.type == Token.Type.Addition && !previousTarget)
+						result = Token.findByType(Token.Type.UnraryPlus);
+					else if (result.type == Token.Type.UnraryPlus && previousTarget)
+						result = Token.findByType(Token.Type.Addition);
+					else if (result.type == Token.Type.Subtraction && !previousTarget)
+						result = Token.findByType(Token.Type.UnraryMinus);
+					else if (result.type == Token.Type.UnraryMinus && previousTarget)
+						result = Token.findByType(Token.Type.Subtraction);
+					else if (result.type == Token.Type.SuffixIncrement && !previousTarget)
+						result = Token.findByType(Token.Type.PrefixIncrement);
+					else if (result.type == Token.Type.PrefixIncrement && previousTarget)
+						result = Token.findByType(Token.Type.SuffixIncrement);
+					else if (result.type == Token.Type.SuffixDecrement && !previousTarget)
+						result = Token.findByType(Token.Type.PrefixDecrement);
+					else if (result.type == Token.Type.PrefixDecrement && previousTarget)
+						result = Token.findByType(Token.Type.SuffixDecrement);
 
 					// 발견된 토큰을 쓴다
 					tokens.push(result);
@@ -327,7 +327,7 @@ class Lexer {
 
 		// 버퍼가 남았다면 마지막으로 써 준다
 		if (isNumber) {
-			tokens.push(new Token(Token.Type.NUMBER, buffer));
+			tokens.push(new Token(Token.Type.Number, buffer));
 		} else {
 			var token:Token = Token.findByValue(StringTools.trim(buffer), true);
 			if (buffer.length > 0 && token != null)
@@ -345,86 +345,86 @@ class Lexer {
 	 */
 	public function defineTokens():Void {
 		
-		Token.define(null, Token.Type.STRING);
-		Token.define(null, Token.Type.NUMBER);
-		Token.define(null, Token.Type.ARRAY);
-		Token.define(null, Token.Type.CAST_TO_NUMBER);
-		Token.define(null, Token.Type.CAST_TO_STRING);
-		Token.define(null, Token.Type.APPEND);
-		Token.define(null, Token.Type.APPEND_ASSIGNMENT);
-		Token.define(null, Token.Type.ARRAY_REFERENCE);
-		Token.define(null, Token.Type.INSTANCE);
-		Token.define(null, Token.Type.LOAD_CONTEXT);
-		Token.define(null, Token.Type.CHAR_AT);
+		Token.define(null, Token.Type.String);
+		Token.define(null, Token.Type.Number);
+		Token.define(null, Token.Type.Array);
+		Token.define(null, Token.Type.CastToNumber);
+		Token.define(null, Token.Type.CastToString);
+		Token.define(null, Token.Type.Append);
+		Token.define(null, Token.Type.AppendAssignment);
+		Token.define(null, Token.Type.ArrayReference);
+		Token.define(null, Token.Type.Instance);
+		Token.define(null, Token.Type.LoadContext);
+		Token.define(null, Token.Type.CharAt);
 
-		Token.define("var", Token.Type.VARIABLE, true);
-		Token.define("function", Token.Type.FUNCTION, true);
-		Token.define("class", Token.Type.CLASS, true);
-		Token.define("if", Token.Type.IF, true);
-		Token.define("elif", Token.Type.ELSE_IF, true);
-		Token.define("else", Token.Type.ELSE, true);
-		Token.define("for", Token.Type.FOR, true);
-		Token.define("while", Token.Type.WHILE, true);
-		Token.define("continue", Token.Type.CONTINUE, true);
-		Token.define("break", Token.Type.BREAK, true);
-		Token.define("return", Token.Type.RETURN, true);
-		Token.define("new", Token.Type.NEW, true);
-		Token.define("true", Token.Type.TRUE, true);
-		Token.define("false", Token.Type.FALSE, true);
-		Token.define("as", Token.Type.AS, true);
-		Token.define("in", Token.Type.IN, true);
+		Token.define("var", Token.Type.Variable, true);
+		Token.define("function", Token.Type.Function, true);
+		Token.define("class", Token.Type.Class, true);
+		Token.define("if", Token.Type.If, true);
+		Token.define("elif", Token.Type.ElseIf, true);
+		Token.define("else", Token.Type.Else, true);
+		Token.define("for", Token.Type.For, true);
+		Token.define("while", Token.Type.While, true);
+		Token.define("continue", Token.Type.Continue, true);
+		Token.define("break", Token.Type.Break, true);
+		Token.define("return", Token.Type.Return, true);
+		Token.define("new", Token.Type.New, true);
+		Token.define("true", Token.Type.True, true);
+		Token.define("false", Token.Type.False, true);
+		Token.define("as", Token.Type.As, true);
+		Token.define("in", Token.Type.In, true);
 		
-		Token.define("[", Token.Type.ARRAY_OPEN, false);
-		Token.define("]", Token.Type.ARRAY_CLOSE, false);
-		Token.define("{", Token.Type.BLOCK_OPEN, false);
-		Token.define("}", Token.Type.BLOCK_CLOSE, false);
-		Token.define("(", Token.Type.SHELL_OPEN, false);
-		Token.define(")", Token.Type.SHELL_CLOSE, false);
-		Token.define("...", Token.Type.FROM, false);
-		Token.define(".", Token.Type.DOT, false);
-		Token.define(",", Token.Type.COMMA, false);
-		Token.define(":", Token.Type.COLON, false);
-		Token.define(";", Token.Type.SEMICOLON, false);
-		Token.define("++", Token.Type.PREFIX_INCREMENT, false, Token.Affix.PREFIX);
-		Token.define("--", Token.Type.PREFIX_DECREMENT, false, Token.Affix.PREFIX);
-		Token.define("++", Token.Type.SUFFIX_INCREMENT, false, Token.Affix.SUFFIX);
-		Token.define("--", Token.Type.SUFFIX_DECREMENT, false, Token.Affix.SUFFIX);
-		Token.define("+", Token.Type.UNRARY_PLUS, false, Token.Affix.PREFIX);
-		Token.define("-", Token.Type.UNRARY_MINUS, false, Token.Affix.PREFIX);
-		Token.define("=", Token.Type.ASSIGNMENT, false);
-		Token.define("+=", Token.Type.ADDITION_ASSIGNMENT, false);
-		Token.define("-=", Token.Type.SUBTRACTION_ASSIGNMENT, false);
-		Token.define("*=", Token.Type.MULTIPLICATION_ASSIGNMENT, false);
-		Token.define("/=", Token.Type.DIVISION_ASSIGNMENT, false);
-		Token.define("%=", Token.Type.MODULO_ASSIGNMENT, false);
-		Token.define("&=", Token.Type.BITWISE_AND_ASSIGNMENT, false);
-		Token.define("^=", Token.Type.BITWISE_XOR_ASSIGNMENT, false);
-		Token.define("|=", Token.Type.BITWISE_OR_ASSIGNMENT, false);
-		Token.define("<<=", Token.Type.BITWISE_LEFT_SHIFT_ASSIGNMENT, false);
-		Token.define(">>=", Token.Type.BITWISE_RIGHT_SHIFT_ASSIGNMENT, false);
-		Token.define("==", Token.Type.EQUAL_TO, false);
-		Token.define("!=", Token.Type.NOT_EQUAL_TO, false);
-		Token.define(">", Token.Type.GREATER_THAN, false);
-		Token.define(">=", Token.Type.GREATER_THAN_OR_EQUAL_TO, false);
-		Token.define(">", Token.Type.LESS_THAN, false);
-		Token.define("<=", Token.Type.LESS_THAN_OR_EQUAL_TO, false);
-		Token.define("+", Token.Type.ADDITION, false);
-		Token.define("-", Token.Type.SUBTRACTION, false);
-		Token.define("*", Token.Type.MULTIPLICATION, false);
-		Token.define("/", Token.Type.DIVISION, false);
-		Token.define("%", Token.Type.MODULO, false);
-		Token.define("!", Token.Type.LOGICAL_NOT, false, Token.Affix.PREFIX);
-		Token.define("not", Token.Type.LOGICAL_NOT, true, Token.Affix.PREFIX);
-		Token.define("&&", Token.Type.LOGICAL_AND, false);
-		Token.define("and", Token.Type.LOGICAL_AND, true);
-		Token.define("||", Token.Type.LOGICAL_OR, false);
-		Token.define("or", Token.Type.LOGICAL_OR, true);
-		Token.define("~", Token.Type.BITWISE_NOT, false, Token.Affix.PREFIX);
-		Token.define("&", Token.Type.BITWISE_AND, false);
-		Token.define("|", Token.Type.BITWISE_OR, false);
-		Token.define("^", Token.Type.BITWISE_XOR, false);
-		Token.define("<<", Token.Type.BITWISE_LEFT_SHIFT, false);
-		Token.define(">>", Token.Type.BITWISE_RIGHT_SHIFT, false);
+		Token.define("[", Token.Type.ArrayOpen, false);
+		Token.define("]", Token.Type.ArrayClose, false);
+		Token.define("{", Token.Type.BlockOpen, false);
+		Token.define("}", Token.Type.BlockClose, false);
+		Token.define("(", Token.Type.ShellOpen, false);
+		Token.define(")", Token.Type.ShellClose, false);
+		Token.define("...", Token.Type.From, false);
+		Token.define(".", Token.Type.Dot, false);
+		Token.define(",", Token.Type.Comma, false);
+		Token.define(":", Token.Type.Colon, false);
+		Token.define(";", Token.Type.Semicolon, false);
+		Token.define("++", Token.Type.PrefixIncrement, false, Token.Affix.PREFIX);
+		Token.define("--", Token.Type.PrefixDecrement, false, Token.Affix.PREFIX);
+		Token.define("++", Token.Type.SuffixIncrement, false, Token.Affix.SUFFIX);
+		Token.define("--", Token.Type.SuffixDecrement, false, Token.Affix.SUFFIX);
+		Token.define("+", Token.Type.UnraryPlus, false, Token.Affix.PREFIX);
+		Token.define("-", Token.Type.UnraryMinus, false, Token.Affix.PREFIX);
+		Token.define("=", Token.Type.Assignment, false);
+		Token.define("+=", Token.Type.AdditionAssignment, false);
+		Token.define("-=", Token.Type.SubtractionAssignment, false);
+		Token.define("*=", Token.Type.MultiplicationAssignment, false);
+		Token.define("/=", Token.Type.DivisionAssignment, false);
+		Token.define("%=", Token.Type.ModuloAssignment, false);
+		Token.define("&=", Token.Type.BitwiseAndAssignment, false);
+		Token.define("^=", Token.Type.BitwiseXorAssignment, false);
+		Token.define("|=", Token.Type.BitwiseOrAssignment, false);
+		Token.define("<<=", Token.Type.BitwiseLeftShiftAssignment, false);
+		Token.define(">>=", Token.Type.BitwiseRightShiftAssignment, false);
+		Token.define("==", Token.Type.EqualTo, false);
+		Token.define("!=", Token.Type.NotEqualTo, false);
+		Token.define(">", Token.Type.GreaterThan, false);
+		Token.define(">=", Token.Type.GreaterThanOrEqualTo, false);
+		Token.define(">", Token.Type.LessThan, false);
+		Token.define("<=", Token.Type.LessThanOrEqualTo, false);
+		Token.define("+", Token.Type.Addition, false);
+		Token.define("-", Token.Type.Subtraction, false);
+		Token.define("*", Token.Type.Multiplication, false);
+		Token.define("/", Token.Type.Division, false);
+		Token.define("%", Token.Type.Modulo, false);
+		Token.define("!", Token.Type.LogicalNot, false, Token.Affix.PREFIX);
+		Token.define("not", Token.Type.LogicalNot, true, Token.Affix.PREFIX);
+		Token.define("&&", Token.Type.LogicalAnd, false);
+		Token.define("and", Token.Type.LogicalAnd, true);
+		Token.define("||", Token.Type.LogicalOr, false);
+		Token.define("or", Token.Type.LogicalOr, true);
+		Token.define("~", Token.Type.BitwiseNot, false, Token.Affix.PREFIX);
+		Token.define("&", Token.Type.BitwiseAnd, false);
+		Token.define("|", Token.Type.BitwiseOr, false);
+		Token.define("^", Token.Type.BitwiseXor, false);
+		Token.define("<<", Token.Type.BitwiseLeftShift, false);
+		Token.define(">>", Token.Type.BitwiseRightShift, false);
 	}
 	
 	/**
