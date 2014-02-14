@@ -88,6 +88,7 @@ class Data {
 	public var isRegistry: Bool;
 	public var data (default, set): Dynamic;
 	public var string (get, never): String;
+	public var array (get, never): Array<Dynamic>;
 	public function new(data: Dynamic) {
 		this.data = data;
 	}
@@ -103,6 +104,9 @@ class Data {
 	}
 	function get_string(): String {
 		return if (isReference) data.string else Std.string(data);
+	}
+	function get_array(): Array<Dynamic> {
+		return if (Type.getClass(data) == Array) return cast data else [data];
 	}
 }
 
