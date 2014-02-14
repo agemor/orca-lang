@@ -51,6 +51,22 @@ class Machine {
 					stack.add(getData(args[0]).clone());
 				else
 					stack.add(new Data(args[0]));
+			case "OPR":
+				var registerIndex = getAddress(args[0]);
+				var operator = getIntegerValue(args[1]);
+				var left = getData(args[2]);
+				var right = if (args.length > 3 && operator != 24)
+					getData(args[3]) else null;
+				if (register[registerIndex] == null)
+					register[registerIndex] = new Data(null);
+				switch (operator) {
+				case 1: register[registerIndex].data = left.float + right.float;
+				case 2: register[registerIndex].data = left.float - right.float;
+				case 4: register[registerIndex].data = left.float * right.float;
+				case 17: register[registerIndex].data = if (left.float <= right.float) 1 else 0;
+				case 21: register[registerIndex].data = left.string + right.string;
+				case 23: register[registerIndex].data = Std.string(left.integer);
+				}
 			case "ESI":
 				register[getAddress(args[0])].data =
 					memory[getAddress(args[1])].array[getIntegerValue(args[2])];
