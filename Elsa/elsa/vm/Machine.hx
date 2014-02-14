@@ -40,7 +40,7 @@ class Machine {
 	public function run() {
 		pointer = 0;
 		while (true) {
-			var instruction = program[pointer];
+			var instruction = program[pointer++];
 			var args = instruction.args;
 			switch (instruction.id) {
 			case "POP": register[getAddress(args[0])] = stack.pop();
@@ -60,13 +60,15 @@ class Machine {
 				memory[getAddress(args[0])].data = getStringValue(args[1]);
 			case "RDW":
 				memory[getAddress(args[0])].data = memory[getIntegerValue(args[1])];
+			case "JMP":
+				if (getIntegerValue(args[0]) == 0)
+					pointer = getIntegerValue(args[1]);
 			case "EXE": switch (getStringValue(instruction.args[0])) {
 				case "print": Debug.print(getStringValue(args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
 				}
 			case "END": return;
 			}
-			++pointer;
 		}
 	}
 	public function getData(data: String): Data {
