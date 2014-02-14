@@ -54,7 +54,7 @@ class FunctionCallSyntax implements Syntax {
 		var functionArguments:Array<Array<Token>> = TokenTools.getArguments(tokens.slice(2, tokens.length - 1));	
 		
 		if (functionArguments.length == 1 && functionArguments[0].length == 0) 
-			return new FunctionCallSyntax(tokens[0]);
+			return new FunctionCallSyntax(tokens[0], new Array<Array<Token>>());
 		else 
 			return new FunctionCallSyntax(tokens[0], functionArguments);
 	}

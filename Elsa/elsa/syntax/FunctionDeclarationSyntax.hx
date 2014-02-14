@@ -117,7 +117,7 @@ class FunctionDeclarationSyntax implements Syntax {
 				hasParameters = false;
 			else
 				hasParameters = true;
-
+				
 			// 프로시져 타입을 취득한다.
 			if (tokens[tokens.length - 2].type != Type.Colon) {
 				Debug.report("Syntax error", "There is no colon to set return type of function.", lineNumber);
@@ -132,6 +132,6 @@ class FunctionDeclarationSyntax implements Syntax {
 			returnType = tokens[tokens.length - 1];
 		}
 
-		return new FunctionDeclarationSyntax(functionName, returnType, hasParameters ? parameters : null);
+		return new FunctionDeclarationSyntax(functionName, returnType, hasParameters ? parameters : new Array<Array<Token>>());
 	}
 }

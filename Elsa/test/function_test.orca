@@ -1,4 +1,31 @@
-function f():void {
-	print("function called!");
+/**
+* 리턴하지 않는 파라미터가 없는 함수
+*/
+function printHelloWorld():void {
+	print("Hello World!");
 }
-f();
+printHelloWorld();
+
+/**
+* 리턴하지 않는 파라미터가 있는 함수
+*/
+function printFullName(firstName:string, lastName:string):void {
+	print(firstName + " "+ lastName);
+}
+printFullName("HyunJun","Kim");
+
+/**
+* 리턴하는 파라미터가 없는 함수
+*/
+function getPI():number {
+	return 3.141592;
+}
+function getTau():number {
+	return getPI() * 2;
+}
+function getMyName():string {
+	return "HyunJun Kim";
+}
+print(getPI());
+print(getTau());
+print(getMyName());

@@ -113,7 +113,7 @@ class Parser {
 				assembly.writeCode("SSA " + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("SDW " + Std.string(literal.address) + ", " + literal.value + "/");
+				assembly.writeCode("SDW " + Std.string(literal.address) + ", /" + literal.value + "/");
 			}
 
 		}
@@ -263,7 +263,7 @@ class Parser {
 
 				// 테이블에서 함수 심볼을 가져온다. (이미 스캐닝 과정에서 함수가 테이블에 등록되었으므로)
 				var functn:Function = cast(symbolTable.findInLocal(syntax.functionName.value), Function);
-
+				
 				// 함수 토큰을 태그한다.
 				syntax.functionName.setTag(functn);
 				
@@ -293,7 +293,7 @@ class Parser {
 				functionOption.inFunction = true;
 				functionOption.inIterator = false;
 				functionOption.parentFunction = functn;
-
+				
 				parseBlock(block.branch[++i], functionOption);
 
 				/*
@@ -302,17 +302,12 @@ class Parser {
 				 * 호출 스택에 기반하여 프로시져의 끝에서 마지막 스택 플래그로 이동.(pop)
 				 */
 				// 마지막 호출 위치를 가져온다.
-				assembly.writeCode("POP 0");
+				assembly.writeCode("POP 0, 1");
 
 				// 마지막 호출 위치로 이동한다. (이 명령은 함수가 void형이고, 리턴 명령을 결국 만나지 못했을 때 실행되게
 				// 된다.)
 				assembly.writeCode("JMP 0, &0");
-
-				// 리턴형이 있는 함수에서 리턴 명령이 실행되지 않으면 0값을 출력한다.
-				if (!functn.isVoid()) {
-					assembly.writeCode("PSH 0");
-				}
-
+				
 				// 프로시져의 끝 부분을 표시한다.
 				assembly.flag(functn.functionExit);
 			}
@@ -708,7 +703,7 @@ class Parser {
 					}
 
 					// 마지막 호출 지점을 가져온다.
-					assembly.writeCode("POP 0");
+					assembly.writeCode("POP 0, 1");
 
 					// 마지막 호출 지점으로 이동한다. (레지스터 값으로 점프 명령)
 					assembly.writeCode("JMP 0, &0");
@@ -723,15 +718,9 @@ class Parser {
 						continue;
 					}
 
-					// 마지막 호출 지점을 가져온다.
-					assembly.writeCode("POP 0");
-
-					// 마지막 호출 지점으로 이동한다. (레지스터 값으로 점프 명령)
-					assembly.writeCode("JMP 0, &0");
-
 					// 반환값을 파싱한다. 파싱된 결과는 스택에 저장된다.
 					var parsedReturnValue:ParsedPair = parseLine(syntax.returnValue, lineNumber);
-
+					
 					if (parsedReturnValue == null)
 						continue;
 
@@ -739,8 +728,15 @@ class Parser {
 						Debug.report("Syntax error 22", "리턴된 데이터의 타입이 함수 리턴 타입과 일치하지 않습니다.", lineNumber);
 						continue;
 					}
-
+					
+					// 리턴 값을 쓴다.
 					assembly.writeLine(parsedReturnValue.data);
+					
+					// 마지막 호출 지점을 가져온다.
+					assembly.writeCode("POP 0, 1");
+					
+					// 마지막 호출 지점으로 이동한다. (레지스터 값으로 점프 명령)
+					assembly.writeCode("JMP 0, &0");
 				}
 			}
 			
@@ -850,18 +846,17 @@ class Parser {
 			}
 
 			// 심볼 테이블에서 프로시저를 취득한다.
-			var functn:Function = cast(syntax.functionName.getTag(), Function);
+			var functn:Function = cast(syntax.functionName.getTag(), Function);			
+			
+			// 매개 변수의 수 일치를 확인한다.
+			if (functn.parameters.length != syntax.functionArguments.length) {
+					
+				Debug.report("Syntax error 27", "매개 변수의 수가 잘못되었습니다.", lineNumber);
+				return null;
+			}
 			
 			// 파라미터가 있을 경우
-			if (syntax.functionArguments != null) {
-				
-				// 매개 변수의 수 일치를 확인한다.
-				if (functn.parameters.length != syntax.functionArguments.length) {
-					
-					Debug.report("Syntax error 27", "매개 변수의 수가 잘못되었습니다.", lineNumber);
-					return null;
-				}
-				
+			if (syntax.functionArguments.length > 0) {				
 				var parsedArguments:Array<Array<Token>> = new Array<Array<Token>>();
 				
 				// 각각의 파라미터를 파싱한다.
@@ -1515,7 +1510,7 @@ class Parser {
 				var parameters:Array<Variable> = new Array<Variable>();
 				
 				// 매개 변수 정의가 존재하면
-				if (syntax.parameters != null) {
+				if (syntax.parameters.length > 0) {
 
 					// 매개변수 각각의 유효성을 검증하고 심볼 형태로 가공한다.
 					for ( k in 0...syntax.parameters.length) {

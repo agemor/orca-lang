@@ -263,17 +263,17 @@ class Assembly {
 
 								// 인수가 실수형일 경우
 								if (parameter.isNumber())
-									writeCode("NDW " + parameter.address + ",  &0");
+									writeCode("NDW " + parameter.address + ", &0");
 
 								else if (parameter.isString())
-									writeCode("SDW " + parameter.address + ",  &0");
+									writeCode("SDW " + parameter.address + ", &0");
 
 								else
-									writeCode("RDW " + parameter.address + ",  &0");
+									writeCode("RDW " + parameter.address + ", &0");
 							}
 
 						// 현재 위치를 스택에 넣는다.
-						writeCode("PSH $CURRENT_POINTER");
+						writeCode("PSH $CURRENT_POINTER, 1");
 
 						// 함수 시작부로 점프한다.
 						writeCode("JMP 0, %" + functn.functionEntry);

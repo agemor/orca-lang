@@ -24,7 +24,8 @@ class Orcinus {
 	/**
 	 * 시스템 스택
 	 */
-	public var stack:Array<Dynamic>;
+	public var systemStack:Array<Dynamic>;
+	public var callStack:Array<Int>;
 	
 	/**
 	 * 프로그램
@@ -53,7 +54,8 @@ class Orcinus {
 		// 시스템 초기화
 		memory = new Array<Dynamic>();
 		register = new Array<Dynamic>();		
-		stack = new Array<Dynamic>();
+		systemStack = new Array<Dynamic>();
+		callStack = new Array<Int>();
 		
 		// 어셈블리를 캐시한다.
 		program = parseAssembly(assembly);
@@ -75,12 +77,18 @@ class Orcinus {
 			switch(opcode.id) {
 				
 				// 스택에서 값을 꺼내 레지스터에 저장한다.
-				case "POP":
-					register[parseIndicator(opcode.args[0])] = stack.pop();	
+				case "POP":					
+					if (opcode.args.length > 1)
+						register[parseIndicator(opcode.args[0])] = callStack.pop();	
+					else
+						register[parseIndicator(opcode.args[0])] = systemStack.pop();	
 					
 				// 값을 스택으로 밀어 넣는다.	
 				case "PSH":
-					stack.push(parseValue(opcode.args[0]));
+					if (opcode.args.length > 1)
+						callStack.push(parseValue(opcode.args[0]));
+					else
+						systemStack.push(parseValue(opcode.args[0]));
 					
 				// 연산 처리	
 				case "OPR":
@@ -373,7 +381,7 @@ class Orcinus {
 			for ( i in 0...args.length) {
 				args[i] = StringTools.trim(args[i]);
 				if (args[i].indexOf("/") >= 0)
-					args[i] = args[i].substring(0, args[i].indexOf("/"));
+					args[i] = args[i].split("/")[1];
 			}
 
 			// 명령 객체를 생성한다.

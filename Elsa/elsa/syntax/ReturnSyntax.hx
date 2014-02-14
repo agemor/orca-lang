@@ -2,6 +2,7 @@ package elsa.syntax;
 
 import elsa.Token;
 import elsa.Token.Type;
+import elsa.TokenTools;
 
 /**
  * Return 구문 패턴
@@ -38,6 +39,6 @@ class ReturnSyntax implements Syntax {
 	 * @return
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):ReturnSyntax {
-		return new ReturnSyntax(tokens.slice(0));
+		return new ReturnSyntax(tokens.slice(1));
 	}
 }
