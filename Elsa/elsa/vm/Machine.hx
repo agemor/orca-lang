@@ -121,6 +121,7 @@ class Data {
 	public var isReference: Bool;
 	public var isRegistry: Bool;
 	public var data (default, set): Dynamic;
+	public var float (get, never): Float;
 	public var integer (get, never): Int;
 	public var string (get, never): String;
 	public var array (get, never): Array<Dynamic>;
@@ -136,6 +137,9 @@ class Data {
 		isRegistry = Type.getClass(data) == String &&
 					data.length > 0 && data.charAt(0) == "@";
 		return data;
+	}
+	function get_float(): Float {
+		return if (isReference) data.float else Std.parseFloat(Std.string(data));
 	}
 	function get_integer(): Int {
 		return if (isReference) data.integer else Std.parseInt(Std.string(data));
