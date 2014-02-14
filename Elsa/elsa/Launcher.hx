@@ -25,7 +25,7 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(for_test);
+		var compiledCode:String = parser.compile(function_test);
 		trace(compiledCode);
 		
 		var orcinus:Orcinus = new Orcinus(1024 * 20);

@@ -5,7 +5,7 @@ import elsa.TokenTools;
 import elsa.debug.Debug;
 
 /**
- * 접두형 단항 연산 구문 패턴
+ * 접미형 단항 연산 구문 패턴
  * 
  * 형식: (OP) A
  * 
@@ -22,7 +22,7 @@ class SuffixSyntax implements Syntax {
 	}	
 	
 	/**
-	 * 토큰열이 접두형 단항 연산 구문 패턴과 일치하는지 확인한다.
+	 * 토큰열이 접미형 단항 연산 구문 패턴과 일치하는지 확인한다.
 	 * 
 	 * @param	tokens
 	 * @return
@@ -40,7 +40,7 @@ class SuffixSyntax implements Syntax {
 	}
 	
 	/**
-	 * 토큰열을 분석하여 접두형 단항 연산 구문 요소를 추출한다.
+	 * 토큰열을 분석하여 접미형 단항 연산 구문 요소를 추출한다.
 	 * 
 	 * @param	tokens
 	 * @param	lineNumber

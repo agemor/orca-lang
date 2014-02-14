@@ -87,7 +87,7 @@ class Parser {
 		
 		// 어휘 트리를 취득한다.
 		var lextree:Lextree = lexer.analyze(code);
-		//	lexer.viewHierarchy(lextree, 0);
+		//lexer.viewHierarchy(lextree, 0);
 		
 		// 현재 스코프를 스캔한다. 현재 스코프에서는 오브젝트 정의와 프로시저 정의만을 스캔한다.
 		scan(lextree, new ScanOption());
@@ -216,7 +216,7 @@ class Parser {
 
 					// 변수 정의가 유효한지 확인한다.
 					if (symbolTable.isValidVariableID(syntax.variableName.value)) {
-						Debug.report("Duplication error", "변수 정의가 중복되었습니다.", lineNumber);
+						Debug.report("Duplication error 7", "변수 정의가 중복되었습니다.", lineNumber);
 						continue;
 					}
 
@@ -272,7 +272,7 @@ class Parser {
 
 				// 다음 라인이 블록 형태인지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "함수 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 8", "함수 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -329,7 +329,7 @@ class Parser {
 
 				// 다음 라인이 블록 형태인지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "클래스의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error  9", "클래스의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -387,13 +387,13 @@ class Parser {
 				
 				// 조건문 결과 타입이 정수형이 아니라면 (True:1, False:0) 에러를 출력한다.
 				if (parsedCondition.type != "number") {
-					Debug.report("Syntax error", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
+					Debug.report("Syntax error 10", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
 					continue;
 				}
 
 				// if문의 구현부가 존재하는지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "if문의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 11", "if문의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -420,7 +420,7 @@ class Parser {
 				
 				// 확장된 조건문을 사용하지 않는 상태에서 else if문이 등장하면 에러를 출력한다
 				if (extendedConditional) {
-					Debug.report("Syntax error", "else-if문은 단독으로 쓰일 수 없습니다.", lineNumber);
+					Debug.report("Syntax error 12", "else-if문은 단독으로 쓰일 수 없습니다.", lineNumber);
 					continue;
 				}
 
@@ -444,13 +444,13 @@ class Parser {
 				
 				// 조건문 결과 타입이 정수형이 아니라면 (True:1, False:0) 에러를 출력한다.
 				if (parsedCondition.type != "number") {
-					Debug.report("Syntax error", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
+					Debug.report("Syntax error 13", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
 					continue;
 				}
 
 				// if문의 구현부가 존재하는지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "if문의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 14", "if문의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -497,7 +497,7 @@ class Parser {
 
 				// 확장된 조건문을 사용하지 않는 상태에서 else문이 등장하면 에러를 출력한다
 				if (extendedConditional) {
-					Debug.report("Syntax error", "else문은 단독으로 쓰일 수 없습니다.", lineNumber);
+					Debug.report("Syntax error 15", "else문은 단독으로 쓰일 수 없습니다.", lineNumber);
 					continue;
 				}
 
@@ -506,7 +506,7 @@ class Parser {
 
 				// else문의 구현부가 존재하는지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "else문의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 16", "else문의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -548,7 +548,7 @@ class Parser {
 					continue;
 				
 				if (parsedInitialValue.type != "number") {
-					Debug.report("Type error", "초기 값의 타입이 실수형이 아닙니다.", lineNumber);
+					Debug.report("Type error 17", "초기 값의 타입이 실수형이 아닙니다.", lineNumber);
 					continue;
 				}
 
@@ -566,7 +566,7 @@ class Parser {
 
 				// for문의 구현부가 존재하는지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "for문의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 18", "for문의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -642,7 +642,7 @@ class Parser {
 
 				// while문의 구현부가 존재하는지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "while문의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 19", "while문의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 
@@ -694,7 +694,7 @@ class Parser {
 					continue;
 					
 				if (!option.inFunction) {
-					Debug.report("Syntax error", "return 명령은 함수 내에서만 사용할 수 있습니다.", lineNumber);
+					Debug.report("Syntax error 20", "return 명령은 함수 내에서만 사용할 수 있습니다.", lineNumber);
 					continue;
 				}
 				
@@ -703,7 +703,7 @@ class Parser {
 
 					// 반환값이 존재하면 에러를 출력한다.
 					if (syntax.returnValue.length > 0) {
-						Debug.report("Syntax error", "void형 함수는 값을 반환할 수 없습니다.", lineNumber);
+						Debug.report("Syntax error 20", "void형 함수는 값을 반환할 수 없습니다.", lineNumber);
 						continue;
 					}
 
@@ -719,7 +719,7 @@ class Parser {
 
 					// 반환값이 없다면 에러를 출력한다.
 					if (tokens.length < 1) {
-						Debug.report("Syntax error", "return문이 값을 반환하지 않습니다.", lineNumber);
+						Debug.report("Syntax error 21", "return문이 값을 반환하지 않습니다.", lineNumber);
 						continue;
 					}
 
@@ -736,7 +736,7 @@ class Parser {
 						continue;
 
 					if (parsedReturnValue.type != option.parentFunction.type) {
-						Debug.report("Syntax error", "리턴된 데이터의 타입이 함수 리턴 타입과 일치하지 않습니다.", lineNumber);
+						Debug.report("Syntax error 22", "리턴된 데이터의 타입이 함수 리턴 타입과 일치하지 않습니다.", lineNumber);
 						continue;
 					}
 
@@ -775,7 +775,7 @@ class Parser {
 		
 		// 토큰이 비었을 경우
 		if (tokens.length < 1) {
-			Debug.report("Syntax error", "계산식에 피연산자가 존재하지 않습니다.", lineNumber);
+			Debug.report("Syntax error 23", "계산식에 피연산자가 존재하지 않습니다.", lineNumber);
 			return null;
 		}
 
@@ -791,7 +791,7 @@ class Parser {
 				// 태그되지 않은 변수일 경우 유효성을 검증한 후 태그한다.
 				if (!tokens[0].tagged) {
 					if (!symbolTable.isValidVariableID(tokens[0].value)) {
-						Debug.report("Undefined Error", tokens[0].value + "는 정의되지 않은 변수입니다.", lineNumber);
+						Debug.report("Undefined Error 24", tokens[0].value + "는 정의되지 않은 변수입니다.", lineNumber);
 						return null;
 					}
 					// 토큰에 변수를 태그한다.
@@ -819,7 +819,7 @@ class Parser {
 			case Type.String:
 				literal = symbolTable.getLiteral(tokens[0].value, Literal.STRING);
 			default:
-				Debug.report("Syntax error", "심볼의 타입을 찾을 수 없습니다.", lineNumber);
+				Debug.report("Syntax error 25", "심볼의 타입을 찾을 수 없습니다.", lineNumber);
 				return null;
 			}
 
@@ -841,7 +841,7 @@ class Parser {
 			if (!syntax.functionName.tagged) {
 
 				if (!symbolTable.isValidFunctionID(syntax.functionName.value)) {
-					Debug.report("Undefined Error", "유효하지 않은 프로시져입니다.", lineNumber);
+					Debug.report("Undefined Error 26", "유효하지 않은 프로시져입니다.", lineNumber);
 					return null;
 				}
 
@@ -854,10 +854,11 @@ class Parser {
 			
 			// 파라미터가 있을 경우
 			if (syntax.functionArguments != null) {
-
+				
 				// 매개 변수의 수 일치를 확인한다.
 				if (functn.parameters.length != syntax.functionArguments.length) {
-					Debug.report("Syntax error", "매개 변수의 수가 잘못되었습니다.", lineNumber);
+					
+					Debug.report("Syntax error 27", "매개 변수의 수가 잘못되었습니다.", lineNumber);
 					return null;
 				}
 				
@@ -868,7 +869,7 @@ class Parser {
 
 					// 파라미터가 비었을 경우
 					if (syntax.functionArguments[i].length < 1) {
-						Debug.report("Syntax error", "파라미터가 비었습니다.", lineNumber);
+						Debug.report("Syntax error 28", "파라미터가 비었습니다.", lineNumber);
 						return null;
 					}
 
@@ -881,7 +882,7 @@ class Parser {
 
 					// 파라미터의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하는지 검사한다.
 					if (functn.parameters[i].type != parsedArgument.type && functn.parameters[i].type != "*") {
-						Debug.report("Type error", "매개 변수의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하지 않습니다.", lineNumber);
+						Debug.report("Type error 29", "매개 변수의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하지 않습니다.", lineNumber);
 						return null;
 					}
 
@@ -918,7 +919,7 @@ class Parser {
 
 				// 배열의 원소가 유효한지 체크한다.
 				if (syntax.elements[i].length < 1) {
-					Debug.report("Syntax error", "배열에 불필요한 ','가 쓰였습니다.", lineNumber);
+					Debug.report("Syntax error 30", "배열에 불필요한 ','가 쓰였습니다.", lineNumber);
 					return null;
 				}
 
@@ -953,7 +954,7 @@ class Parser {
 
 			// 오브젝트 네임의 유효성 검증
 			if (!symbolTable.isValidClassID(syntax.instanceType.value)) {
-				Debug.report("Syntax error", "유효하지 않은 오브젝트입니다.", lineNumber);
+				Debug.report("Syntax error 31", "유효하지 않은 오브젝트입니다.", lineNumber);
 				return null;
 			}
 
@@ -999,7 +1000,7 @@ class Parser {
 					var member:Symbol = targetClass.findMemberByID(reference[0].value);
 
 					if (member == null) {
-						Debug.report("Undefined Error", "속성을 찾을 수 없습니다.", lineNumber);
+						Debug.report("Undefined Error 32", "속성을 찾을 수 없습니다.", lineNumber);
 						return null;
 					}
 
@@ -1013,7 +1014,7 @@ class Parser {
 					// 유효하지 않다면 에러 출력
 					if (!symbolTable.isValidVariableID(reference[0].value)
 							&& !symbolTable.isValidFunctionID(reference[0].value)) {
-						Debug.report("Undefined Error", "정의되지 않은 인스턴스입니다.", lineNumber);
+						Debug.report("Undefined Error 33", "정의되지 않은 인스턴스입니다.", lineNumber);
 						return null;
 					}
 				}
@@ -1074,7 +1075,7 @@ class Parser {
 			// 배열이 태그되지 않은 경우 배열의 유효성을 검증한다.
 			if (!syntax.array.tagged) {
 				if (!symbolTable.isValidVariableID(syntax.array.value)) {
-					Debug.report("Undefined Error", "정의되지 않은 배열입니다.", lineNumber);
+					Debug.report("Undefined Error 34", "정의되지 않은 배열입니다.", lineNumber);
 					return null;
 				}
 
@@ -1089,13 +1090,13 @@ class Parser {
 
 				// 변수가 문자열도 아니면, 에러
 				if (array.type != "string") {
-					Debug.report("Type error", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
+					Debug.report("Type error 35", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
 					return null;
 				}
 
 				// 문자열 인덱스 참조 명령을 처리한다.
 				if (syntax.references.length != 1) {
-					Debug.report("Type error", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
+					Debug.report("Type error 36", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
 					return null;
 				}
 
@@ -1108,7 +1109,7 @@ class Parser {
 
 				// 인덱스가 정수가 아닐 경우
 				if (parsedIndex.type != "number") {
-					Debug.report("Type error", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
+					Debug.report("Type error 37", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
 					return null;
 				}
 				
@@ -1136,7 +1137,7 @@ class Parser {
 
 				// 인덱스가 정수가 아닐 경우
 				if (parsedReference.type != "number") {
-					Debug.report("Type error", "배열의 인덱스가 정수가 아닙니다.", lineNumber);
+					Debug.report("Type error 38", "배열의 인덱스가 정수가 아닙니다.", lineNumber);
 					continue;
 				}
 
@@ -1175,7 +1176,7 @@ class Parser {
 
 				// 아직은 숫자 -> 문자만 가능하다.
 				if (parsedTarget.type != "number") {
-					Debug.report("Type error", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
+					Debug.report("Type error 39", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
 				
@@ -1191,7 +1192,7 @@ class Parser {
 
 				// 아직은 문자 -> 숫자만 가능하다.
 				if (parsedTarget.type != "string") {
-					Debug.report("Type error", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
+					Debug.report("Type error 40", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
 	
@@ -1207,7 +1208,7 @@ class Parser {
 
 				// 캐스팅 타입이 적절한지 체크한다.
 				if (!symbolTable.isValidClassID(syntax.castingType)) {
-					Debug.report("Undefined Error", "올바르지 않은 타입입니다.", lineNumber);
+					Debug.report("Undefined Error 41", "올바르지 않은 타입입니다.", lineNumber);
 					return null;
 				}
 
@@ -1231,9 +1232,11 @@ class Parser {
 			if (syntax.operator.type == Type.PrefixDecrement
 					|| syntax.operator.type == Type.PrefixIncrement) {
 				
+				syntax.operand[0].useAsAddress = true;		
+						
 				// 단항 ID가 아닐 경우
 				if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
-					Debug.report("Type error", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+					Debug.report("Type error 42", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}
 			}
@@ -1246,7 +1249,7 @@ class Parser {
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
 			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
-				Debug.report("Type error", "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
+				Debug.report("Type error 43", "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
 				return null;
 			}
 			
@@ -1266,10 +1269,12 @@ class Parser {
 
 			if (syntax == null)
 				return null;
-
+			
+			syntax.operand[0].useAsAddress = true;	
+				
 			// 단항 ID가 아닐 경우
 			if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
-				Debug.report("Type error", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+				Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 				return null;
 			}
 
@@ -1281,7 +1286,7 @@ class Parser {
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
 			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
-				Debug.report("Type error", "접미형 연산자 앞에는 실수형 데이터만 올 수 있습니다.", lineNumber);
+				Debug.report("Type error 45", "접미형 연산자 앞에는 실수형 데이터만 올 수 있습니다.", lineNumber);
 				return null;
 			}
 
@@ -1321,7 +1326,7 @@ class Parser {
 
 				// 모두 와일드카드라면
 				else {
-					Debug.report("Type error", "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
+					Debug.report("Type error 46", "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
 					return null;
 				}
 			}
@@ -1342,10 +1347,9 @@ class Parser {
 					// 문자열 - 문자열 대입이면 SDW명령을 활성화시킨다.
 					case Type.Assignment:
 						syntax.operator.value = "string";
-						left.data[0].useAsAddress = true;
 					case Type.EqualTo, Type.NotEqualTo:
 					default:
-						Debug.report("Syntax error", "이 연산자로 문자열 연산을 수행할 수 없습니다.", lineNumber);
+						Debug.report("Syntax error 47", "이 연산자로 문자열 연산을 수행할 수 없습니다.", lineNumber);
 						return null;
 					}
 
@@ -1358,7 +1362,6 @@ class Parser {
 					// 실수형 - 실수형 대입이면 NDW명령을 활성화시킨다.
 					case Type.Assignment:
 						syntax.operator.value = "number";
-						left.data[0].useAsAddress = true;
 					default:
 					}
 
@@ -1369,10 +1372,9 @@ class Parser {
 					switch (syntax.operator.type) {
 					// 인스턴스 - 인스턴스 대입이면 NDW명령을 활성화시킨다.
 					case Type.Assignment:
-						syntax.operator.value = "instance";
-						left.data[0].useAsAddress = true;
+						syntax.operator.value = "instance";						
 					default:
-						Debug.report("Syntax error", "대입 명령을 제외한 이항 연산자는 문자/숫자 이외의 처리를 할 수 없습니다.", lineNumber);
+						Debug.report("Syntax error 48", "대입 명령을 제외한 이항 연산자는 문자/숫자 이외의 처리를 할 수 없습니다.", lineNumber);
 						return null;
 					}
 				}
@@ -1409,15 +1411,20 @@ class Parser {
 					}
 
 					else {
-						Debug.report("Syntax error", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
+						Debug.report("Syntax error 49", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
 						return null;
 					}
 				default:
-					Debug.report("Syntax error", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
+					Debug.report("Syntax error 50", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
 					return null;
 				}
 			}
 
+			// 만약 대입 축약형이면 주소를 입력한다.
+			if (syntax.operator.getPrecedence() > 15) {
+				left.data[0].useAsAddress = true;
+			}
+			
 			// 형 체크가 끝나면 좌, 우 변을 잇고 리턴한다.
 			var result:Array<Token> = left.data.concat(right.data);
 			result.push(syntax.operator);
@@ -1425,7 +1432,7 @@ class Parser {
 			return new ParsedPair(result, right.type);
 		}
 
-		Debug.report("Syntax error", "연산자가 없는 식입니다.", lineNumber);
+		Debug.report("Syntax error 51", "연산자가 없는 식입니다.", lineNumber);
 		return null;
 	}
 	
@@ -1481,7 +1488,7 @@ class Parser {
 
 				// 이미 사용되고 있는 변수인지 체크
 				if (symbolTable.isValidVariableID(variable.id)) {
-					Debug.report("Duplication error", "변수 정의가 충돌합니다.", lineNumber);
+					Debug.report("Duplication error 52", "변수 정의가 충돌합니다.", lineNumber);
 					continue;
 				}
 
@@ -1514,7 +1521,7 @@ class Parser {
 					for ( k in 0...syntax.parameters.length) {
 					
 						if (!ParameterDeclarationSyntax.match(syntax.parameters[k])){
-							Debug.report("Syntax error", "파라미터 정의가 올바르지 않습니다.", lineNumber);
+							Debug.report("Syntax error 53", "파라미터 정의가 올바르지 않습니다.", lineNumber);
 							continue;
 						}
 						// 매개 변수의 구문을 분석한다.
@@ -1526,13 +1533,13 @@ class Parser {
 
 						// 매개 변수 이름의 유효성을 검증한다.
 						if (symbolTable.isValidVariableID(parameterSyntax.parameterName.value)) {
-							Debug.report("Duplication error", "변수 정의가 충돌합니다.", lineNumber);
+							Debug.report("Duplication error 54", "변수 정의가 충돌합니다.", lineNumber);
 							continue;
 						}
 
 						// 매개 변수 타입의 유효성을 검증한다.
 						if (!symbolTable.isValidClassID(parameterSyntax.parameterType.value)) {
-							Debug.report("Duplication error", "매개 변수 타입이 유효하지 않습니다.", lineNumber);
+							Debug.report("Duplication error 55", "매개 변수 타입이 유효하지 않습니다.", lineNumber);
 							continue;
 						}
 						
@@ -1568,13 +1575,13 @@ class Parser {
 
 				// 오브젝트 이름의 유효성을 검증한다.
 				if (symbolTable.isValidClassID(syntax.className.value)) {
-					Debug.report("Syntax error", "오브젝트 정의가 중복되었습니다.", lineNumber);
+					Debug.report("Syntax error 56", "오브젝트 정의가 중복되었습니다.", lineNumber);
 					continue;
 				}
 
 				// 오브젝트 구현부가 존재하는지 확인한다.
 				if (!hasNextBlock(block, i)) {
-					Debug.report("Syntax error", "구조체의 구현부가 존재하지 않습니다.", lineNumber);
+					Debug.report("Syntax error 57", "구조체의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
 

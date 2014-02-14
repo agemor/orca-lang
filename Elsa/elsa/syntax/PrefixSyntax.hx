@@ -5,7 +5,7 @@ import elsa.TokenTools;
 import elsa.debug.Debug;
 
 /**
- * 접미형 단항 연산 구문 패턴
+ * 접두형 단항 연산 구문 패턴
  * 
  * 형식: A (OP)
  * 
@@ -22,12 +22,13 @@ class PrefixSyntax implements Syntax {
 	}	
 	
 	/**
-	 * 토큰열이 접미형 단항 연산 구문 패턴과 일치하는지 확인한다.
+	 * 토큰열이 접두형 단항 연산 구문 패턴과 일치하는지 확인한다.
 	 * 
 	 * @param	tokens
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
+		
 		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
 		
 		if (indexOfLPO < 0)
@@ -40,7 +41,7 @@ class PrefixSyntax implements Syntax {
 	}
 	
 	/**
-	 * 토큰열을 분석하여 접미형 단항 연산 구문 요소를 추출한다.
+	 * 토큰열을 분석하여 접두형 단항 연산 구문 요소를 추출한다.
 	 * 
 	 * @param	tokens
 	 * @param	lineNumber
@@ -51,9 +52,9 @@ class PrefixSyntax implements Syntax {
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
-			if (tokens[i - 1].type == Type.ShellOpen)
+			if (tokens[i].type == Type.ShellOpen)
 				depth++;
-			else if (tokens[i - 1].type == Type.ShellClose)
+			else if (tokens[i].type == Type.ShellClose)
 				depth--;
 		}
 

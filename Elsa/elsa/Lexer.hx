@@ -406,7 +406,7 @@ class Lexer {
 		Token.define("!=", Token.Type.NotEqualTo, false);
 		Token.define(">", Token.Type.GreaterThan, false);
 		Token.define(">=", Token.Type.GreaterThanOrEqualTo, false);
-		Token.define(">", Token.Type.LessThan, false);
+		Token.define("<", Token.Type.LessThan, false);
 		Token.define("<=", Token.Type.LessThanOrEqualTo, false);
 		Token.define("+", Token.Type.Addition, false);
 		Token.define("-", Token.Type.Subtraction, false);

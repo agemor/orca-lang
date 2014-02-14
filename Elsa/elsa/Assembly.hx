@@ -44,27 +44,27 @@ class Assembly {
 	 */
 	public static function getOperatorNumber(type:Token.Type):Int {
 		switch (type) {
-		case Type.Addition:
+		case Type.Addition, Type.AdditionAssignment:
 			return 1;
-		case Type.Subtraction:
+		case Type.Subtraction, Type.SubtractionAssignment:
 			return 2;
-		case Type.Division:
+		case Type.Division, Type.DivisionAssignment:
 			return 3;
-		case Type.Multiplication:
+		case Type.Multiplication, Type.MultiplicationAssignment:
 			return 4;
-		case Type.Modulo:
+		case Type.Modulo, Type.ModuloAssignment:
 			return 5;
-		case Type.BitwiseAnd:
+		case Type.BitwiseAnd, Type.BitwiseAndAssignment:
 			return 6;
-		case Type.BitwiseOr:
+		case Type.BitwiseOr, Type.BitwiseOrAssignment:
 			return 7;
-		case Type.BitwiseXor:
+		case Type.BitwiseXor, Type.BitwiseXorAssignment:
 			return 8;
 		case Type.BitwiseNot:
 			return 9;
-		case Type.BitwiseLeftShift:
+		case Type.BitwiseLeftShift, Type.BitwiseLeftShiftAssignment:
 			return 10;
-		case Type.BitwiseRightShift:
+		case Type.BitwiseRightShift, Type.BitwiseRightShiftAssignment:
 			return 11;
 		case Type.EqualTo:
 			return 12;
@@ -120,19 +120,19 @@ class Assembly {
 				
 			// 값을 증감시킨 다음 푸쉬한다.
 			case Type.PrefixDecrement, Type.PrefixIncrement:
-
+				
 				writeCode("POP 0");
-				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &0, @"
+				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", @&0, @"
 						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
 				writeCode("NDW &0, &1");
-				writeCode("PSH &0");
+				writeCode("PSH @&0");
 				
 			// 값을 푸쉬한 다음 증감시킨다.
 			case Type.SuffixDecrement, Type.SuffixIncrement:
 
 				writeCode("POP 0");
-				writeCode("PSH &0");
-				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &0, @"
+				writeCode("PSH @&0");
+				writeCode("OPR 1, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", @&0, @"
 						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
 				writeCode("NDW &0, &1");
 
@@ -158,7 +158,7 @@ class Assembly {
 
 				writeCode("POP 0");
 				writeCode("POP 1");
-				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", &1, &0");
+				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", @&1, &0");
 				writeCode("NDW &1, &2");
 
 			// NDW -> SDW
@@ -166,7 +166,7 @@ class Assembly {
 
 				writeCode("POP 0");
 				writeCode("POP 1");
-				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", &1, &0");
+				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", @&1, &0");
 				writeCode("SDW &1, &2");
 
 			// 이항 대입 연산자

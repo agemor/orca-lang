@@ -26,7 +26,7 @@ class WhileSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.If)
+		if (tokens.length > 0 && tokens[0].type == Type.While)
 			return true;
 		return false;
 	}
@@ -56,7 +56,7 @@ class WhileSyntax implements Syntax {
 			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);	
 			return null;
 		}
-
-		return new WhileSyntax(tokens.slice(1, tokens.length - 1));
+		
+		return new WhileSyntax(tokens.slice(2, tokens.length - 1));
 	}
 }

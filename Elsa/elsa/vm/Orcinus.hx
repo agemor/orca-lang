@@ -95,7 +95,7 @@ class Orcinus {
 						
 						switch(operator) {
 							case 1: register[output] = left + right;
-							case 2:	register[output] = left - right;	
+							case 2:	register[output] = left - right;
 							case 3:	register[output] = left / right;	
 							case 4:	register[output] = left * right;
 							case 5:	register[output] = left % right;
@@ -294,8 +294,19 @@ class Orcinus {
 			return register[Std.parseInt(code.substring(1))];
 		}
 		
+		// 메모리 값 읽기
 		else if (code.charAt(0) == "@") {
-			return memory[Std.parseInt(code.substring(1))];
+			if (code.charAt(1) == "&") {
+				return memory[parseInt(parseValue(code.substring(1)))];
+			} else
+				return memory[Std.parseInt(code.substring(1))];
+		}
+		
+		// VM 상태 변수
+		else if (code.charAt(0) == "$") {
+			switch(code.substring(1)) {
+				case "CURRENT_POINTER": return pointer + 2;
+			}
 		}
 		
 		return code;

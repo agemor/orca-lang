@@ -1,9 +1,27 @@
 /**
 * 구구단 출력 코드
 */
-for ( i in 2...9 ){
+for ( i in 2...9 ) {
 	for ( j in 1 ... 9 ){
 		print(i + "*" + j + "=" + ( i * j ));
 	}
 	print("");
+}
+
+
+/**
+* 소수 찾는 코드
+*/
+var maximum:number = 100;
+for ( i in 3 ... maximum ) {
+	var flag:number = 1;
+	for ( j in 2 ... i / 2 ){
+		if( (i % j) == 0) {
+			flag = 0;
+			break;
+		}
+	}
+	if( flag ){
+		print(i);
+	}
 }
