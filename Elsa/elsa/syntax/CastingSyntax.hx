@@ -55,7 +55,7 @@ class CastingSyntax implements Syntax {
 
 		// 캐스팅 대상이 없다면
 		if (tokens.length <= indexOfLPO + 1) {
-			Debug.report("구문 오류", "캐스팅 대상이 없습니다.", lineNumber);		
+			Debug.report("Syntax error", "Cannot find casting target.", lineNumber);		
 			return null;
 		}
 

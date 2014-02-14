@@ -214,12 +214,23 @@ class Lexer {
 
 			// 만약 숫자 리터럴 처리 중 '.'이 들어온다면 소수점 처리를 해 준다.
 			if (isNumber && char == ".") {
-				if (isFloat) 
-					Debug.report("구문 오류", "소수점 표현이 잘못되었습니다.", processingLine);
 				
-				isFloat = true;
-				buffer += char;
-				continue;
+				// .이 여러번 쓰였다면, .을 여러 번 쓴 게 어떤 의미가 있는 것이다.		
+				if (isFloat) {
+					tokens.push(new Token(Token.Type.NUMBER, buffer.substring(0, buffer.length -1)));
+
+					// 버퍼 초기화
+					buffer = "";
+					isNumber = false;
+					isFloat = false;					
+					i -= 2;
+					continue;
+					Debug.report("구문 오류", "소수점 표현이 잘못되었습니다.", processingLine);
+				} else {
+					isFloat = true;
+					buffer += char;
+					continue;
+				}
 			}
 
 			// 만약 그 외의 문자가 온다면 숫자 리터럴을 종료한다.
@@ -362,7 +373,7 @@ class Lexer {
 		Token.define("true", Token.Type.TRUE, true);
 		Token.define("false", Token.Type.FALSE, true);
 		Token.define("as", Token.Type.AS, true);
-		Token.define("in", Token.Type.AS, true);
+		Token.define("in", Token.Type.IN, true);
 		
 		Token.define("[", Token.Type.ARRAY_OPEN, false);
 		Token.define("]", Token.Type.ARRAY_CLOSE, false);

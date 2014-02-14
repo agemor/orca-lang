@@ -90,6 +90,7 @@ class Function extends Symbol {
 		
 		this.id = id;
 		this.type = type;
+		this.parameters = parameters;
 	}
 	
 	/**

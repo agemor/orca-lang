@@ -86,7 +86,7 @@ class NativeLibrary {
 				parameters.push(new Variable("native_arg_" + Std.string(j), functions[i].parameters[j]));
 
 			// 함수 심볼 객체 생성
-			var functn:Function = new Function(functions[i].functionName, functions[i].returnType, parameters);
+			var functn:Function = new Function(functions[i].functionName, functions[i].returnType, parameters.length > 0 ? parameters : null);
 
 			functn.isNative = true;
 			functn.nativeFunction = functions[i];

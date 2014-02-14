@@ -18,7 +18,7 @@ class Assembly {
 	/**
 	 * 어셈블리 코드
 	 */
-	public var code:String;
+	public var code:String = "";
 	private var frozenCode:String;
 	
 	public function freeze():Void {
@@ -276,8 +276,6 @@ class Assembly {
 						writeCode("JMP 0, %" + functn.functionEntry);
 					}
 				}
-
-				break;
 
 			case STRING, NUMBER:
 

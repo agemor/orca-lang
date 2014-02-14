@@ -76,7 +76,7 @@ class Optimizer {
 		for (i in 0...lines.length) { 
 			if (lines[i].length < 1)
 				continue;
-			if (lines[i].substring(0, 3) == "FLG")
+			if (lines[i].substring(0, 3) != "FLG")
 				buffer += lines[i] + "\n";
 		}
 

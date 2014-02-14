@@ -42,13 +42,13 @@ class ClassDeclarationSyntax implements Syntax {
 		
 		// 토큰의 길이를 검사한다.
 		if (tokens.length != 2) {
-			Debug.report("구문 오류", "선언문의 형태가 올바르지 않습니다.", lineNumber);		
+			Debug.report("Syntax error", "Class declaration syntax is not valid.", lineNumber);		
 			return null;
 		}
 
 		// 식별자가 ID형식인지 검증한다.
 		if (tokens[1].type != Type.ID) {
-			Debug.report("구문 오류", "오브젝트의 식별자가 올바르지 않습니다.", lineNumber);		
+			Debug.report("Syntax error", "Class name is not valid.", lineNumber);		
 			return null;
 		}
 		

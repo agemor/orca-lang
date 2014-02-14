@@ -58,12 +58,16 @@ class PrefixSyntax implements Syntax {
 		}
 
 		// 껍데기가 온전히 닫혀 있는지 검사한다.
-		if (depth > 0)
-			Debug.report("구문 오류", "괄호가 닫히지 않았습니다.", lineNumber);
-		else if (depth < 0)
-			Debug.report("구문 오류", "잉여 괄호 닫기 문자가 있습니다.", lineNumber);
-		if (depth != 0)
+		if (depth > 0) {
+			
+			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);			
 			return null;
+		}
+
+		if (depth < 0) {
+			Debug.report("Syntax error", "delete \"(\"", lineNumber);	
+			return null;
+		}
 
 		return new PrefixSyntax(tokens[indexOfLPO], tokens.slice(indexOfLPO + 1, tokens.length));
 	}

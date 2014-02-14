@@ -42,19 +42,19 @@ class ElseIfSyntax implements Syntax {
 		
 		// 미완성된 제어문의 경우
 		if (tokens.length < 4) {
-			Debug.report("구문 오류", "제어문의 형식이 완전하지 않습니다.", lineNumber);
+			Debug.report("Syntax error", "Else - If syntax is not valid", lineNumber);
 			return null;
 		}
 
 		// 괄호로 시작하는지 확인한다
 		if (tokens[1].type != Type.SHELL_OPEN) {
-			Debug.report("구문 오류", "괄호 열기 문자('(')가 부족합니다.", lineNumber);
+			Debug.report("Syntax error", "Condition must start with \"(\"", lineNumber);
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
 		if (tokens[tokens.length - 1].type != Type.SHELL_CLOSE) {
-			Debug.report("구문 오류", "괄호가 닫히지 않았습니다.", lineNumber);
+			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);
 			return null;
 		}
 
