@@ -260,13 +260,13 @@ class Assembly {
 
 								// 인수가 실수형일 경우
 								if (parameter.isNumber())
-									writeCode("NDW @" + parameter.address + ",  &0");
+									writeCode("NDW " + parameter.address + ",  &0");
 
 								else if (parameter.isString())
-									writeCode("SDW @" + parameter.address + ",  &0");
+									writeCode("SDW " + parameter.address + ",  &0");
 
 								else
-									writeCode("RDW @" + parameter.address + ",  &0");
+									writeCode("RDW " + parameter.address + ",  &0");
 							}
 
 						// 현재 위치를 스택에 넣는다.
@@ -387,31 +387,5 @@ class Assembly {
 	public function flag(number:Int):Void {
 		writeCode("FLG %" + number);
 	}
-	
-}
-
-/**
- * 어셈블리 코드
- */
-class Instruction {
-	
-	public static var STATIC_STRING_ALLOCATION:String = "SSA";
-	public static var STATIC_NUMBER_ALLOCATION:String = "SNA";
-	public static var STATIC_ARRAY_ALLOCATION:String = "SAA";
-	public static var DYNAMIC_STRING_ALLOCATION:String = "DSA";
-	public static var DYNAMIC_NUMBER_ALLOCATION:String = "DNA";
-	public static var DYNAMIC_ARRAY_ALLOCATION:String = "DAA";	
-	public static var NUMBER_DATA_WRITING:String = "NDW";
-	public static var STRING_DATA_WRITING:String = "SDW";
-	public static var REFERENCE_DATA_WRITING:String = "RDW";
-	public static var ELEMENT_SELECTION_BY_INDEX:String = "ESI";
-	public static var ELEMENT_ADDITION:String = "EAD";
-	public static var OPERATION:String = "OPR";
-	public static var STACK_PUSH:String = "PSH";
-	public static var STACK_POP:String = "POP";
-	public static var POINTER_JUMP:String = "JMP";
-	public static var EXECUTION_WITH_RETURN:String = "EXR";
-	public static var EXECUTION_WITHOUT_RETURN:String = "EXE";
-	public static var TERMINATION:String = "END";
 	
 }

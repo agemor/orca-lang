@@ -94,7 +94,7 @@ class Parser {
 		parseBlock(lextree, new ParseOption());
 
 		assembly.freeze();
-
+		
 		// 리터럴을 어셈블리에 쓴다.
 		for ( i in 0...symbolTable.literal.length ) {
 			
@@ -102,18 +102,18 @@ class Parser {
 			
 			// 실수형 리터럴인 경우
 			if (literal.type == Literal.NUMBER) {
-				assembly.writeCode("SNA @" + Std.string(literal.address));
+				assembly.writeCode("SNA " + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("NDW @" + Std.string(literal.address) + ", " + literal.value);
+				assembly.writeCode("NDW " + Std.string(literal.address) + ", " + literal.value);
 			}
 
 			// 문자형 리터럴인 경우
 			else if (literal.type == Literal.STRING) {
-				assembly.writeCode("SSA @" + Std.string(literal.address));
+				assembly.writeCode("SSA " + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("SDW @" + Std.string(literal.address) + ", " + literal.value);
+				assembly.writeCode("SDW " + Std.string(literal.address) + ", " + literal.value);
 			}
 
 		}
@@ -123,7 +123,10 @@ class Parser {
 
 		// 모든 파싱이 끝나면 어셈블리 코드를 최적화한다.
 		assembly.code = optimizer.optimize(assembly.code);
-
+		
+		// 메타데이터 추가
+		assembly.code = Std.string(symbolTable.availableAddress) + "\n" + assembly.code;
+		
 		return assembly.code;
 	}
 	
@@ -229,13 +232,13 @@ class Parser {
 
 				// 어셈블리에 변수의 메모리 어드레스 할당 명령을 추가한다,
 				if (variable.isNumber())
-					assembly.writeCode("SNA @" + variable.address);
+					assembly.writeCode("SNA " + variable.address);
 
 				else if (variable.isString())
-					assembly.writeCode("SSA @" + variable.address);
+					assembly.writeCode("SSA " + variable.address);
 
 				else					
-					assembly.writeCode("SAA @" + variable.address);
+					assembly.writeCode("SAA " + variable.address);
 
 				// 초기화 데이터가 존재할 경우
 				if (syntax.initializer != null) {
@@ -579,13 +582,13 @@ class Parser {
 				// 증감자 초기화
 				assembly.writeLine(parsedInitialValue.data);
 				assembly.writeCode("POP 0");
-				assembly.writeCode("SNA @" + Std.string(counter.address));
-				assembly.writeCode("NDW @" + Std.string(counter.address) + ", &0");
+				assembly.writeCode("SNA " + Std.string(counter.address));
+				assembly.writeCode("NDW " + Std.string(counter.address) + ", &0");
 
 				// 증감자의 값에서 -1을 해 준다.
 				assembly.writeCode("OPR 1, 2, @" + Std.string(counter.address) + ", @"
 						+ Std.string(symbolTable.getLiteral("1", Literal.NUMBER).address));
-				assembly.writeCode("NDW @" + Std.string(counter.address) + ", &1");
+				assembly.writeCode("NDW " + Std.string(counter.address) + ", &1");
 
 				// 귀환 플래그를 심는다.
 				assembly.flag(forEntry);
@@ -593,7 +596,7 @@ class Parser {
 				// 증감자 증감
 				assembly.writeCode("OPR 1, 1, @" + Std.string(counter.address) + ", @"
 						+ Std.string(symbolTable.getLiteral("1", Literal.NUMBER).address));
-				assembly.writeCode("NDW @" + Std.string(counter.address) + ", &1");
+				assembly.writeCode("NDW " + Std.string(counter.address) + ", &1");
 
 				// 조건문이 거짓이면 탈출 플래그로 이동
 				assembly.writeLine(parsedCondition.data);
