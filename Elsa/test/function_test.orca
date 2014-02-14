@@ -12,16 +12,16 @@ printHelloWorld();
 function printFullName(firstName:string, lastName:string):void {
 	print(firstName + " "+ lastName);
 }
-printFullName("HyunJun","Kim");
+printFullName("HyunJun", "Kim");
 
 /**
 * 리턴하는 파라미터가 없는 함수
 */
-function getPI():number {
-	return 3.141592;
-}
 function getTau():number {
 	return getPI() * 2;
+}
+function getPI():number {
+	return 3.141592;
 }
 function getMyName():string {
 	return "HyunJun Kim";
@@ -29,3 +29,11 @@ function getMyName():string {
 print(getPI());
 print(getTau());
 print(getMyName());
+
+/**
+* 리턴하는 파리미터가 있는 함수
+*/
+function average(n1:number, n2:number):number {
+	return (n1 + n2) / 2;
+}
+print(average(average(average(100,300),300),150));

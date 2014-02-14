@@ -264,9 +264,6 @@ class Parser {
 				// 테이블에서 함수 심볼을 가져온다. (이미 스캐닝 과정에서 함수가 테이블에 등록되었으므로)
 				var functn:Function = cast(symbolTable.findInLocal(syntax.functionName.value), Function);
 				
-				// 함수 토큰을 태그한다.
-				syntax.functionName.setTag(functn);
-				
 				// 정의된 심볼 목록에 추가한다.
 				definedSymbols.push(functn);
 
@@ -276,9 +273,6 @@ class Parser {
 					continue;
 				}
 
-				// 프로시져 시작 부분과 종결 부분을 나타내는 플래그를 생성한다.
-				functn.functionEntry = assignFlag();
-				functn.functionExit = assignFlag();
 
 				// 프로시져가 임의로 실행되는 것을 막기 위해 프로시저의 끝 부분으로 점프한다.
 				assembly.writeCode("JMP 0, %" + functn.functionExit);
@@ -1549,8 +1543,15 @@ class Parser {
 					}
 				}
 				
-				var functn:Function = new Function(syntax.functionName.value, syntax.returnType.value, parameters);
-
+				var functn:Function = new Function(syntax.functionName.value, syntax.returnType.value, parameters);				
+				
+				// 프로시져 시작 부분과 종결 부분을 나타내는 플래그를 생성한다.
+				functn.functionEntry = assignFlag();
+				functn.functionExit = assignFlag();				
+				
+				// 함수 토큰을 태그한다.
+				syntax.functionName.setTag(functn);
+				
 				// 프로시져를 심볼 테이블에 추가한다.
 				symbolTable.add(functn);
 
