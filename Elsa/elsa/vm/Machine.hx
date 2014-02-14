@@ -74,6 +74,13 @@ class Machine {
 		default: Std.parseInt(data);
 		}
 	}
+	public function getIntegerValue(data: String): Int {
+		return switch (data.charAt(0)) {
+		case "&": getIntegerValue(register[Std.parseInt(data.substring(1))].string);
+		case "@": memory[Std.parseInt(data.substring(1))].integer;
+		default: Std.parseInt(data);
+		}
+	}
 	public function getStringValue(data: String): String {
 		return if (data.length < 1) "" else switch (data.charAt(0)) {
 		case "&": getStringValue(register[Std.parseInt(data.substring(1))].string);
@@ -87,6 +94,7 @@ class Data {
 	public var isReference: Bool;
 	public var isRegistry: Bool;
 	public var data (default, set): Dynamic;
+	public var integer (get, never): Int;
 	public var string (get, never): String;
 	public var array (get, never): Array<Dynamic>;
 	public function new(data: Dynamic) {
@@ -101,6 +109,9 @@ class Data {
 		isRegistry = Type.getClass(data) == String &&
 					data.length > 0 && data.charAt(0) == "@";
 		return data;
+	}
+	function get_integer(): Int {
+		return if (isReference) data.integer else Std.parseInt(Std.string(data));
 	}
 	function get_string(): String {
 		return if (isReference) data.string else Std.string(data);
