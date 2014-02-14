@@ -75,6 +75,7 @@ class Machine {
 				memory[getAddress(args[0])] = new Data(null);
 			case "SAA":
 				memory[getAddress(args[0])] = new Data([]);
+			case "EXR": null; // do nothing now
 			case "EXE": switch (getStringValue(instruction.args[0])) {
 				case "print": Debug.print(getStringValue(args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
