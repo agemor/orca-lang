@@ -71,6 +71,10 @@ class Machine {
 			case "DAA":
 				memory[freememoryIndex] = new Data([]);
 				register[getIntegerValue(args[0])].data = freememoryIndex++;
+			case "SSA", "SNA":
+				memory[getAddress(args[0])] = new Data(null);
+			case "SAA":
+				memory[getAddress(args[0])] = new Data([]);
 			case "EXE": switch (getStringValue(instruction.args[0])) {
 				case "print": Debug.print(getStringValue(args[1]));
 				case "whoami": Debug.print("ELSA VM unstable");
