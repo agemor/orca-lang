@@ -1,5 +1,7 @@
 package elsa.nlib;
 
+import elsa.nlib.NativeFunction;
+
 /**
  * 네이티브 클래스
  * 
@@ -11,6 +13,7 @@ class NativeClass {
 	public var classMembers:Array<NativeFunction>;
 	
 	public function new(className:String, classMembers:Array<NativeFunction>) {
+			
 		this.className = className;
 		this.classMembers = classMembers == null ? new Array<NativeFunction>() : classMembers;
 	}

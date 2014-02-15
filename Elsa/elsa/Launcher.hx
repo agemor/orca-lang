@@ -13,6 +13,7 @@ class Launcher {
 		
 		trace("Orca Compiler 2.0 (Unstable)");
 		
+		
 		// 테스트용 오르카 소스
 		var temp_test:String = File.getContent("test/temp.orca");
 		var variable_test:String = File.getContent("test/variable_test.orca");
@@ -28,12 +29,7 @@ class Launcher {
 		var compiledCode:String = parser.compile(function_test);
 		trace(compiledCode);
 		
-		var orcinus:Orcinus = new Orcinus(1024 * 20);
-		orcinus.load(compiledCode);
-		
-		trace("-----initiated-----");
-		orcinus.run();		
-		trace("-------------------");
+		File.saveContent("program.orx", compiledCode);
 		Sys.sleep(10000);	
 	}	
 }

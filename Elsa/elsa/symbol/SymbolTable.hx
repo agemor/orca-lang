@@ -1,6 +1,4 @@
-package elsa;
-
-import elsa.Symbol.Literal;
+package elsa.symbol;
 
 /**
  * 심볼 테이블
@@ -27,14 +25,14 @@ class SymbolTable {
 	/**
 	 * 리터럴 테이블
 	 */
-	public var literal:Array<Symbol.Literal>;
+	public var literal:Array<LiteralSymbol>;
 	
 	public function new() {
 		
 		// 맵을 초기화한다.
 		local = new Map<String, Symbol>();
 		global = new Map<Int, Symbol>();
-		literal = new Array<Symbol.Literal>();
+		literal = new Array<LiteralSymbol>();
 	}
 	
 	/**
@@ -103,7 +101,7 @@ class SymbolTable {
 		
 		// 로컬 스코프에서 찾을 수 있으면 유효한 id이다.
 		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), Symbol.Variable))
+			if (Std.is(findInLocal(id), VariableSymbol))
 				return true;
 				
 		return false;
@@ -119,7 +117,7 @@ class SymbolTable {
 
 		// 로컬 스코프에서 찾을 수 있으면 유효한 id이다.
 		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), Symbol.Function))
+			if (Std.is(findInLocal(id), FunctionSymbol))
 				return true;
 
 		return false;
@@ -138,7 +136,7 @@ class SymbolTable {
 
 		// 커스텀 타입일 경우 심볼 테이블에서 찾아 유효성을 검증한다.
 		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), Symbol.Class))
+			if (Std.is(findInLocal(id), ClassSymbol))
 				return true;
 				
 		return false;
@@ -151,14 +149,14 @@ class SymbolTable {
 	 * @param type
 	 * @return
 	 */
-	public function getLiteral(value:String, type:String):Literal {
+	public function getLiteral(value:String, type:String):LiteralSymbol {
 		
 		for (i in 0...literal.length) {
 			if (literal[i].type == type && literal[i].value == value)
 				return literal[i];
 		}
 
-		var newLiteral:Literal = new Literal(value, type);
+		var newLiteral:LiteralSymbol = new LiteralSymbol(value, type);
 		newLiteral.address = availableAddress++;
 		literal.push(newLiteral);
 		

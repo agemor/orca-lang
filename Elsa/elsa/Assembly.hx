@@ -1,9 +1,11 @@
 package elsa;
+import elsa.symbol.SymbolTable;
 import elsa.Token.Type;
-import elsa.Symbol.Class;
-import elsa.Symbol.Function;
-import elsa.Symbol.Literal;
-import elsa.Symbol.Variable;
+import elsa.symbol.Symbol;
+import elsa.symbol.VariableSymbol;
+import elsa.symbol.FunctionSymbol;
+import elsa.symbol.ClassSymbol;
+import elsa.symbol.LiteralSymbol;
 
 /**
  * ...
@@ -123,7 +125,7 @@ class Assembly {
 				
 				writeCode("POP 0");
 				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", @&0, @"
-						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
+						+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
 				writeCode("NDW &0, &1");
 				writeCode("PSH @&0");
 				
@@ -133,7 +135,7 @@ class Assembly {
 				writeCode("POP 0");
 				writeCode("PSH @&0");
 				writeCode("OPR 1, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", @&0, @"
-						+ symbolTable.getLiteral("1", Symbol.Literal.NUMBER).address);
+						+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
 				writeCode("NDW &0, &1");
 
 			// 이항 연산자
@@ -223,7 +225,7 @@ class Assembly {
 				var symbol:Symbol = token.getTag();
 
 				// 변수일 경우				
-				if (Std.is(symbol, Symbol.Variable)) {
+				if (Std.is(symbol, VariableSymbol)) {
 					
 					if (token.useAsAddress)
 						writeCode("PSH " + symbol.address);
@@ -232,9 +234,9 @@ class Assembly {
 				}
 
 				// 함수일 경우
-				else if (Std.is(symbol, Symbol.Function)) {
+				else if (Std.is(symbol, FunctionSymbol)) {
 	
-					var functn:Symbol.Function = cast(symbol, Symbol.Function);
+					var functn:FunctionSymbol = cast(symbol, FunctionSymbol);
 
 					// 네이티브 함수일 경우
 					if (functn.isNative) {
@@ -259,7 +261,7 @@ class Assembly {
 
 								// 파라미터 어드레스를 취득한다. 인수를 거꾸로 취득하고 있으므로, 매개변수도 거꾸로
 								// 취득한다.
-								var parameter:Symbol.Variable = functn.parameters[functn.parameters.length - 1 - j];
+								var parameter:VariableSymbol = functn.parameters[functn.parameters.length - 1 - j];
 
 								// 인수가 실수형일 경우
 								if (parameter.isNumber())
@@ -283,7 +285,7 @@ class Assembly {
 			case Type.String, Type.Number:
 
 				// 리터럴 심볼을 취득한다.
-				var literal:Literal = cast(token.getTag(), Symbol.Literal);
+				var literal:LiteralSymbol = cast(token.getTag(), LiteralSymbol);
 
 				// 리터럴의 값을 추가한다.
 				writeCode("PSH @" + literal.address);
@@ -291,7 +293,7 @@ class Assembly {
 			case Type.LoadContext:
 
 				// 클래스를 취득한다.
-				var classs:Symbol.Class = cast(token.getTag(), Symbol.Class);
+				var classs:ClassSymbol = cast(token.getTag(), ClassSymbol);
 
 				// 인스턴스 주소를 뽑는다.
 				writeCode("POP 0");
@@ -299,10 +301,10 @@ class Assembly {
 				// 오브젝트의 데이터와 리턴 결과 데이터를 일대일 대응시킨다.
 				for ( j in 0...classs.members.length) { 
 
-					if (Std.is(classs.members[j], Symbol.Function))
+					if (Std.is(classs.members[j], FunctionSymbol))
 						continue;
 
-					var member:Symbol.Variable = cast(classs.members[j], Symbol.Variable);
+					var member:VariableSymbol = cast(classs.members[j], VariableSymbol);
 
 					// 리턴값의 인자번호를 뽑는다.
 					writeCode("ESI 1, &0, " + j);
@@ -334,7 +336,7 @@ class Assembly {
 			case Type.Instance:
 
 				// 앞 토큰은 인스턴스의 클래스이다.
-				var targetClass:Symbol.Class = cast(tokens[i - 1].getTag(), Symbol.Class);
+				var targetClass:ClassSymbol = cast(tokens[i - 1].getTag(), ClassSymbol);
 
 				// 인스턴스를 동적 할당한다.
 				writeCode("DAA 0");
@@ -342,10 +344,10 @@ class Assembly {
 				// 오브젝트의 맴버 변수에 해당하는 데이터를 동적 할당한다.
 				for ( j in 0...targetClass.members.length) {
 
-					if (Std.is(targetClass.members[j], Symbol.Function))
+					if (Std.is(targetClass.members[j], FunctionSymbol))
 						continue;
 
-					var member:Symbol.Variable = cast(targetClass.members[j], Symbol.Variable);
+					var member:VariableSymbol = cast(targetClass.members[j], VariableSymbol);
 
 					// 초기값을 할당한다.
 					if (member.type == "string") {

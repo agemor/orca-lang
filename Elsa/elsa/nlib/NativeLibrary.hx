@@ -1,25 +1,27 @@
 package elsa.nlib;
-import elsa.Symbol.Class;
-import elsa.Symbol.Function;
-import elsa.Symbol.Variable;
-import elsa.SymbolTable;
+
+import elsa.symbol.Symbol;
+import elsa.symbol.SymbolTable;
+import elsa.symbol.VariableSymbol;
+import elsa.symbol.FunctionSymbol;
+import elsa.symbol.ClassSymbol;
 
 /**
- * 네이티브 라이브러리
- * 
+ * ...
  * @author 김 현준
  */
 class NativeLibrary {
 
-	public static var classes:Array<NativeClass>;
-	public static var functions:Array<NativeFunction>;
-	private static var initialized:Bool = false;
+	public static var initialized:Bool = false;
 	
-	/**
-	 * 네이티브 라이브러리를 초기화한다.
-	 */
-	public static function initialize():Void {
-		
+	public var classes:Array<NativeClass>;
+	public var functions:Array<NativeFunction>;
+	
+	public function new() {
+		initialize();
+	}
+	
+	public function initialize() {
 		if (initialized) return;
 		initialized = true;
 		
@@ -42,15 +44,15 @@ class NativeLibrary {
 		addClass(array);
 
 		addFunction(print);
-		addFunction(whoami);
+		addFunction(whoami);		
 	}
-
+	
 	/**
 	 * 네이티브 라이브러리에 클래스를 추가한다.
 	 * 
 	 * @param	nativeClass
 	 */
-	public static function addClass(nativeClass:NativeClass):Void {
+	public function addClass(nativeClass:NativeClass):Void {
 		classes.push(nativeClass);
 	}
 
@@ -59,7 +61,7 @@ class NativeLibrary {
 	 * 
 	 * @param	nativeFunction
 	 */
-	public static function addFunction(nativeFunction:NativeFunction):Void {
+	public function addFunction(nativeFunction:NativeFunction):Void {
 		functions.push(nativeFunction);
 	}
 
@@ -68,26 +70,26 @@ class NativeLibrary {
 	 * 
 	 * @param symbolTable
 	 */
-	public static function load(symbolTable:SymbolTable):Void {
+	public function load(symbolTable:SymbolTable):Void {
 
 		// 클래스 입력
 		for ( i in 0...classes.length ) {
-			var classs:Class = new Class(classes[i].className);
+			var classs:ClassSymbol = new ClassSymbol(classes[i].className);
 		
 			symbolTable.local.set(classs.id, classs);
 		}
 
 		// 함수 입력
 		for ( i in 0...functions.length ) {
-			var parameters:Array<Variable> = new Array<Variable>();
+			var parameters:Array<VariableSymbol> = new Array<VariableSymbol>();
 			
 			// 파라미터 처리
 			for (j in 0...functions[i].parameters.length)
-				parameters.push(new Variable("native_arg_" + Std.string(j), functions[i].parameters[j]));
+				parameters.push(new VariableSymbol("native_arg_" + Std.string(j), functions[i].parameters[j]));
 
 			// 함수 심볼 객체 생성
-			var functn:Function = new Function(functions[i].functionName, functions[i].returnType, parameters.length > 0 ? parameters : new Array<Variable>());
-
+			var functn:FunctionSymbol = new FunctionSymbol(functions[i].functionName, functions[i].returnType, parameters.length > 0 ? parameters : new Array<VariableSymbol>());
+						
 			functn.isNative = true;
 			functn.nativeFunction = functions[i];
 
@@ -95,5 +97,6 @@ class NativeLibrary {
 		}
 
 	}
+	
 	
 }
