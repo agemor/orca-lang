@@ -39,10 +39,9 @@ class ArraySyntax implements Syntax {
 	 * @return
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):ArraySyntax {
+		var elements:Array<Array<Token>> = TokenTools.getArguments(tokens.slice(1, tokens.length - 1));
 		
-		var elements:Array<Array<Token>> = TokenTools.getArguments(tokens.slice(1, tokens.length - 1));		
 		var syntax:ArraySyntax = new ArraySyntax(elements);
-
 		return syntax;
 	}
 }

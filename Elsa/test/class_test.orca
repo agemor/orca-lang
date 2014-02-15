@@ -1,5 +1,4 @@
 class Me {
 	var name:string = "HyunJun Kim";
-}
-
+} 
 var me:Me = new Me;

@@ -32,6 +32,7 @@ class Token {
 	 */
 	public var wholeWord:Bool = false;
 	public var useAsAddress:Bool = false;
+	public var useAsArrayReference:Bool = false;
 	
 	/**
 	 * 토큰을 생성한다. 두 번째 인수를 넣을 경우 이 토큰은 데이터 토큰이 된다.

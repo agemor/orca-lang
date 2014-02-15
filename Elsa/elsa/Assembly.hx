@@ -123,21 +123,43 @@ class Assembly {
 			// 값을 증감시킨 다음 푸쉬한다.
 			case Type.PrefixDecrement, Type.PrefixIncrement:
 				
-				writeCode("POP 0");
-				writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", @&0, @"
-						+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
-				writeCode("NDW &0, &1");
-				writeCode("PSH @&0");
+				// 배열 인덱스 연산
+				if (token.useAsArrayReference) {
+					writeCode("POP 0"); // 배열 인덱스
+					writeCode("POP 1"); // 실제 배열
+					writeCode("ESI 2, &1, &0"); // 수정되기 전 배열의 값
+					writeCode("OPR 2, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &2, @"
+							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
+					writeCode("EAD &1, &0, &2"); // 새로운 값 대입
+					writeCode("PSH &2");
+				} else {
+					writeCode("POP 0");
+					writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", @&0, @"
+							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
+					writeCode("NDW &0, &1");
+					writeCode("PSH @&0");
+				}
 				
 			// 값을 푸쉬한 다음 증감시킨다.
 			case Type.SuffixDecrement, Type.SuffixIncrement:
-
-				writeCode("POP 0");
-				writeCode("PSH @&0");
-				writeCode("OPR 1, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", @&0, @"
-						+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
-				writeCode("NDW &0, &1");
-
+				
+				// 배열 인덱스 연산
+				if (token.useAsArrayReference) {
+					writeCode("POP 0"); // 배열 인덱스
+					writeCode("POP 1"); // 실제 배열
+					writeCode("ESI 2, &1, &0"); // 수정되기 전 배열의 값
+					writeCode("PSH &2");
+					writeCode("OPR 2, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", &2, @"
+							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
+					writeCode("EAD &1, &0, &2"); // 새로운 값 대입					
+				} else {
+					writeCode("POP 0");
+					writeCode("PSH @&0");
+					writeCode("OPR 1, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", @&0, @"
+							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
+					writeCode("NDW &0, &1");
+				}
+				
 			// 이항 연산자
 			case Type.Addition, Type.Subtraction, Type.Division,
 				 Type.Multiplication, Type.Modulo, Type.BitwiseAnd,
@@ -156,44 +178,56 @@ class Assembly {
 			case Type.AdditionAssignment, Type.SubtractionAssignment, Type.DivisionAssignment,
 				 Type.MultiplicationAssignment, Type.ModuloAssignment, Type.BitwiseAndAssignment,
 				 Type.BitwiseOrAssignment, Type.BitwiseXorAssignment, Type.BitwiseLeftShiftAssignment,
-				 Type.BitwiseRightShiftAssignment:
-
-				writeCode("POP 0");
-				writeCode("POP 1");
-				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", @&1, &0");
-				writeCode("NDW &1, &2");
-
-			// NDW -> SDW
-			case Type.AppendAssignment:
-
-				writeCode("POP 0");
-				writeCode("POP 1");
-				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", @&1, &0");
-				writeCode("SDW &1, &2");
+				 Type.BitwiseRightShiftAssignment, Type.AppendAssignment:
+				
+				// 배열 인덱스 연산	 
+				if (token.useAsArrayReference) {	 
+					writeCode("POP 0"); // 계산을 위한 값
+					writeCode("POP 1"); // 배열 인덱스
+					writeCode("POP 2"); // 실제 배열
+					writeCode("ESI 3, &2, &1"); // 수정되기 전 배열의 값
+					writeCode("OPR 3, " + getOperatorNumber(token.type) + ", &3, &0");
+					writeCode("EAD &2, &1, &3"); // 새로운 값 대입
+				}
+				
+				// 일반 변수 연산
+				else{
+					writeCode("POP 0");
+					writeCode("POP 1");
+					writeCode("OPR 2, " + getOperatorNumber(token.type) + ", @&1, &0");
+					
+					if (token.type == Type.AppendAssignment)
+						writeCode("SDW &1, &2");
+					else
+						writeCode("NDW &1, &2");
+				}
 
 			// 이항 대입 연산자
 			case Type.Assignment:
 
-				writeCode("POP 0");
-				writeCode("POP 1");
+				// 배열 인덱스 연산
+				if (token.useAsArrayReference) {
+					writeCode("POP 0"); // 계산을 위한 값
+					writeCode("POP 1"); // 배열 인덱스
+					writeCode("POP 2"); // 실제 배열
+					writeCode("EAD &2, &1, &0"); // 새로운 값 대입
+				}
+				
+				else {
+					
+					writeCode("POP 0");
+					writeCode("POP 1");
 
-				// NDW, SDW, RDW 처리.
-				switch (token.value) {
-
-				// 실수형
-				case "number":
-
-					writeCode("NDW &1, &0");
-
-				// 문자형
-				case "string":
-
-					writeCode("SDW &1, &0");
-
-				// 레퍼런스형
-				case "reference":
-
-					writeCode("RDW &1, &0");
+					switch (token.value) {
+					// 실수형
+					case "number": writeCode("NDW &1, &0");
+					// 문자형
+					case "string": writeCode("SDW &1, &0");						
+					// 배열	
+					case "array": writeCode("RDW &1, &0");						
+					// 레퍼런스형
+					default: writeCode("RDW &1, &0");
+					}
 				}
 
 			// 배열 참조 연산자
@@ -206,18 +240,36 @@ class Assembly {
 				for(j in 0...(dimensions + 1))
 					writeCode("POP " + j);
 
-				/*
+				/* ESI (indicator) register, (value) array, (value) index
+				 * EAD (value) array, (value) index, (value) address
+				 * 
 				 * a[A][B] =
 				 * 
-				 * PUSH A ~ PUSH B ~ PUSH a ~ POP 0 // a ~ POP 1 // B ~ POP 2 //
-				 * A ~ ESI 0, 0, 2 ~ ESI 0, 0, 1
+				 * PUSH A
+				 * PUSH B
+				 * PUSH a
+				 * POP 0 // a
+				 * POP 1 // B
+				 * POP 2 // A
+				 * ESI 0, 0, 2
+				 * ESI 0, 0, 1
 				 */
 				var j:Int = dimensions + 1;
-				while(--j > 0)
+				while(--j > 1)
 					writeCode("ESI 0, &0, &" + j);
-
-				// 결과를 메인 스택에 집어넣는다.
-				writeCode("PSH &0");
+				
+				// 배열 읽기/쓰기	
+				if (token.useAsAddress) {
+					writeCode("PSH &0"); // 실제 배열
+					writeCode("PSH &1"); // 인덱스
+					
+				} else {
+					
+					writeCode("ESI 0, &0, &1");					
+					// 결과를 메인 스택에 집어넣는다.
+					writeCode("PSH &0");
+				}
+				
 
 			// 함수 호출 / 어드레스 등의 역할
 			case Type.ID:
@@ -282,7 +334,7 @@ class Assembly {
 					}
 				}
 
-			case Type.String, Type.Number:
+			case Type.True, Type.False, Type.String, Type.Number:
 
 				// 리터럴 심볼을 취득한다.
 				var literal:LiteralSymbol = cast(token.getTag(), LiteralSymbol);
@@ -313,7 +365,7 @@ class Assembly {
 					writeCode("RDW " + member.address + ", &1");
 				}
 				
-			case Type.Class:
+			case Type.Array:
 
 				// 현재 토큰의 값이 인수의 갯수가 된다.
 				var numberOfArguments:Int = Std.parseInt(token.value);
@@ -328,10 +380,10 @@ class Assembly {
 
 				// 배열에 집어넣기 작업
 				for ( j in 0...numberOfArguments) 
-					writeCode("EAD &0, &" + (j + 1));
+					writeCode("EAD @&0, "+j+", &" + (j + 1));
 
 				// 배열을 리턴한다.
-				writeCode("PSH &0");
+				writeCode("PSH @&0");
 
 			case Type.Instance:
 

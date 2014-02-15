@@ -11,8 +11,7 @@ class Launcher {
 		
 		haxe.Log.trace = function (log, ?d) Sys.println(log);
 		
-		trace("Orca Compiler 2.0 (Unstable)");
-		
+		trace("Orca Compiler 2.0 (Unstable)");		
 		
 		// 테스트용 오르카 소스
 		var temp_test:String = File.getContent("test/temp.orca");
@@ -26,8 +25,15 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(function_test);
+		var compiledCode:String = parser.compile(array_test);
 		trace(compiledCode);
+		
+		var vm:Orcinus = new Orcinus();
+		vm.load(compiledCode);
+		
+		trace("-----------------init-----------------");
+		vm.run();
+		trace("--------------------------------------");
 		
 		File.saveContent("program.orx", compiledCode);
 		Sys.sleep(10000);	

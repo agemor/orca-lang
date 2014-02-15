@@ -290,6 +290,7 @@ class Lexer {
 							&& (previousToken.type == Token.Type.ID
 							|| previousToken.type == Token.Type.Number
 							|| previousToken.type == Token.Type.String
+							|| previousToken.type == Token.Type.ArrayClose
 							|| previousToken.type == Token.Type.ShellClose)) {
 						previousTarget = true;
 					}

@@ -94,7 +94,7 @@ class Parser {
 		
 		// 어휘 트리를 취득한다.
 		var lextree:Lextree = lexer.analyze(code);
-		//lexer.viewHierarchy(lextree, 0);
+		lexer.viewHierarchy(lextree, 0);
 		
 		// 현재 스코프를 스캔한다. 현재 스코프에서는 오브젝트 정의와 프로시저 정의만을 스캔한다.
 		scan(lextree, new ScanOption());
@@ -936,7 +936,7 @@ class Parser {
 			 */
 			var mergedElements:Array<Token> = TokenTools.merge(parsedElements);
 			mergedElements.push(new Token(Type.Array, Std.string(parsedElements.length)));
-
+			
 			return new ParsedPair(mergedElements, "array");
 		}
 
@@ -1142,7 +1142,6 @@ class Parser {
 			}
 
 			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
-
 			var result:Array<Token> = TokenTools.merge(parsedReferences);
 			result.push(syntax.array);
 			result.push(new Token(Type.ArrayReference, Std.string(parsedReferences.length)));
@@ -1171,7 +1170,7 @@ class Parser {
 			if (syntax.castingType == "string") {
 
 				// 아직은 숫자 -> 문자만 가능하다.
-				if (parsedTarget.type != "number") {
+				if (parsedTarget.type != "number" && parsedTarget.type != "*") {
 					Debug.report("Type error 39", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
@@ -1187,7 +1186,7 @@ class Parser {
 			else if (syntax.castingType == "number") {
 
 				// 아직은 문자 -> 숫자만 가능하다.
-				if (parsedTarget.type != "string") {
+				if (parsedTarget.type != "string" && parsedTarget.type != "*") {
 					Debug.report("Type error 40", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
@@ -1222,8 +1221,14 @@ class Parser {
 			var syntax:PrefixSyntax = PrefixSyntax.analyze(tokens, lineNumber);
 
 			if (syntax == null)
-				return null;
+				return null;			
 
+			// 피연산자를 파싱한다.
+			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
+
+			if (parsedOperand == null)
+				return null;
+			
 			// 뒤 항은 단항 ID만 가능하다.
 			if (syntax.operator.type == Type.PrefixDecrement
 					|| syntax.operator.type == Type.PrefixIncrement) {
@@ -1231,18 +1236,19 @@ class Parser {
 				syntax.operand[0].useAsAddress = true;		
 						
 				// 단항 ID가 아닐 경우
-				if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
-					Debug.report("Type error 42", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+				if ((syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) && parsedOperand.type != "*") {
+					Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
-				}
+				}	
+			}	
+				
+			// 배열 참조형일 경우
+			if (parsedOperand.type == "*") {
+				syntax.operand[0].useAsAddress = false;	
+				syntax.operator.useAsArrayReference = true;
+				parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
 			}
-
-			// 피연산자를 파싱한다.
-			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
-
-			if (parsedOperand == null)
-				return null;
-
+				
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
 			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
 				Debug.report("Type error 43", "접두형 연산자 뒤에는 실수형 데이터만 올 수 있습니다.", lineNumber);
@@ -1267,18 +1273,25 @@ class Parser {
 				return null;
 			
 			syntax.operand[0].useAsAddress = true;	
-				
-			// 단항 ID가 아닐 경우
-			if (syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) {
-				Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
-				return null;
-			}
 
 			// 피연산자를 파싱한다.
 			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
-
+			
 			if (parsedOperand == null)
 				return null;
+			
+			// 단항 ID가 아닐 경우
+			if ((syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) && parsedOperand.type != "*") {
+				Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+				return null;
+			}	
+				
+			// 배열 참조형일 경우
+			if (parsedOperand.type == "*") {
+				syntax.operand[0].useAsAddress = false;	
+				syntax.operator.useAsArrayReference = true;
+				parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
+			}
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
 			if (parsedOperand.type != "number" && parsedOperand.type != "*") {
@@ -1306,10 +1319,16 @@ class Parser {
 			// 양 항을 모두 파싱한다.
 			var left:ParsedPair = parseLine(syntax.left, lineNumber);
 			var right:ParsedPair = parseLine(syntax.right, lineNumber);
-
+			
+			// 배열 대입이면
+			if (syntax.operator.getPrecedence() > 15 && left.type == "*") {
+				left.data[left.data.length - 1].useAsAddress = true;	
+				syntax.operator.useAsArrayReference = true;
+			}
+			
 			if (left == null || right == null)
-				return null;
-
+				return null;			
+				
 			// 와일드카드 처리, 와일드카드가 양 변에 한 쪽이라도 있으면
 			if (left.type == "*" || right.type == "*") {
 
@@ -1320,10 +1339,10 @@ class Parser {
 				else if (right.type != "*")
 					left.type = right.type;
 
-				// 모두 와일드카드라면
+				// 모두 와일드카드라면. (배열 원소와 배열 원소끼리 연산)
 				else {
-					Debug.report("Type error 46", "캐스팅되지 않아 타입을 알 수 없습니다.", lineNumber);
-					return null;
+					// 양 쪽 모두 숫자 처리
+					left.type = right.type = "number";
 				}
 			}
 

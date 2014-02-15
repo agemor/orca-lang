@@ -127,19 +127,16 @@ class Orcinus {
 							case 23: register[output] = Std.string(left);
 							case 24: register[output] = Std.string(left).charAt(right);
 							case 25: register[output] = -left;
-						}
-						
-					}
+						}						
+					}				
 					
 				// 배열 읽기	
 				case "ESI":
 					if (true) {
 						var output:Int = parseIndicator(opcode.args[0]);
-						var arrayAddress:Int = parseInt(parseValue(opcode.args[1]));
+						var array:Array<Dynamic> = cast(parseValue(opcode.args[1]), Array<Dynamic>);  						
 						var arrayIndex:Int = parseInt(parseValue(opcode.args[2]));
-
-						var array:Array<Dynamic> = cast(memory[arrayAddress], Array<Dynamic>);
-
+					
 						// 레지스터에 할당
 						register[output] = array[arrayIndex];
 					}
@@ -147,11 +144,9 @@ class Orcinus {
 				// 배열 쓰기	
 				case "EAD":
 					if (true) {
-						var arrayAddress:Int = parseInt(parseValue(opcode.args[0]));
+						var array:Array<Dynamic> = cast(parseValue(opcode.args[0]), Array<Dynamic>);  
 						var arrayIndex:Int = parseInt(parseValue(opcode.args[1]));
 						var element:Dynamic = parseValue(opcode.args[2]);
-
-						var array:Array<Dynamic> = cast(memory[arrayAddress], Array<Dynamic>);
 						
 						// 배열 인덱스에 할당
 						array[arrayIndex] = element;
@@ -179,10 +174,9 @@ class Orcinus {
 				case "RDW":
 					if (true) {
 						var targetAddress:Int = parseInt(parseValue(opcode.args[0]));
-						var dataAddress:Int = parseInt(parseValue(opcode.args[1]));
+						var dataAddress:Dynamic = parseValue(opcode.args[1]);
 						
-						memory[targetAddress] = memory[dataAddress];
-						memory[dataAddress] = memory[targetAddress];
+						memory[targetAddress] = dataAddress;
 					}
 				
 				// 포인터 점프	
@@ -222,7 +216,6 @@ class Orcinus {
 				case "DAA":
 					if (true) {
 						var output:Int = parseIndicator(opcode.args[0]);
-
 						memory.push(new Array<Dynamic>());
 						register[output] = memory.length - 1;
 					}
