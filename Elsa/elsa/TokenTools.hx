@@ -35,10 +35,11 @@ class TokenTools {
 		var i:Int = 0;
 		var subscriptDepth:Int = 0;
 		var shellDepth:Int = 0;		
-			
+		trace("aaaaaaaaaaaa");
 		// 원소
 		var elements:Array<Array<Token>> = new Array<Array<Token>>();
 		var lastIndex = i - 1;
+		var elementIndex:Int = 0;
 		
 		// 현재 스코프에서 유효한 매개변수 구분 문자를 찾는다.
 		while (i < tokens.length) {
@@ -50,11 +51,13 @@ class TokenTools {
 				shellDepth++;
 			else if (tokens[i].type == Token.Type.ShellClose)
 				shellDepth--;
-			else if (tokens[i].type == delimiter && ((subscriptDepth == 0 && shellDepth == 0) || !sensitive))				
-				elements.push(tokens.slice(lastIndex + 1, lastIndex = i)); 			
+			else if (tokens[i].type == delimiter && ((subscriptDepth == 0 && shellDepth == 0) || !sensitive)){				
+				elements[elementIndex++] = tokens.slice(lastIndex + 1, i);
+				lastIndex = i;
+			}
 			i++;
 		}
-		elements.push(tokens.slice(lastIndex + 1, tokens.length)); 
+		elements[elementIndex++] = (tokens.slice(lastIndex + 1, tokens.length)); 
 		
 		return elements;
 	}

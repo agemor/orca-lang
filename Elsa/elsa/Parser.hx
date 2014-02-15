@@ -94,7 +94,7 @@ class Parser {
 		
 		// 어휘 트리를 취득한다.
 		var lextree:Lextree = lexer.analyze(code);
-		lexer.viewHierarchy(lextree, 0);
+		//lexer.viewHierarchy(lextree, 0);
 		
 		// 현재 스코프를 스캔한다. 현재 스코프에서는 오브젝트 정의와 프로시저 정의만을 스캔한다.
 		scan(lextree, new ScanOption());
