@@ -15,7 +15,7 @@ indicator: register index
 | String Data Writing           | SDW (value) address, (value) string                                             | SDW   |
 | Reference Writing             | RDW (value) address, (value) target                                          | RDW   |
 | Element Selection by Index    | ESI (indicator) register, (value) array, (value) index                           | ESI   |
-| Element Addition              | EAD (value) array, (value) address                                            | EAD   |
+| Element Addition              | EAD (value) array, (value) index, (value) address                                            | EAD   |
 | Operation                     | OPR (indicator) register, (value) operator, (value) operand1, (value)operand2 ...  | OPR   |
 | Stack Push                    | PSH (value) data                                                                  | PSH   |
 | Stack Pop                     | POP (indicator) register                                                           | POP   |
