@@ -41,12 +41,12 @@
   <!-- Executed before build -->
   <preBuildCommand />
   <!-- Executed after build -->
-  <postBuildCommand alwaysRun="False" />
+  <postBuildCommand alwaysRun="True" />
   <!-- Other project options -->
   <options>
     <option showHiddenPaths="True" />
     <option testMovie="Custom" />
-    <option testMovieCommand="neko C:\Users\현준\git\elsa\Elsa\result.n" />
+    <option testMovieCommand="neko result.n" />
   </options>
   <!-- Plugin storage -->
   <storage />

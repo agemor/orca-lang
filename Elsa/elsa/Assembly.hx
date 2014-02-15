@@ -125,14 +125,16 @@ class Assembly {
 				
 				// 배열 인덱스 연산
 				if (token.useAsArrayReference) {
-					writeCode("POP 0"); // 배열 인덱스
-					writeCode("POP 1"); // 실제 배열
-					writeCode("ESI 2, &1, &0"); // 수정되기 전 배열의 값
+					writeCode("POP 0");
+					writeCode("POP 1");
+					writeCode("ESI 2, &1, &0");
 					writeCode("OPR 2, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &2, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
-					writeCode("EAD &1, &0, &2"); // 새로운 값 대입
+					writeCode("EAD &1, &0, &2");
 					writeCode("PSH &2");
-				} else {
+				} 
+				
+				else {
 					writeCode("POP 0");
 					writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", @&0, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
@@ -145,14 +147,16 @@ class Assembly {
 				
 				// 배열 인덱스 연산
 				if (token.useAsArrayReference) {
-					writeCode("POP 0"); // 배열 인덱스
-					writeCode("POP 1"); // 실제 배열
-					writeCode("ESI 2, &1, &0"); // 수정되기 전 배열의 값
+					writeCode("POP 0");
+					writeCode("POP 1");
+					writeCode("ESI 2, &1, &0");
 					writeCode("PSH &2");
 					writeCode("OPR 2, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", &2, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
-					writeCode("EAD &1, &0, &2"); // 새로운 값 대입					
-				} else {
+					writeCode("EAD &1, &0, &2");			
+				} 
+				
+				else {
 					writeCode("POP 0");
 					writeCode("PSH @&0");
 					writeCode("OPR 1, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", @&0, @"
@@ -182,12 +186,12 @@ class Assembly {
 				
 				// 배열 인덱스 연산	 
 				if (token.useAsArrayReference) {	 
-					writeCode("POP 0"); // 계산을 위한 값
-					writeCode("POP 1"); // 배열 인덱스
-					writeCode("POP 2"); // 실제 배열
-					writeCode("ESI 3, &2, &1"); // 수정되기 전 배열의 값
+					writeCode("POP 0");
+					writeCode("POP 1");
+					writeCode("POP 2");
+					writeCode("ESI 3, &2, &1");
 					writeCode("OPR 3, " + getOperatorNumber(token.type) + ", &3, &0");
-					writeCode("EAD &2, &1, &3"); // 새로운 값 대입
+					writeCode("EAD &2, &1, &3");
 				}
 				
 				// 일반 변수 연산
@@ -403,25 +407,25 @@ class Assembly {
 
 					// 초기값을 할당한다.
 					if (member.type == "string") {
-						writeCode("DSA &1");
+						writeCode("DSA 1");
 						if (member.initialized)
-							writeCode("SDW &1, " + member.address);
+							writeCode("SDW &1, @" + member.address);
 					} else if (member.type == "number") {
-						writeCode("DNA &1");
+						writeCode("DNA 1");
 						if (member.initialized)
-							writeCode("NDW &1, " + member.address);
+							writeCode("NDW &1, @" + member.address);
 					} else {
-						writeCode("DAA &1");
+						writeCode("DAA 1");
 						if (member.initialized)
-							writeCode("RDW &1, " + member.address);
+							writeCode("RDW &1, @" + member.address);
 					}
 
 					// 인스턴스에 맴버를 추가한다.
-					writeCode("EAD &0, &1");
+					writeCode("EAD @&0, "+j+", @&1");
 				}
 
 				// 배열을 리턴한다.
-				writeCode("PSH &0");
+				writeCode("PSH @&0");
 				default:
 			}
 		}

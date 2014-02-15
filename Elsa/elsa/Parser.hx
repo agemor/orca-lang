@@ -1029,21 +1029,17 @@ class Parser {
 				var loadContext:Token = new Token(Type.LoadContext);
 				loadContext.setTag(targetClass);
 
-				var result:Array<Token>;
+				var result:Array<Token> = parsedReference.data;
 
 				// 맨 마지막을 제외하고 컨텍스트 로드를 추가한다.
 				if (i != syntax.referneces.length - 1){
-					result = parsedReference.data;
 					result.push(loadContext);
-				} else {
-					result = parsedReference.data;
 				}
 				// 리턴 타입을 업데이트한다.
 				returnType = parsedReference.type;
 
 				parsedReferences.push(result);
 			}
-
 			// 파싱된 참조열을 리턴한다.
 			return new ParsedPair(TokenTools.merge(parsedReferences), returnType);
 		}

@@ -34,8 +34,7 @@ class TokenTools {
 		// 유효 범위 내에 있는 나열을 구한다.
 		var i:Int = 0;
 		var subscriptDepth:Int = 0;
-		var shellDepth:Int = 0;		
-		trace("aaaaaaaaaaaa");
+		var shellDepth:Int = 0;	
 		// 원소
 		var elements:Array<Array<Token>> = new Array<Array<Token>>();
 		var lastIndex = i - 1;
@@ -218,7 +217,12 @@ class TokenTools {
 		var buffer:String = "[";
 		
 		for ( i in 0...tokens.length) { 
-			buffer += StringTools.trim(tokens[i].value) + "@" + tokens[i].type;
+			
+			if (tokens[i].value != null) 
+				buffer += StringTools.trim(tokens[i].value) + "@" + tokens[i].type;
+			else 
+				buffer += "@" + tokens[i].type;			
+			
 			if (i != tokens.length - 1) buffer += ",  ";
 		}
 		buffer += "]";
