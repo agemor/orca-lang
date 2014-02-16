@@ -841,7 +841,7 @@ class Parser {
 			if (!syntax.functionName.tagged) {
 
 				if (!symbolTable.isValidFunctionID(syntax.functionName.value)) {
-					Debug.report("Undefined Error 26", "유효하지 않은 프로시져입니다.", lineNumber);
+					Debug.report("Undefined Error 26", syntax.functionName.value+"유효하지 않은 프로시져입니다.", lineNumber);
 					return null;
 				}
 

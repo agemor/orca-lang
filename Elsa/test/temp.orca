@@ -1,32 +1,5 @@
-define Student {
-	var name:string = "ssss";
-	var score:number = 0;	
-	var partner:Student;
+define getTwo() -> number {
+	return 2;
 }
 
-define Student -> setPartner(partner:Student) {
-	this.partner = partner;
-}
-
-define Student -> getTotalScore() -> number {
-	return this.score + this.partner.score;
-}
-
-
-var boy:Student = new Student;
-var girl:Student = new Student;
-var prettyGirl:Student = new Student;
-
-print(boy.name);
-
-boy.name = "Henry";
-boy.score = 130;
-
-girl.name = "Olivia";
-girl.score = 70;
-
-prettyGirl.name = "Charlotte";
-prettyGirl.score = 100;
-
-boy -> setPartner(prettyGirl);
-print(boy -> getTotalScore());
+print(getTwo()+2);

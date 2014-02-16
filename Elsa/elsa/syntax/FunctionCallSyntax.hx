@@ -33,7 +33,10 @@ class FunctionCallSyntax implements Syntax {
 			return false;
 		
 		var case1:Bool = tokens.length >= 3 && tokens[1].type == Type.ShellOpen;
-		var case2:Bool = tokens.length >= 5 && tokens[1].type == Type.Right;
+		var case2:Bool = tokens.length >= 5 && tokens[1].type == Type.Right;	
+			
+		if (TokenTools.indexOfShellClose(tokens, case2 ? 4: 2) != tokens.length - 1)
+			return false;	
 		
 		if (case1 || case2)
 			return true;
@@ -52,7 +55,7 @@ class FunctionCallSyntax implements Syntax {
 		var hasTarget:Bool = (tokens[1].type == Type.Right);
 		var hasArguments:Bool = hasTarget ? tokens[4].type != Type.ShellClose : tokens[2].type != Type.ShellClose;
 		
-		var functionName:Token = null;
+		var functionName:Token = tokens[0];
 		var functionArguments:Array<Array<Token>> = new Array<Array<Token>>();
 		
 		if (hasTarget) {

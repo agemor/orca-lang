@@ -57,7 +57,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		var hasParameters:Bool = hasTarget ? tokens[5].type != Type.ShellClose : tokens[3].type != Type.ShellClose;
 		var hasReturnType:Bool = tokens[tokens.length - 1].type == Type.ID;
 		
-		var functionName:Token = null;
+		var functionName:Token = tokens[1];
 		var parameters:Array<Array<Token>> = new Array<Array<Token>>();
 		var returnType:Token = new Token(Type.ID, "void");
 		

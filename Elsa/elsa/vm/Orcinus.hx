@@ -313,7 +313,8 @@ class Orcinus {
 		// VM 상태 변수
 		else if (code.charAt(0) == "$") {
 			switch(code.substring(1)) {
-				case "CURRENT_POINTER": return pointer + 2;
+				case "0": return pointer + 2;
+				case "1": return 0;
 			}
 		}
 		

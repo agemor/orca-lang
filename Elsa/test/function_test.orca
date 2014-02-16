@@ -1,7 +1,7 @@
 /**
 * 리턴하지 않는 파라미터가 없는 함수
 */
-function printHelloWorld():void {
+define printHelloWorld() {
 	print("Hello World!");
 }
 printHelloWorld();
@@ -9,7 +9,7 @@ printHelloWorld();
 /**
 * 리턴하지 않는 파라미터가 있는 함수
 */
-function printFullName(firstName:string, lastName:string):void {
+define printFullName(firstName:string, lastName:string) {
 	print(firstName + " "+ lastName);
 }
 printFullName("HyunJun", "Kim");
@@ -17,13 +17,13 @@ printFullName("HyunJun", "Kim");
 /**
 * 리턴하는 파라미터가 없는 함수
 */
-function getTau():number {
+define getTau() -> number {
 	return getPI() * 2;
 }
-function getPI():number {
+define getPI() -> number {
 	return 3.141592;
 }
-function getMyName():string {
+define getMyName() -> string {
 	return "HyunJun Kim";
 }
 print(getPI());
@@ -33,7 +33,7 @@ print(getMyName());
 /**
 * 리턴하는 파리미터가 있는 함수
 */
-function average(n1:number, n2:number):number {
+define average(n1:number, n2:number) -> number {
 	return (n1 + n2) / 2;
 }
 print(average(average(average(100,300),300),150));

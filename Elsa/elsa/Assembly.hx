@@ -332,7 +332,7 @@ class Assembly {
 							}
 
 						// 현재 위치를 스택에 넣는다.
-						writeCode("PSH $CURRENT_POINTER, 1");
+						writeCode("PSH $0, 1");
 
 						// 함수 시작부로 점프한다.
 						writeCode("JMP 0, %" + functn.functionEntry);
