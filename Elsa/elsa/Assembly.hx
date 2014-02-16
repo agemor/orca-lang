@@ -92,7 +92,7 @@ class Assembly {
 			return 22;
 		case Type.CastToString:
 			return 23;
-		case Type.CharAt:
+		case Type.SysVal:
 			return 24;
 		case Type.UnraryMinus:
 			return 25;
@@ -171,13 +171,13 @@ class Assembly {
 				 Type.BitwiseRightShift, Type.LogicalAnd, Type.LogicalOr,
 				 Type.Append, Type.EqualTo, Type.NotEqualTo,
 				 Type.GreaterThan, Type.GreaterThanOrEqualTo, Type.LessThan,
-				 Type.LessThanOrEqualTo, Type.CharAt:
-
+				 Type.LessThanOrEqualTo, Type.SysVal:	
+					 
 				writeCode("POP 0");
 				writeCode("POP 1");
 				writeCode("OPR 2, " + getOperatorNumber(token.type) + ", &1, &0");
 				writeCode("PSH &2");
-
+			
 			// 이항 연산 후 대입 연산자
 			case Type.AdditionAssignment, Type.SubtractionAssignment, Type.DivisionAssignment,
 				 Type.MultiplicationAssignment, Type.ModuloAssignment, Type.BitwiseAndAssignment,

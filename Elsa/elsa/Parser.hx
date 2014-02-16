@@ -169,7 +169,7 @@ class Parser {
 			// 현재 내려진 명령이 유효한지 확인한다.
 			switch (tokens[0].type) {
 				
-			case Type.Class, Type.Variable, Type.Array, Type.Function:
+			case Type.Variable, Type.Array:
 				
 			case Type.If, Type.ElseIf, Type.Else, Type.For, Type.While:
 				if (option.inStructure) {
@@ -1056,7 +1056,7 @@ class Parser {
 
 			var array:VariableSymbol = cast(syntax.array.getTag(), VariableSymbol);
 
-			// 변수가 배열이 아닐 경우
+			/*// 변수가 배열이 아닐 경우
 			if (array.type != "array") {
 
 				// 변수가 문자열도 아니면, 에러
@@ -1091,7 +1091,7 @@ class Parser {
 				
 				// 결과를 리턴한다.
 				return new ParsedPair(result, "string");
-			}
+			}*/
 
 			// 파싱된 인덱스들
 			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
@@ -1322,6 +1322,13 @@ class Parser {
 					left.data[left.data.length - 1].useAsAddress = true;
 					syntax.operator.useAsArrayReference = false;
 				}				
+			}
+			
+			// 시스템 값 참조 연산자일 경우
+			if (syntax.operator.type == Type.SysVal) {
+				
+				// 에러를 막기 위해 타입을 임의로 지정한다.
+				left.type = right.type = "number";
 			}
 			
 			// 와일드카드 처리, 와일드카드가 양 변에 한 쪽이라도 있으면

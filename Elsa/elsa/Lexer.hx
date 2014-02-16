@@ -357,14 +357,11 @@ class Lexer {
 		Token.define(null, Token.Type.Instance);
 		Token.define(null, Token.Type.LoadContext);
 		Token.define(null, Token.Type.SaveContext);
-		Token.define(null, Token.Type.CharAt);
 
 		Token.define("define", Token.Type.Define, true);
 		Token.define("->", Token.Type.Right, false);
 		
 		Token.define("var", Token.Type.Variable, true);
-		Token.define("function", Token.Type.Function, true);
-		Token.define("class", Token.Type.Class, true);
 		Token.define("if", Token.Type.If, true);
 		Token.define("elif", Token.Type.ElseIf, true);
 		Token.define("else", Token.Type.Else, true);
@@ -379,6 +376,7 @@ class Lexer {
 		Token.define("as", Token.Type.As, true);
 		Token.define("in", Token.Type.In, true);
 		
+		Token.define("?", Token.Type.SysVal, false);
 		Token.define("[", Token.Type.ArrayOpen, false);
 		Token.define("]", Token.Type.ArrayClose, false);
 		Token.define("{", Token.Type.BlockOpen, false);

@@ -1,5 +1,5 @@
-define getTwo() -> number {
-	return 2;
-}
+var test:array = [1,2,3,4];
+print(test?0);
 
-print(getTwo()+2);
+var test2:string = "12345678";
+print(test2?1);

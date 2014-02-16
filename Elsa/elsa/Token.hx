@@ -103,7 +103,7 @@ class Token {
 	 */
 	public function getPrecedence():Int {
 		switch (type) {
-		case Type.Dot:
+		case Type.Dot, Type.SysVal:
 			return 1;
 		case Type.ArrayOpen:
 			return 2;
@@ -234,10 +234,10 @@ enum Type {
 	
 	Define; Right;
 	
-	ID; Variable; Function; Class; New; ArrayReference;
+	ID; Variable; New; ArrayReference;
 	
 	If; ElseIf; Else; For; While;
-	Continue; Break; Return;
+	Continue; Break; Return; SysVal;
 	
 	True; False; String; Number; Array;
 	
@@ -262,6 +262,6 @@ enum Type {
 	CastToNumber; CastToString;
 	
 	Instance; LoadContext; SaveContext;
-	CharAt; As;
+	As;
 	
 }

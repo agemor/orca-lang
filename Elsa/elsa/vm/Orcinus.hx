@@ -132,7 +132,7 @@ class Orcinus {
 							case 21: register[output] = Std.string(left) + Std.string(right);
 							case 22: register[output] = Std.parseFloat(left);
 							case 23: register[output] = Std.string(left);
-							case 24: register[output] = Std.string(left).charAt(right);
+							case 24: register[output] = getRuntimeValue(left, parseInt(right));
 							case 25: register[output] = -left;
 						}						
 					}				
@@ -283,6 +283,18 @@ class Orcinus {
 			pointer ++;
 		}
 		
+	}
+	
+	private function getRuntimeValue(target:Dynamic, valueType:Int = 0):Dynamic {
+		switch(valueType) {
+			// 배열 길이
+			case 0:
+				return cast(target, Array<Dynamic>).length;
+			// 문자열 길이	
+			case 1:
+				return cast(target, String).length;
+		}
+		return null;
 	}
 	
 	private function parseInt(value:Dynamic):Int {
