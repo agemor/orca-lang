@@ -1,5 +1,5 @@
 define Student {
-	var name:string = "";
+	var name:string = "ssss";
 	var score:number = 0;	
 	var partner:Student;
 }
@@ -16,6 +16,8 @@ define Student -> getTotalScore() -> number {
 var boy:Student = new Student;
 var girl:Student = new Student;
 var prettyGirl:Student = new Student;
+
+print(boy.name);
 
 boy.name = "Henry";
 boy.score = 130;

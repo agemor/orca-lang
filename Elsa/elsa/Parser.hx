@@ -1223,8 +1223,7 @@ class Parser {
 				else {
 					Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
-				}	
-				
+				}
 			}
 				
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
@@ -1322,8 +1321,7 @@ class Parser {
 				else {
 					left.data[left.data.length - 1].useAsAddress = true;
 					syntax.operator.useAsArrayReference = false;
-				}
-				
+				}				
 			}
 			
 			// 와일드카드 처리, 와일드카드가 양 변에 한 쪽이라도 있으면
@@ -1454,7 +1452,10 @@ class Parser {
 		
 		// 구조체 스캔일 경우 맴버변수와 프로시져를 저장할 공간 생성
 		var members:Array<Symbol> = null;
-
+	
+		// 임시 스코프용
+		var definedSymbols:Array<Symbol> = new Array<Symbol>();
+		
 		if (option.inStructure) {
 			members = new Array<Symbol>();
 		}
@@ -1497,6 +1498,21 @@ class Parser {
 				if (symbolTable.isValidVariableID(variable.id)) {
 					Debug.report("Duplication error 52", "변수 정의가 충돌합니다.", lineNumber);
 					continue;
+				}
+				
+				// 심볼 테이블에 추가
+				definedSymbols.push(variable);
+				symbolTable.add(variable);
+				
+				// 초기화 데이터가 존재할 경우
+				if (syntax.initializer != null) {
+					variable.initialized = true;
+
+					// 초기화문을 파싱한 후 어셈블리에 쓴다.
+					var parsedInitializer:ParsedPair = parseLine(syntax.initializer, lineNumber);
+
+					if (parsedInitializer == null) continue;
+					assembly.writeLine(parsedInitializer.data);
 				}
 				
 				members.push(variable);	
@@ -1615,6 +1631,10 @@ class Parser {
 		// 만약 구조체 스캔일 경우 맴버 변수와 프로시져 정의를 오브젝트 심볼에 쓴다.
 		if (option.inStructure) {
 			option.parentClass.members = members;
+		}
+		
+		for ( i in 0...definedSymbols.length) {
+			symbolTable.removeInBoth(definedSymbols[i].id);
 		}
 	}	
 	
