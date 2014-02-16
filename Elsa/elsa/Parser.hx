@@ -850,7 +850,6 @@ class Parser {
 			
 			// 매개 변수의 수 일치를 확인한다.
 			if (functn.parameters.length != syntax.functionArguments.length) {
-					
 				Debug.report("Syntax error 27", "매개 변수의 수가 잘못되었습니다.", lineNumber);
 				return null;
 			}
@@ -1005,10 +1004,10 @@ class Parser {
 
 				// 첫 번째 실행일 때
 				else {
-
+					
 					// 유효하지 않다면 에러 출력
-					if (!symbolTable.isValidVariableID(reference[0].value)
-							&& !symbolTable.isValidFunctionID(reference[0].value)) {
+					if (!symbolTable.isValidVariableID(reference[0].value) && !symbolTable.isValidFunctionID(reference[0].value)) {
+						
 						Debug.report("Undefined Error 33", "정의되지 않은 인스턴스입니다.", lineNumber);
 						return null;
 					}
@@ -1573,7 +1572,7 @@ class Parser {
 						
 						// 매개 변수 심볼을 생성한다
 						var parameter:VariableSymbol = new VariableSymbol(parameterSyntax.parameterName.value, parameterSyntax.parameterType.value);
-
+						
 						parameterSyntax.parameterName.setTag(parameter);
 
 						// 심볼 테이블에 추가한다.

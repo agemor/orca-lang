@@ -1,15 +1,28 @@
 class Student {
-	var name:string = "HyunJun Kim";
+	var name:string = "Hyunjun";
+	var mentor:Student;
 	
 	function printMyName():void{
 		print(name);
 	}
 } 
-var boy:Student = new Student;
+
+function nameMixer(student:Student, student2:Student):string{
+	return student.name + student2.name;
+}
+
+var boy:Student;
 var girl:Student = new Student;
 
-boy.name = "Paul";
-girl.name = "Anson";
+boy = new Student;
+
+boy.name = "Daniel";
+girl.name = "Olivia";
+
+boy.mentor = girl;
+print(boy.mentor.name);
+
+print(nameMixer(boy,girl));
 
 boy.printMyName();
 print(boy.name);

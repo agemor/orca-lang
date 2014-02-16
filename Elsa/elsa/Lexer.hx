@@ -356,8 +356,12 @@ class Lexer {
 		Token.define(null, Token.Type.ArrayReference);
 		Token.define(null, Token.Type.Instance);
 		Token.define(null, Token.Type.LoadContext);
+		Token.define(null, Token.Type.SaveContext);
 		Token.define(null, Token.Type.CharAt);
 
+		Token.define("define", Token.Type.Define, true);
+		Token.define("->", Token.Type.Right, false);
+		
 		Token.define("var", Token.Type.Variable, true);
 		Token.define("function", Token.Type.Function, true);
 		Token.define("class", Token.Type.Class, true);

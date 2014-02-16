@@ -231,6 +231,9 @@ enum Affix {
  * 토큰 종류
  */
 enum Type {
+	
+	Define; Right;
+	
 	ID; Variable; Function; Class; New; ArrayReference;
 	
 	If; ElseIf; Else; For; While;
@@ -258,7 +261,7 @@ enum Type {
 	
 	CastToNumber; CastToString;
 	
-	Instance; LoadContext;
+	Instance; LoadContext; SaveContext;
 	CharAt; As;
 	
 }

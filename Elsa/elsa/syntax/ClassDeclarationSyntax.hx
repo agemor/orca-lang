@@ -26,7 +26,7 @@ class ClassDeclarationSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.Class)
+		if (tokens.length == 2 && tokens[0].type == Type.Define && tokens[1].type == Type.ID)
 			return true;
 		return false;
 	}
@@ -42,13 +42,7 @@ class ClassDeclarationSyntax implements Syntax {
 		
 		// 토큰의 길이를 검사한다.
 		if (tokens.length != 2) {
-			Debug.report("Syntax error", "Class declaration syntax is not valid.", lineNumber);		
-			return null;
-		}
-
-		// 식별자가 ID형식인지 검증한다.
-		if (tokens[1].type != Type.ID) {
-			Debug.report("Syntax error", "Class name is not valid.", lineNumber);		
+			Debug.report("Syntax error", "structure declaration syntax is not valid.", lineNumber);		
 			return null;
 		}
 		

@@ -371,6 +371,10 @@ class Assembly {
 					// 공유 맴버의 레퍼런스를 업데이트한다.
 					writeCode("RDW " + member.address + ", &1");
 				}
+			case Type.SaveContext: // 함수 뒤.
+				
+				// 어차피 load 할 때 다 불러왔으므로 쓸 때도 그냥 쓰면 된다.
+				// a.(lc)b.(lc)c()(sc);
 				
 			case Type.Array:
 
