@@ -1,9 +1,12 @@
-/**
-* 구구단 출력 코드
-*/
-for ( i in 2...9 ) {
-	for ( j in 1 ... 9 ){
-		print(i + "*" + j + "=" + ( i * j ));
-	}
-	print("");
+if(true){
+	print("1: Executed!");
+}
+if(true || false){
+	print("2: Executed!");
+}
+if(true && false){
+	print("3: Executed!");
+}
+if((true || false) && (true || false)){
+	print("4: Executed!");
 }

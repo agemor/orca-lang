@@ -20,6 +20,7 @@ print(boy.name);
 
 boy.name = "Henry";
 boy.score = 130;
+boy.score++;
 
 girl.name = "Olivia";
 girl.score = 70;
