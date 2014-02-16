@@ -751,7 +751,6 @@ class Parser {
 
 				assembly.writeLine(parsedLine.data);
 			}
-			
 		}
 		
 		// definition에 있던 심볼을 테이블에서 모두 제거한다.
@@ -1021,10 +1020,10 @@ class Parser {
 				// 참조 파싱 중 에러가 발생헀다면 건너 뛴다.
 				if (parsedReference == null)
 					return null;
-
+								
 				// targetClass 업데이트
 				targetClass = cast(symbolTable.findInLocal(parsedReference.type), ClassSymbol);
-
+				
 				// 컨텍스트 로드 토큰
 				var loadContext:Token = new Token(Type.LoadContext);
 				loadContext.setTag(targetClass);
@@ -1223,16 +1222,14 @@ class Parser {
 			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
 
 			if (parsedOperand == null)
-				return null;
+				return null;			
 			
-			// 뒤 항은 단항 ID만 가능하다.
 			if (syntax.operator.type == Type.PrefixDecrement
 					|| syntax.operator.type == Type.PrefixIncrement) {
 				
-				syntax.operand[0].useAsAddress = true;		
-						
-				// 단항 ID가 아닐 경우
-				if ((syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) && parsedOperand.type != "*") {
+				syntax.operand[syntax.operand.length - 1].useAsAddress = true;						
+				
+				if (syntax.operand[0].type != Type.ID && parsedOperand.type != "*") {
 					Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}	
@@ -1243,6 +1240,8 @@ class Parser {
 				syntax.operand[0].useAsAddress = false;	
 				syntax.operator.useAsArrayReference = true;
 				parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
+			} else {
+				syntax.operator.useAsArrayReference = false;
 			}
 				
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
@@ -1268,7 +1267,7 @@ class Parser {
 			if (syntax == null)
 				return null;
 			
-			syntax.operand[0].useAsAddress = true;	
+			syntax.operand[syntax.operand.length - 1].useAsAddress = true;	
 
 			// 피연산자를 파싱한다.
 			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
@@ -1277,7 +1276,7 @@ class Parser {
 				return null;
 			
 			// 단항 ID가 아닐 경우
-			if ((syntax.operand.length != 1 || syntax.operand[0].type != Type.ID) && parsedOperand.type != "*") {
+			if (syntax.operand[0].type != Type.ID && parsedOperand.type != "*") {
 				Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 				return null;
 			}	
@@ -1287,6 +1286,8 @@ class Parser {
 				syntax.operand[0].useAsAddress = false;	
 				syntax.operator.useAsArrayReference = true;
 				parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
+			} else {
+				syntax.operator.useAsArrayReference = false;
 			}
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
@@ -1316,15 +1317,36 @@ class Parser {
 			var left:ParsedPair = parseLine(syntax.left, lineNumber);
 			var right:ParsedPair = parseLine(syntax.right, lineNumber);
 			
-			// 배열 대입이면
-			if (syntax.operator.getPrecedence() > 15 && left.type == "*") {
-				left.data[left.data.length - 1].useAsAddress = true;	
-				syntax.operator.useAsArrayReference = true;
+			if (left == null || right == null)
+				return null;	
+			
+			// 대입 명령이면
+			if (syntax.operator.getPrecedence() > 15) {
+				
+				// 배열 대입이면
+				if (left.type == "*") {
+					left.data[left.data.length - 1].useAsAddress = true;	
+					syntax.operator.useAsArrayReference = true;
+				}
+				
+				// 맴버 변수 대입이면 (배열 대입은 아닌데 여러 항으로 이루어져 있음)
+				else if (left.data.length > 1) {
+					
+					// 배열 취급하여 다시 파싱한다.
+					left = parseAsArrayReference(syntax.left, lineNumber);					
+					left.data[left.data.length - 1].useAsAddress = true;	
+					syntax.operator.useAsArrayReference = true;
+					
+				}
+				
+				// 전역/로컬 변수 대입이면
+				else {
+					left.data[left.data.length - 1].useAsAddress = true;
+					syntax.operator.useAsArrayReference = false;
+				}
+				
 			}
 			
-			if (left == null || right == null)
-				return null;			
-				
 			// 와일드카드 처리, 와일드카드가 양 변에 한 쪽이라도 있으면
 			if (left.type == "*" || right.type == "*") {
 
@@ -1429,11 +1451,6 @@ class Parser {
 					Debug.report("Syntax error 50", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
 					return null;
 				}
-			}
-
-			// 만약 대입 축약형이면 주소를 입력한다.
-			if (syntax.operator.getPrecedence() > 15) {
-				left.data[0].useAsAddress = true;
 			}
 			
 			// 형 체크가 끝나면 좌, 우 변을 잇고 리턴한다.
@@ -1626,6 +1643,73 @@ class Parser {
 			option.parentClass.members = members;
 		}
 	}	
+	
+	/**
+	 * 인스턴스 참조 구문 (A.B.C) 를 배열 참조 구문(A[B][C])으로 파싱한다.
+	 * 
+	 * @param	instanceReference
+	 * @return
+	 */
+	private function parseAsArrayReference(memberReference:Array<Token>, lineNumber:Int):ParsedPair {
+		
+		// 좌항을 배열 취급하여 다시 파싱한다.
+		var syntax:MemberReferenceSyntax = MemberReferenceSyntax.analyze(memberReference, lineNumber);
+		
+		var arrayReference:Array<Token> = new Array<Token>();
+		var targetInstanceToken:Token = null;
+		var targetClass:ClassSymbol = null;
+		
+		// 맴버 참조를 배열 참조로 변환한다. 이미 위에서 한 번 파싱에 성공했으므로 에러 체크는 하지 않는다.
+		for ( j in 0...syntax.referneces.length) {						
+						
+			// 맴버 변수를 찾는다. 만약 맴버가 다항이면 대입이 불가능하므로 에러를 띄운다.
+			if (syntax.referneces[j].length > 1) {
+				Debug.report("Syntax error 147", "간접 참조에 값을 대입할 수 없습니다.", lineNumber);
+				return null;
+			}						
+			var parsedMember:ParsedPair = parseLine(syntax.referneces[j], lineNumber);
+						
+			// 맨 처음이라면 타겟 인스턴스를 설정한다.
+			if (j == 0) {
+				targetInstanceToken = parsedMember.data[0];
+			}
+				
+			// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.
+			else {
+				var memberIndex:Int = 0;
+				for ( k in 0...targetClass.members.length) { 
+
+					if (Std.is(targetClass.members[k], FunctionSymbol))
+						continue;
+									
+					var member:VariableSymbol = cast(targetClass.members[k], VariableSymbol);
+								
+					// 일치하는 속성을 찾았으면 해당하는 인덱스를 추가한다.
+					if (member.id == parsedMember.data[0].value) {
+						
+						var indexValueLiteral:LiteralSymbol = symbolTable.getLiteral(Std.string(memberIndex), LiteralSymbol.NUMBER);
+						var indexValueToken:Token = new Token(Token.Type.Number, Std.string(memberIndex));
+						
+						indexValueToken.setTag(indexValueLiteral);
+						
+						arrayReference.push(indexValueToken);
+						break;
+					}
+					memberIndex++;
+				}
+			}
+			targetClass = cast(symbolTable.findInLocal(parsedMember.type), ClassSymbol);
+		}	
+
+		// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
+		var targetInstance:VariableSymbol = cast(symbolTable.findInLocal(targetInstanceToken.value), VariableSymbol);
+		targetInstanceToken.setTag(targetInstance);
+					
+		arrayReference.push(targetInstanceToken);
+		arrayReference.push(new Token(Type.ArrayReference, Std.string(arrayReference.length - 1)));
+		
+		return new ParsedPair(arrayReference, targetClass.id);
+	}
 	
 	/**
 	 * 다다음 인덱스에 이어지는 조건문이 존재하는지 확인한다.

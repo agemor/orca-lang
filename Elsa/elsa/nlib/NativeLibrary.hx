@@ -31,6 +31,7 @@ class NativeLibrary {
 		var number:NativeClass = new NativeClass("number", []);
 		var string:NativeClass = new NativeClass("string", []);
 		var array:NativeClass = new NativeClass("array", []);
+		var void:NativeClass = new NativeClass("void", []);
 
 		var print:NativeFunction = new NativeFunction("print", ["*"], "void");
 		print.write("POP 0");
@@ -42,7 +43,8 @@ class NativeLibrary {
 		addClass(number);
 		addClass(string);
 		addClass(array);
-
+		addClass(void);
+		
 		addFunction(print);
 		addFunction(whoami);		
 	}

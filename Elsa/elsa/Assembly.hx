@@ -195,7 +195,8 @@ class Assembly {
 				}
 				
 				// 일반 변수 연산
-				else{
+				else {
+					
 					writeCode("POP 0");
 					writeCode("POP 1");
 					writeCode("OPR 2, " + getOperatorNumber(token.type) + ", @&1, &0");
@@ -210,7 +211,7 @@ class Assembly {
 			case Type.Assignment:
 
 				// 배열 인덱스 연산
-				if (token.useAsArrayReference) {
+				if (token.useAsArrayReference) {					
 					writeCode("POP 0"); // 계산을 위한 값
 					writeCode("POP 1"); // 배열 인덱스
 					writeCode("POP 2"); // 실제 배열
@@ -355,6 +356,7 @@ class Assembly {
 				writeCode("POP 0");
 
 				// 오브젝트의 데이터와 리턴 결과 데이터를 일대일 대응시킨다.
+				var loadedIndex:Int = 0;
 				for ( j in 0...classs.members.length) { 
 
 					if (Std.is(classs.members[j], FunctionSymbol))
@@ -363,8 +365,9 @@ class Assembly {
 					var member:VariableSymbol = cast(classs.members[j], VariableSymbol);
 
 					// 리턴값의 인자번호를 뽑는다.
-					writeCode("ESI 1, &0, " + j);
-
+					writeCode("ESI 1, &0, " + loadedIndex);
+					loadedIndex++;
+					
 					// 공유 맴버의 레퍼런스를 업데이트한다.
 					writeCode("RDW " + member.address + ", &1");
 				}
@@ -393,11 +396,12 @@ class Assembly {
 
 				// 앞 토큰은 인스턴스의 클래스이다.
 				var targetClass:ClassSymbol = cast(tokens[i - 1].getTag(), ClassSymbol);
-
+				
 				// 인스턴스를 동적 할당한다.
 				writeCode("DAA 0");
 
 				// 오브젝트의 맴버 변수에 해당하는 데이터를 동적 할당한다.
+				var assignedIndex:Int = 0;
 				for ( j in 0...targetClass.members.length) {
 
 					if (Std.is(targetClass.members[j], FunctionSymbol))
@@ -421,7 +425,8 @@ class Assembly {
 					}
 
 					// 인스턴스에 맴버를 추가한다.
-					writeCode("EAD @&0, "+j+", @&1");
+					writeCode("EAD @&0, " + assignedIndex + ", @&1");
+					assignedIndex++;
 				}
 
 				// 배열을 리턴한다.

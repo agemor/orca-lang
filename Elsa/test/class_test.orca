@@ -1,5 +1,18 @@
-class Me {
+class Student {
 	var name:string = "HyunJun Kim";
+	
+	function printMyName():void{
+		print(name);
+	}
 } 
-var me:Me = new Me;
-print(me.name);
+var boy:Student = new Student;
+var girl:Student = new Student;
+
+boy.name = "Paul";
+girl.name = "Anson";
+
+boy.printMyName();
+print(boy.name);
+
+girl.printMyName();
+print(girl.name);

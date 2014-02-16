@@ -2,7 +2,8 @@ package elsa;
 import elsa.vm.Orcinus;
 import sys.io.File;
 /**
- * ...
+ * Orca Compiler & VM Launcher
+ * 
  * @author 김 현준
  */
 class Launcher {
@@ -35,7 +36,7 @@ class Launcher {
 		vm.run();
 		trace("--------------------------------------");
 		
-		File.saveContent("program.orx", compiledCode);
-		Sys.sleep(10000);	
+		trace("Press any key to exit...");
+		Sys.getChar(false);
 	}	
 }
