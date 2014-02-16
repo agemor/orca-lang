@@ -199,6 +199,10 @@ class Parser {
 			// 변수 선언문
 			if (VariableDeclarationSyntax.match(tokens)) {				
 				
+				// 구조체에서는 변수를 파싱하지 않는다. (이미 스캐닝에서 캐시 완료)
+				if (option.inStructure)
+					continue;
+
 				var syntax:VariableDeclarationSyntax = VariableDeclarationSyntax.analyze(tokens, lineNumber);
 
 				// 만약 구문 분석 중 오류가 발생했다면 다음 구문으로 건너 뛴다.
@@ -209,27 +213,16 @@ class Parser {
 				if (!symbolTable.isValidClassID(syntax.variableType.value)) {
 					Debug.report("Type error 6", "유효하지 않은 변수 타입입니다.", lineNumber);
 					continue;
+				}				
+
+				// 변수 정의가 유효한지 확인한다.
+				if (symbolTable.isValidVariableID(syntax.variableName.value)) {
+					Debug.report("Duplication error 7", "변수 정의가 중복되었습니다.", lineNumber);
+					continue;
 				}
 
-				var variable:VariableSymbol = null;
-
-				// 구조체 정의인 경우 이미 스캔이 된 상태이므로 테이블에서 불러온다.
-				if (option.inStructure) {
-					variable = cast(symbolTable.findInLocal(syntax.variableName.value), VariableSymbol);
-				}
-
-				// 구조체 정의가 아닌 경우 변수 심볼을 생성하고 테이블에 추가한다.
-				else {
-
-					// 변수 정의가 유효한지 확인한다.
-					if (symbolTable.isValidVariableID(syntax.variableName.value)) {
-						Debug.report("Duplication error 7", "변수 정의가 중복되었습니다.", lineNumber);
-						continue;
-					}
-
-					variable = new VariableSymbol(syntax.variableName.value, syntax.variableType.value);
-					symbolTable.add(variable);
-				}
+				var variable:VariableSymbol  = new VariableSymbol(syntax.variableName.value, syntax.variableType.value);
+				symbolTable.add(variable);				
 
 				// 토큰에 심볼을 태그한다.
 				syntax.variableName.setTag(variable);				
@@ -271,9 +264,9 @@ class Parser {
 				// 테이블에서 함수 심볼을 가져온다. (이미 스캐닝 과정에서 함수가 테이블에 등록되었으므로)
 				var functn:FunctionSymbol = cast(symbolTable.findInLocal(syntax.functionName.value), FunctionSymbol);
 				
-				// 정의된 심볼 목록에 추가한다.
+				// 함수 심볼을 정의된 심볼 목록에 추가한다.
 				definedSymbols.push(functn);
-
+				
 				// 다음 라인이 블록 형태인지 확인한다.
 				if (!hasNextBlock(block, i)) {
 					Debug.report("Syntax error 8", "함수 구현부가 존재하지 않습니다.", lineNumber);
@@ -295,8 +288,19 @@ class Parser {
 				functionOption.inIterator = false;
 				functionOption.parentFunction = functn;
 				
+				// 파라미터 변수를 추가한다.
+				for ( j in 0...functn.parameters.length) {
+					// 심볼 테이블에 추가한다.
+					symbolTable.add(functn.parameters[j]);
+				}
+				
 				parseBlock(block.branch[++i], functionOption);
-
+				
+				// 파라미터 변수를 제거한다.				
+				for ( j in 0...functn.parameters.length) {
+					symbolTable.removeInBoth(functn.parameters[j].id);
+				}
+				
 				/*
 				 * 프로시져 호출 매커니즘은 다음과 같다.
 				 * 
@@ -945,7 +949,10 @@ class Parser {
 
 			// 객체 정보 취득
 			var syntax:InstanceCreationSyntax = InstanceCreationSyntax.analyze(tokens, lineNumber);
-
+			
+			if (syntax == null)
+				return null;
+			
 			// 오브젝트 네임의 유효성 검증
 			if (!symbolTable.isValidClassID(syntax.instanceType.value)) {
 				Debug.report("Syntax error 31", "유효하지 않은 오브젝트입니다.", lineNumber);
@@ -962,84 +969,58 @@ class Parser {
 		}
 
 		/**
-		 * 인스턴스 참조 : A.B.C
+		 * 인스턴스 참조 : A.B.C -> 배열 취급하여 파싱한다.
 		 */
 		else if (MemberReferenceSyntax.match(tokens)) {
 
-			/*
-			 * 도트 연산자는 우선순위가 가장 높기 때문에 파싱 트리의 최하단에 위치한 토큰열이 반환되게 된다. 따라서 도트 연산자로
-			 * 걸러진 토큰은 무조건 A.B.C...Z 꼴이다. (단 A~Z는 변수 혹은 함수) 따라서 도트가 한번이라도 등장하면 그
-			 * 뒤의 토큰열도 도트로 이어져 있다. -> 도트 처리는 일괄적으로 해도 됨
-			 */
-
-			// 참조 정보 취득
 			var syntax:MemberReferenceSyntax = MemberReferenceSyntax.analyze(tokens, lineNumber);
-
-			// 파싱된 참조열
-			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
-
-			// 컨텍스트
-			var targetClass:ClassSymbol = null;
-
-			// 리턴 타입
-			var returnType:String = null;
-
-			// 참조를 차례대로 파싱한다.
-			for ( i in 0...syntax.referneces.length) { 
-				var reference:Array<Token> = syntax.referneces[i];
-
-				// 참조는 컨텍스트 내에서만 찾는다. (targetClass가 처음에는 null 이므로 첫 번째 실행에서는
-				// 전역에서 심볼을 찾는다.)
-				if (targetClass != null) {
-					var member:Symbol = targetClass.findMemberByID(reference[0].value);
-
-					if (member == null) {
-						Debug.report("Undefined Error 32", "속성을 찾을 수 없습니다.", lineNumber);
-						return null;
-					}
-
-					// 토큰에 컨텍스트 내의 맴버를 태그한다.
-					reference[0].setTag(member);
-				}
-
-				// 첫 번째 실행일 때
-				else {
-					
-					// 유효하지 않다면 에러 출력
-					if (!symbolTable.isValidVariableID(reference[0].value) && !symbolTable.isValidFunctionID(reference[0].value)) {
-						
-						Debug.report("Undefined Error 33", "정의되지 않은 인스턴스입니다.", lineNumber);
-						return null;
-					}
-				}
-
-				// 참조를 파싱한다.
-				var parsedReference:ParsedPair = parseLine(reference, lineNumber);
-
-				// 참조 파싱 중 에러가 발생헀다면 건너 뛴다.
-				if (parsedReference == null)
-					return null;
-								
-				// targetClass 업데이트
-				targetClass = cast(symbolTable.findInLocal(parsedReference.type), ClassSymbol);
+			
+			if (syntax == null)
+				return null;
+			
+			var arrayReference:Array<Token> = new Array<Token>();	
 				
-				// 컨텍스트 로드 토큰
-				var loadContext:Token = new Token(Type.LoadContext);
-				loadContext.setTag(targetClass);
-
-				var result:Array<Token> = parsedReference.data;
-
-				// 맨 마지막을 제외하고 컨텍스트 로드를 추가한다.
-				if (i != syntax.referneces.length - 1){
-					result.push(loadContext);
+			// 인스턴스 심볼
+			var targetInstance:VariableSymbol = cast(symbolTable.findInLocal(syntax.referneces[0].value), VariableSymbol);			
+			var targetInstanceToken:Token = syntax.referneces[0];
+			targetInstanceToken.setTag(targetInstance);
+			
+			var targetClass:ClassSymbol = cast(symbolTable.findInLocal(targetInstance.type), ClassSymbol);
+			
+			// 맴버 참조를 배열 참조로 변환한다.
+			for ( j in 1...syntax.referneces.length) {	
+					
+				// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.							
+				var targetClassMember:Symbol = targetClass.findMemberByID(syntax.referneces[j].value);					
+				var memberIndex:Int = 0;
+				
+				for ( k in 0...targetClass.members.length) { 
+					if (Std.is(targetClass.members[k], FunctionSymbol))
+						continue;
+						
+					var member:VariableSymbol = cast(targetClass.members[k], VariableSymbol);
+					
+					// 일치하는 속성을 찾았으면 해당하는 인덱스를 추가한다.
+					if (member.id == targetClassMember.id) {
+							
+						var indexValueLiteral:LiteralSymbol = symbolTable.getLiteral(Std.string(memberIndex), LiteralSymbol.NUMBER);
+						var indexValueToken:Token = new Token(Token.Type.Number, Std.string(memberIndex));							
+						indexValueToken.setTag(indexValueLiteral);
+							
+						arrayReference.push(indexValueToken);
+						break;
+					}
+					memberIndex++;
 				}
-				// 리턴 타입을 업데이트한다.
-				returnType = parsedReference.type;
+				
+				targetClass = cast(symbolTable.findInLocal(targetClassMember.type), ClassSymbol);
+			}					
 
-				parsedReferences.push(result);
-			}
-			// 파싱된 참조열을 리턴한다.
-			return new ParsedPair(TokenTools.merge(parsedReferences), returnType);
+			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
+			arrayReference.push(targetInstanceToken);
+			arrayReference.push(new Token(Type.ArrayReference, Std.string(arrayReference.length - 1)));
+			
+			return new ParsedPair(arrayReference, targetClass.id);
 		}
 
 		/**
@@ -1223,24 +1204,27 @@ class Parser {
 			if (parsedOperand == null)
 				return null;			
 			
-			if (syntax.operator.type == Type.PrefixDecrement
-					|| syntax.operator.type == Type.PrefixIncrement) {
+			// 어드레스 취급하는 경우	
+			if (syntax.operator.type == Type.PrefixIncrement || syntax.operator.type == Type.PrefixDecrement) {
 				
-				syntax.operand[syntax.operand.length - 1].useAsAddress = true;						
+				// 배열이나 맴버 변수 대입이면
+				if (parsedOperand.data[parsedOperand.data.length - 1].type == Type.ArrayReference) {
+					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;	
+					syntax.operator.useAsArrayReference = true;
+				}
 				
-				if (syntax.operand[0].type != Type.ID && parsedOperand.type != "*") {
+				// 전역/로컬 변수 대입이면
+				else if (parsedOperand.data.length == 1) {
+					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
+					syntax.operator.useAsArrayReference = false;
+				} 
+				
+				// 그 외의 경우
+				else {
 					Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}	
-			}	
 				
-			// 배열 참조형일 경우
-			if (parsedOperand.type == "*") {
-				syntax.operand[0].useAsAddress = false;	
-				syntax.operator.useAsArrayReference = true;
-				parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
-			} else {
-				syntax.operator.useAsArrayReference = false;
 			}
 				
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
@@ -1265,8 +1249,6 @@ class Parser {
 
 			if (syntax == null)
 				return null;
-			
-			syntax.operand[syntax.operand.length - 1].useAsAddress = true;	
 
 			// 피연산자를 파싱한다.
 			var parsedOperand:ParsedPair = parseLine(syntax.operand, lineNumber);
@@ -1274,19 +1256,27 @@ class Parser {
 			if (parsedOperand == null)
 				return null;
 			
-			// 단항 ID가 아닐 경우
-			if (syntax.operand[0].type != Type.ID && parsedOperand.type != "*") {
-				Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
-				return null;
-			}	
+			// 어드레스 취급하는 경우	
+			if (syntax.operator.type == Type.SuffixIncrement || syntax.operator.type == Type.SuffixDecrement) {
 				
-			// 배열 참조형일 경우
-			if (parsedOperand.type == "*") {
-				syntax.operand[0].useAsAddress = false;	
-				syntax.operator.useAsArrayReference = true;
-				parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
-			} else {
-				syntax.operator.useAsArrayReference = false;
+				// 배열이나 맴버 변수 대입이면
+				if (parsedOperand.data[parsedOperand.data.length - 1].type == Type.ArrayReference) {
+					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;	
+					syntax.operator.useAsArrayReference = true;
+				}
+				
+				// 전역/로컬 변수 대입이면
+				else if (parsedOperand.data.length == 1) {
+					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
+					syntax.operator.useAsArrayReference = false;
+				} 
+				
+				// 그 외의 경우
+				else {
+					Debug.report("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
+					return null;
+				}	
+				
 			}
 
 			// 접두형 연산자의 경우 숫자만 올 수 있다.
@@ -1322,20 +1312,10 @@ class Parser {
 			// 대입 명령이면
 			if (syntax.operator.getPrecedence() > 15) {
 				
-				// 배열 대입이면
-				if (left.type == "*") {
+				// 배열이나 맴버 변수 대입이면
+				if (left.data[left.data.length - 1].type == Type.ArrayReference) {
 					left.data[left.data.length - 1].useAsAddress = true;	
 					syntax.operator.useAsArrayReference = true;
-				}
-				
-				// 맴버 변수 대입이면 (배열 대입은 아닌데 여러 항으로 이루어져 있음)
-				else if (left.data.length > 1) {
-					
-					// 배열 취급하여 다시 파싱한다.
-					left = parseAsArrayReference(syntax.left, lineNumber);					
-					left.data[left.data.length - 1].useAsAddress = true;	
-					syntax.operator.useAsArrayReference = true;
-					
 				}
 				
 				// 전역/로컬 변수 대입이면
@@ -1518,11 +1498,8 @@ class Parser {
 					Debug.report("Duplication error 52", "변수 정의가 충돌합니다.", lineNumber);
 					continue;
 				}
-
-				// 심볼 테이블에 추가한다.
-				symbolTable.add(variable);
-				members.push(variable);
 				
+				members.push(variable);	
 			}
 			
 			else if (FunctionDeclarationSyntax.match(tokens)) {
@@ -1560,7 +1537,7 @@ class Parser {
 
 						// 매개 변수 이름의 유효성을 검증한다.
 						if (symbolTable.isValidVariableID(parameterSyntax.parameterName.value)) {
-							Debug.report("Duplication error 54", "변수 정의가 충돌합니다.", lineNumber);
+							Debug.report("Duplication error 54", parameterSyntax.parameterName.value+"변수 정의가 충돌합니다.", lineNumber);
 							continue;
 						}
 
@@ -1574,9 +1551,7 @@ class Parser {
 						var parameter:VariableSymbol = new VariableSymbol(parameterSyntax.parameterName.value, parameterSyntax.parameterType.value);
 						
 						parameterSyntax.parameterName.setTag(parameter);
-
-						// 심볼 테이블에 추가한다.
-						symbolTable.add(parameter);
+						
 						parameters[k] = parameter;
 					}
 				}
@@ -1642,73 +1617,6 @@ class Parser {
 			option.parentClass.members = members;
 		}
 	}	
-	
-	/**
-	 * 인스턴스 참조 구문 (A.B.C) 를 배열 참조 구문(A[B][C])으로 파싱한다.
-	 * 
-	 * @param	instanceReference
-	 * @return
-	 */
-	private function parseAsArrayReference(memberReference:Array<Token>, lineNumber:Int):ParsedPair {
-		
-		// 좌항을 배열 취급하여 다시 파싱한다.
-		var syntax:MemberReferenceSyntax = MemberReferenceSyntax.analyze(memberReference, lineNumber);
-		
-		var arrayReference:Array<Token> = new Array<Token>();
-		var targetInstanceToken:Token = null;
-		var targetClass:ClassSymbol = null;
-		
-		// 맴버 참조를 배열 참조로 변환한다. 이미 위에서 한 번 파싱에 성공했으므로 에러 체크는 하지 않는다.
-		for ( j in 0...syntax.referneces.length) {						
-						
-			// 맴버 변수를 찾는다. 만약 맴버가 다항이면 대입이 불가능하므로 에러를 띄운다.
-			if (syntax.referneces[j].length > 1) {
-				Debug.report("Syntax error 147", "간접 참조에 값을 대입할 수 없습니다.", lineNumber);
-				return null;
-			}						
-			var parsedMember:ParsedPair = parseLine(syntax.referneces[j], lineNumber);
-						
-			// 맨 처음이라면 타겟 인스턴스를 설정한다.
-			if (j == 0) {
-				targetInstanceToken = parsedMember.data[0];
-			}
-				
-			// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.
-			else {
-				var memberIndex:Int = 0;
-				for ( k in 0...targetClass.members.length) { 
-
-					if (Std.is(targetClass.members[k], FunctionSymbol))
-						continue;
-									
-					var member:VariableSymbol = cast(targetClass.members[k], VariableSymbol);
-								
-					// 일치하는 속성을 찾았으면 해당하는 인덱스를 추가한다.
-					if (member.id == parsedMember.data[0].value) {
-						
-						var indexValueLiteral:LiteralSymbol = symbolTable.getLiteral(Std.string(memberIndex), LiteralSymbol.NUMBER);
-						var indexValueToken:Token = new Token(Token.Type.Number, Std.string(memberIndex));
-						
-						indexValueToken.setTag(indexValueLiteral);
-						
-						arrayReference.push(indexValueToken);
-						break;
-					}
-					memberIndex++;
-				}
-			}
-			targetClass = cast(symbolTable.findInLocal(parsedMember.type), ClassSymbol);
-		}	
-
-		// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
-		var targetInstance:VariableSymbol = cast(symbolTable.findInLocal(targetInstanceToken.value), VariableSymbol);
-		targetInstanceToken.setTag(targetInstance);
-					
-		arrayReference.push(targetInstanceToken);
-		arrayReference.push(new Token(Type.ArrayReference, Std.string(arrayReference.length - 1)));
-		
-		return new ParsedPair(arrayReference, targetClass.id);
-	}
 	
 	/**
 	 * 다다음 인덱스에 이어지는 조건문이 존재하는지 확인한다.

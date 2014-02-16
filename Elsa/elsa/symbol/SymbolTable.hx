@@ -90,7 +90,18 @@ class SymbolTable {
 	public function removeInGlobal(address:Int):Void {
 		global.remove(address);
 	}
-
+	
+	/**
+	 * 로컬과 전역 모두에서 삭제한다.
+	 * 
+	 * @param	address
+	 */
+	public function removeInBoth(id:String):Void {
+		var symbol:Symbol = local.get(id);
+		local.remove(id);
+		global.remove(symbol.address);
+	}
+	
 	/**
 	 * 주어진 변수 ID의 유효성을 검증한다.
 	 * 

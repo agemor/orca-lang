@@ -1,31 +1,29 @@
-class Student {
-	var name:string = "Hyunjun";
-	var mentor:Student;
-	
-	function printMyName():void{
-		print(name);
-	}
-} 
-
-function nameMixer(student:Student, student2:Student):string{
-	return student.name + student2.name;
+define Student {
+	var name:string = "";
+	var score:number = 0;	
+	var partner:Student;
 }
 
-var boy:Student;
+define Student -> setPartner(partner:Student) {
+	this.partner = spartner;
+}
+
+define Student -> getTotalScore() -> number {
+	return this.score + this.partner.score;
+}
+
+var boy:Student = new Student;
 var girl:Student = new Student;
+var prettyGirl:Student = new Student;
 
-boy = new Student;
+boy.name = "Henry";
+boy.score = 130;
 
-boy.name = "Daniel";
 girl.name = "Olivia";
+girl.score = 70;
 
-boy.mentor = girl;
-print(boy.mentor.name);
+prettyGirl.name = "Charlotte";
+prettyGirl.score = 100;
 
-print(nameMixer(boy,girl));
-
-boy.printMyName();
-print(boy.name);
-
-girl.printMyName();
-print(girl.name);
+boy -> setPartner(prettyGirl);
+print(boy -> getTotalScore());

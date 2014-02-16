@@ -13,9 +13,9 @@ import elsa.debug.Debug;
  */
 class MemberReferenceSyntax implements Syntax {
 
-	public var referneces:Array<Array<Token>>;
+	public var referneces:Array<Token>;
 	
-	public function new(referneces:Array<Array<Token>>) {
+	public function new(referneces:Array<Token>) {
 		this.referneces = referneces;
 	}	
 	
@@ -45,6 +45,19 @@ class MemberReferenceSyntax implements Syntax {
 	 * @return
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):MemberReferenceSyntax {
-		return new MemberReferenceSyntax(TokenTools.split(tokens, Type.Dot, true));
+		
+		var chunks:Array<Array<Token>> = TokenTools.split(tokens, Type.Dot, true);
+		var memberReferences:Array<Token> = new Array<Token>();
+		
+		for ( i in 0...chunks.length) {
+			
+			if (chunks[i].length > 1) {
+				Debug.report("Syntax error", "참조 변수가 유효하지 않습니다.", lineNumber);
+				return null;
+			}			
+			memberReferences.push(chunks[i][0]);
+		}
+		
+		return new MemberReferenceSyntax(memberReferences);
 	}
 }
