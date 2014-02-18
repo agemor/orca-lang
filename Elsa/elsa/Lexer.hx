@@ -163,7 +163,6 @@ class Lexer {
 	 * @return
 	 */
 	public function tokenize(code:String):Array<Token> {
-		
 		var tokens:Array<Token> = new Array<Token>();
 		var buffer:String = "";
 		
@@ -250,7 +249,7 @@ class Lexer {
 			}
 
 			// 공백 문자가 나오면 토큰을 분리한다.
-			if (char == " " || char.charCodeAt(0) == 10 || char.charCodeAt(0) == 13) {
+			if (char == " " || char == "	" ||char.charCodeAt(0) == 10 || char.charCodeAt(0) == 13) {
 	
 				var token:Token = Token.findByValue(StringTools.trim(buffer), true);
 				
@@ -271,7 +270,7 @@ class Lexer {
 
 				// 만약 토큰이 존재한다면,
 				if (result != null) {
-
+					
 					// 토큰을 이루는 문자만큼 건너 뛴다.
 					i += result.value.length - 1;
 

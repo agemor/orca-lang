@@ -47,7 +47,7 @@ class VariableDeclarationSyntax implements Syntax {
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):VariableDeclarationSyntax {		
 
-		if (tokens.length < 3) {
+		if (tokens.length < 3) {			
 			Debug.reportError("Syntax error", "Variable declaration syntax is too short", lineNumber);
 			return null;
 		}
@@ -81,6 +81,7 @@ class VariableDeclarationSyntax implements Syntax {
 
 			// 길기만 하고 형식은 잘못되었을 경우
 			else {
+				TokenTools.view1D(tokens);
 				Debug.reportError("Syntax error", "Variable initializing statement is not valid", lineNumber);
 				return null;
 			}

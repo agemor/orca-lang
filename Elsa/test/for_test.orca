@@ -12,7 +12,7 @@ for ( i in 2...9 ) {
 /**
 * 소수 찾는 코드
 */
-var maximum:number = 500;
+var maximum:number = 100;
 for ( i in 3 ... maximum ) {
 	var flag:number = 1;
 	for ( j in 2 ... i / 2 ){

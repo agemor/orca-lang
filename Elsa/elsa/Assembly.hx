@@ -124,7 +124,7 @@ class Assembly {
 			case Type.PrefixDecrement, Type.PrefixIncrement:
 				
 				// 배열 인덱스 연산
-				if (token.useAsArrayReference) {
+				if (token.useAsArrayReference) {					
 					writeCode("POP 0");
 					writeCode("POP 1");
 					writeCode("ESI 2, &1, &0");

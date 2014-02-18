@@ -93,6 +93,19 @@ class Token {
 		this.tagged = false;
 	}
 	
+	public function copy():Token {
+		var token:Token = new Token(type, value);
+		token.affix = affix;
+		token.tag = tag;
+		token.tagged = tagged;
+		token.wholeWord = wholeWord;
+		token.useAsAddress = useAsAddress;
+		token.useAsArrayReference = useAsArrayReference;
+		
+		return token;
+	}
+	
+	
 	/**
 	 * 현재 토큰이 연산자일 경우, 연산자의 우선순위를 구한다.
 	 * 
@@ -170,15 +183,17 @@ class Token {
 	public static function findByType(type:Type):Token {
 		for (i in 0...definitions.length) {
 			if (definitions[i].type == type)
-				return definitions[i];
+				return definitions[i].copy();
 		}
 		return null;
 	}
 	
 	public static function findByValue(value:String, wholeWord:Bool):Token {
 		
+		value = StringTools.trim(value);
+		
 		// 빈 값이면 아무것도 출력하지 않는다.
-		if (StringTools.trim(value).length == 0)
+		if (value.length == 0)
 			return null;
 		
 		// 단어 단위 검색일 경우, 심볼 전체가 매치될 경우에만 해당
@@ -212,8 +227,8 @@ class Token {
 					candidate = definitions[i];
 				}
 			}
-			
-			return candidate;
+			if (candidate == null) return null;
+			else return candidate.copy();
 		}
 		
 	}

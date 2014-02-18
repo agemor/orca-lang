@@ -255,6 +255,25 @@ class Orcinus {
 						var command:String = Std.string(parseValue(opcode.args[1]));						
 						var returnValue:Dynamic = null;						
 						
+						switch (command) {
+							case "abs": returnValue = OrcinusAPI.abs(cast(parseValue(opcode.args[1]), Float));
+							case "acos": returnValue = OrcinusAPI.acos(cast(parseValue(opcode.args[1]), Float));
+							case "asin": returnValue = OrcinusAPI.asin(cast(parseValue(opcode.args[1]), Float));
+							case "atan": returnValue = OrcinusAPI.atan(cast(parseValue(opcode.args[1]), Float));
+							case "atan2": returnValue = OrcinusAPI.atan2(cast(parseValue(opcode.args[1]), Float), cast(parseValue(opcode.args[2]), Float));
+							case "ceil": returnValue = OrcinusAPI.ceil(cast(parseValue(opcode.args[1]), Float));
+							case "floor": returnValue = OrcinusAPI.floor(cast(parseValue(opcode.args[1]), Float));
+							case "round": returnValue = OrcinusAPI.round(cast(parseValue(opcode.args[1]), Float));
+							case "cos": returnValue = OrcinusAPI.cos(cast(parseValue(opcode.args[1]), Float));
+							case "sin": returnValue = OrcinusAPI.sin(cast(parseValue(opcode.args[1]), Float));
+							case "tan": returnValue = OrcinusAPI.tan(cast(parseValue(opcode.args[1]), Float));
+							case "log": returnValue = OrcinusAPI.log(cast(parseValue(opcode.args[1]), Float));
+							case "sqrt": returnValue = OrcinusAPI.sqrt(cast(parseValue(opcode.args[1]), Float));
+							case "pow": returnValue = OrcinusAPI.pow(cast(parseValue(opcode.args[1]), Float), cast(parseValue(opcode.args[2]), Float));
+							case "exp": returnValue = OrcinusAPI.exp(cast(parseValue(opcode.args[1]), Float));
+							case "random": returnValue = OrcinusAPI.random();
+						}
+						
 						register[output] = returnValue;
 					}
 					

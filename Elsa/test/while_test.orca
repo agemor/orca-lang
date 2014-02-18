@@ -1,9 +1,8 @@
-var i:number = 0;
-
-while(i++ < 10){
-	var j:number = i;
-	while(j-- > 1){		
-		print(j);
-	}
-	++i;
+var k:number = 0;
+while(k++ < 10){
+    var p:number = k;
+    while(p-- > 1){		
+        print(p);
+    }
+    ++k;
 }

@@ -1,3 +1,9 @@
+include "variable_test.orca";
+include "function_test.orca";
+include "array_test.orca";
 include "class_test.orca";
+include "if_test.orca";
+include "for_test.orca";
+include "while_test.orca";
 
 print('a');

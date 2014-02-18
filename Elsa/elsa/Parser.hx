@@ -1255,11 +1255,11 @@ class Parser {
 				// 전역/로컬 변수 대입이면
 				else if (parsedOperand.data.length == 1) {
 					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
-					syntax.operator.useAsArrayReference = false;
 				} 
 				
 				// 그 외의 경우
 				else {
+					TokenTools.view1D(parsedOperand.data);
 					Debug.reportError("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}
@@ -1306,7 +1306,6 @@ class Parser {
 				// 전역/로컬 변수 대입이면
 				else if (parsedOperand.data.length == 1) {
 					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;
-					syntax.operator.useAsArrayReference = false;
 				} 
 				
 				// 그 외의 경우
@@ -1334,7 +1333,7 @@ class Parser {
 		 * 이항 연산자: a+b
 		 */
 		else if (InfixSyntax.match(tokens)) {
-
+			
 			var syntax:InfixSyntax = InfixSyntax.analyze(tokens, lineNumber);
 
 			if (syntax == null)
@@ -1344,8 +1343,9 @@ class Parser {
 			var left:ParsedPair = parseLine(syntax.left, lineNumber);
 			var right:ParsedPair = parseLine(syntax.right, lineNumber);
 			
-			if (left == null || right == null)
+			if (left == null || right == null) {				
 				return null;	
+			}
 			
 			// 대입 명령이면
 			if (syntax.operator.getPrecedence() > 15) {

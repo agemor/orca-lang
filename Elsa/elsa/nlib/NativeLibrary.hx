@@ -42,7 +42,65 @@ class NativeLibrary {
 
 		var whoami:NativeFunction = new NativeFunction("whoami", [], "void");
 		whoami.write("EXE whoami");
-
+		
+		var abs:NativeFunction = new NativeFunction("abs", ["number"], "number");
+		abs.write("POP 0");
+		abs.write("EXE abs, &0");
+		
+		var acos:NativeFunction = new NativeFunction("acos", ["number"], "number");
+		acos.write("POP 0");
+		acos.write("EXE acos, &0");
+		
+		var asin:NativeFunction = new NativeFunction("asin", ["number"], "number");
+		asin.write("POP 0");
+		asin.write("EXE asin, &0");
+		
+		var atan:NativeFunction = new NativeFunction("atan", ["number"], "number");
+		atan.write("POP 0");
+		atan.write("EXE atan, &0");
+		
+		var atan2:NativeFunction = new NativeFunction("atan2", ["number", "number"], "number");
+		atan2.write("POP 0");
+		atan2.write("POP 1");
+		atan2.write("EXE atan2, &0, &1");
+		
+		var ceil:NativeFunction = new NativeFunction("ceil", ["number"], "number");
+		ceil.write("POP 0");
+		ceil.write("EXE ceil, &0");
+		
+		var floor:NativeFunction = new NativeFunction("floor", ["number"], "number");
+		floor.write("POP 0");
+		floor.write("EXE floor, &0");
+		
+		var round:NativeFunction = new NativeFunction("round", ["number"], "number");
+		round.write("POP 0");
+		round.write("EXE round, &0");
+		
+		var cos:NativeFunction = new NativeFunction("cos", ["number"], "number");
+		cos.write("POP 0");
+		cos.write("EXE cos, &0");
+		
+		var sin:NativeFunction = new NativeFunction("sin", ["number"], "number");
+		sin.write("POP 0");
+		sin.write("EXE sin, &0");
+		
+		var log:NativeFunction = new NativeFunction("log", ["number"], "number");
+		log.write("POP 0");
+		log.write("EXE abs, &0");
+		
+		var sqrt:NativeFunction = new NativeFunction("sqrt", ["number"], "number");
+		sqrt.write("POP 0");
+		sqrt.write("EXE abs, &0");
+		
+		var pow:NativeFunction = new NativeFunction("pow", ["number", "number"], "number");
+		pow.write("POP 0");
+		pow.write("POP 1");
+		pow.write("EXE pow, &0, &1");
+		
+		var random:NativeFunction = new NativeFunction("random", [], "number");
+		random.write("POP 0");
+		random.write("EXE random, &0");		
+		
 		addClass(number);
 		addClass(string);
 		addClass(array);
