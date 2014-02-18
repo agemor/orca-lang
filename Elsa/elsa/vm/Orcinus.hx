@@ -139,11 +139,11 @@ class Orcinus {
 					
 				// 배열 읽기	
 				case "ESI":
-					if (true) {
+					if (true) {						
 						var output:Int = parseIndicator(opcode.args[0]);
 						var array:Array<Dynamic> = cast(parseValue(opcode.args[1]), Array<Dynamic>);  						
 						var arrayIndex:Int = parseInt(parseValue(opcode.args[2]));
-					
+						
 						// 레지스터에 할당
 						register[output] = array[arrayIndex];
 					}

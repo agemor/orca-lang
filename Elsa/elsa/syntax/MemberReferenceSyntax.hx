@@ -12,10 +12,12 @@ import elsa.debug.Debug;
  * @author 김 현준
  */
 class MemberReferenceSyntax implements Syntax {
-
+	
+	public var instance:Array<Token>;
 	public var referneces:Array<Token>;
 	
-	public function new(referneces:Array<Token>) {
+	public function new(instance:Array<Token>, referneces:Array<Token>) {
+		this.instance = instance;
 		this.referneces = referneces;
 	}	
 	
@@ -47,17 +49,24 @@ class MemberReferenceSyntax implements Syntax {
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):MemberReferenceSyntax {
 		
 		var chunks:Array<Array<Token>> = TokenTools.split(tokens, Type.Dot, true);
+		
+		var instance:Array<Token> = chunks[0];
 		var memberReferences:Array<Token> = new Array<Token>();
 		
-		for ( i in 0...chunks.length) {
+		if (instance.length < 1) {
+			Debug.report("Syntax error", "참조 대상이 올바르지 않습니다.", lineNumber);
+				return null;
+		}
+		
+		for ( i in 1...chunks.length) {
 			
-			if (chunks[i].length > 1) {
-				Debug.report("Syntax error", "참조 변수가 유효하지 않습니다.", lineNumber);
+			if (chunks[i].length > 1 || chunks[i].length < 1) {
+				Debug.report("Syntax error", "참조 변수가 올바르지 않습니다.", lineNumber);
 				return null;
 			}			
 			memberReferences.push(chunks[i][0]);
 		}
 		
-		return new MemberReferenceSyntax(memberReferences);
+		return new MemberReferenceSyntax(instance, memberReferences);
 	}
 }

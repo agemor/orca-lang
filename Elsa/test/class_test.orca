@@ -12,6 +12,10 @@ define Student -> getTotalScore() -> number {
 	return this.score + this.partner.score;
 }
 
+define Student -> getPartner() -> Student {
+	return this.partner;
+}
+
 var boy:Student = new Student;
 var girl:Student = new Student;
 var prettyGirl:Student = new Student;
@@ -28,5 +32,7 @@ girl.score = 70;
 prettyGirl.name = "Charlotte";
 prettyGirl.score = 100;
 
-boy -> setPartner(prettyGirl);
+boy -> setPartner(girl);
+girl -> setPartner(prettyGirl);
 print(boy -> getTotalScore());
+print(boy -> getPartner() -> getPartner().name);

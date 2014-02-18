@@ -88,6 +88,21 @@ class TokenTools {
 				return i;
 		return -1;
 	}
+	
+	/**
+	 * 토큰열에서 주어진 토큰 타입의 마지막 인덱스를 찾는다.
+	 * 
+	 * @param	tokens
+	 * @param	type
+	 * @param	start
+	 * @return
+	 */
+	public static function lastIndexOf(tokens:Array<Token>, type:Type, start:Int = 0):Int {
+		for ( i in 0...tokens.length - start)
+			if (tokens[tokens.length - 1 - i].type == type)
+				return tokens.length - 1 - i;
+		return -1;
+	}
 
 	/**
 	 * 유효한 껍데기 닫기 문자의 위치를 찾는다.

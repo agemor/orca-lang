@@ -292,7 +292,7 @@ class Assembly {
 
 				// 함수일 경우
 				else if (Std.is(symbol, FunctionSymbol)) {
-	
+					
 					var functn:FunctionSymbol = cast(symbol, FunctionSymbol);
 
 					// 네이티브 함수일 경우

@@ -29,18 +29,27 @@ class FunctionCallSyntax implements Syntax {
 	 */
 	public static function match(tokens:Array<Token>):Bool {
 		
-		if (!(tokens.length > 0 && tokens[0].type == Type.ID))
+		var lastIndexOfRight:Int = TokenTools.lastIndexOf(tokens, Type.Right);	
+		
+		// 전체 래핑인지 확인한다.
+		if (tokens.length >= 3 && tokens[0].type == Type.ID && tokens[1].type == Type.ShellOpen) {
+			if (TokenTools.indexOfShellClose(tokens, 2) == tokens.length - 1)
+				return true;
+		}
+		
+		// 기본적인 길이 제한을 만족하는지 확인
+		if (tokens.length < lastIndexOfRight + 3) 	
 			return false;
-		
-		var case1:Bool = tokens.length >= 3 && tokens[1].type == Type.ShellOpen;
-		var case2:Bool = tokens.length >= 5 && tokens[1].type == Type.Right;	
 			
-		if (TokenTools.indexOfShellClose(tokens, case2 ? 4: 2) != tokens.length - 1)
-			return false;	
+		// 패턴 매칭 확인	
 		
-		if (case1 || case2)
-			return true;
-		return false;
+		if (tokens[lastIndexOfRight + 1].type != Type.ID || tokens[lastIndexOfRight + 2].type != Type.ShellOpen)
+			return false;
+			
+		// 마지막 닫기 문자 확인
+		if (TokenTools.indexOfShellClose(tokens, lastIndexOfRight + 3) != tokens.length - 1)
+			return false;			
+		return true;
 	}
 	
 	/**
@@ -52,21 +61,29 @@ class FunctionCallSyntax implements Syntax {
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):FunctionCallSyntax {		
 		
-		var hasTarget:Bool = (tokens[1].type == Type.Right);
-		var hasArguments:Bool = hasTarget ? tokens[4].type != Type.ShellClose : tokens[2].type != Type.ShellClose;
+		var lastIndexOfRight:Int = TokenTools.lastIndexOf(tokens, Type.Right);	
+		var hasTarget:Bool = lastIndexOfRight > 0;		
+		
+		// 전체 래핑인지 확인한다.
+		if (tokens[0].type == Type.ID && tokens[1].type == Type.ShellOpen) {
+			if (TokenTools.indexOfShellClose(tokens, 2) == tokens.length - 1)
+				hasTarget = false;
+		}		
+		
+		var hasArguments:Bool = hasTarget ? tokens[lastIndexOfRight + 3].type != Type.ShellClose : tokens[2].type != Type.ShellClose;
 		
 		var functionName:Token = tokens[0];
 		var functionArguments:Array<Array<Token>> = new Array<Array<Token>>();
 		
 		if (hasTarget) {
-			functionArguments.push([tokens[0]]);
-			functionName = tokens[2];
+			functionArguments.push(tokens.slice(0, lastIndexOfRight));
+			functionName = tokens[lastIndexOfRight + 1];
 		}
 		
 		if (hasArguments) {
 			
 			var argumentStartIndex:Int = 2;
-			if (hasTarget) argumentStartIndex += 2;
+			if (hasTarget) argumentStartIndex += lastIndexOfRight + 1;
 			
 			var argumentEndIndex:Int = tokens.length - 1;
 			

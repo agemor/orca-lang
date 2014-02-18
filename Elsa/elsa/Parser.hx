@@ -833,9 +833,12 @@ class Parser {
 		 * 함수 호출: F(X,Y,Z)
 		 */
 		if (FunctionCallSyntax.match(tokens)) {
-
+			
 			// 프로시저 호출 구문을 분석한다.
 			var syntax:FunctionCallSyntax = FunctionCallSyntax.analyze(tokens, lineNumber);
+			
+			if (syntax == null)
+				return null;
 			
 			// 태그되지 않았을 경우, 함수가 유효한지 검사한 후, 태그한다.
 			if (!syntax.functionName.tagged) {
@@ -888,7 +891,7 @@ class Parser {
 					parsedArguments.push(parsedArgument.data);
 				}
 				
-				parsedArguments.push([syntax.functionName]);
+				parsedArguments.push([syntax.functionName]);				
 				
 				return new ParsedPair(TokenTools.merge(parsedArguments), functn.type);
 			}
@@ -979,17 +982,17 @@ class Parser {
 				return null;
 			
 			var arrayReference:Array<Token> = new Array<Token>();	
-				
-			// 인스턴스 심볼
-			var targetInstance:VariableSymbol = cast(symbolTable.findInLocal(syntax.referneces[0].value), VariableSymbol);			
-			var targetInstanceToken:Token = syntax.referneces[0];
-			targetInstanceToken.setTag(targetInstance);
 			
-			var targetClass:ClassSymbol = cast(symbolTable.findInLocal(targetInstance.type), ClassSymbol);
+			// 참조 대상을 파싱한다.
+			var parsedInstance:ParsedPair = parseLine(syntax.instance, lineNumber);
+			if (parsedInstance == null)
+				return null;
+			
+			var targetClass:ClassSymbol = cast(symbolTable.findInLocal(parsedInstance.type), ClassSymbol);
 			
 			// 맴버 참조를 배열 참조로 변환한다.
-			for ( j in 1...syntax.referneces.length) {	
-					
+			for ( j in 0...syntax.referneces.length) {	
+				
 				// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.							
 				var targetClassMember:Symbol = targetClass.findMemberByID(syntax.referneces[j].value);					
 				var memberIndex:Int = 0;
@@ -1014,11 +1017,11 @@ class Parser {
 				}
 				
 				targetClass = cast(symbolTable.findInLocal(targetClassMember.type), ClassSymbol);
-			}					
-
+			}
+			
 			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
-			arrayReference.push(targetInstanceToken);
-			arrayReference.push(new Token(Type.ArrayReference, Std.string(arrayReference.length - 1)));
+			arrayReference = arrayReference.concat(parsedInstance.data);
+			arrayReference.push(new Token(Type.ArrayReference, Std.string(syntax.referneces.length)));
 			
 			return new ParsedPair(arrayReference, targetClass.id);
 		}

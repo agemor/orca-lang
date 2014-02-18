@@ -1,5 +1,6 @@
 package elsa;
 import elsa.vm.Orcinus;
+import haxe.Utf8;
 import sys.io.File;
 /**
  * Orca Compiler & VM Launcher
@@ -10,7 +11,7 @@ class Launcher {
 	
 	public static function main() {
 		
-		haxe.Log.trace = function (log, ?d) Sys.println(log);
+		haxe.Log.trace = function (log, ?d) Sys.println(Std.string(log));
 		
 		trace("Orca Compiler 2.0 (Unstable)");		
 		
@@ -26,7 +27,7 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(temp_test);
+		var compiledCode:String = parser.compile(class_test);
 		trace(compiledCode);
 		
 		var vm:Orcinus = new Orcinus();
