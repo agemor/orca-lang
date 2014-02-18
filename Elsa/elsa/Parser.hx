@@ -400,7 +400,7 @@ class Parser {
 					continue;
 				
 				// 조건문 결과 타입이 정수형이 아니라면 (True:1, False:0) 에러를 출력한다.
-				if (parsedCondition.type != "number") {
+				if (parsedCondition.type != "number" && parsedCondition.type != "bool") {
 					Debug.reportError("Syntax error 10", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
 					continue;
 				}
@@ -427,13 +427,14 @@ class Parser {
 
 				parseBlock(block.branch[++i], ifOption);
 				assembly.flag(ifExit);		
+				
 			}
 			
 			
 			else if (ElseIfSyntax.match(tokens)) {
 				
 				// 확장된 조건문을 사용하지 않는 상태에서 else if문이 등장하면 에러를 출력한다
-				if (extendedConditional) {
+				if (!extendedConditional) {
 					Debug.reportError("Syntax error 12", "else-if문은 단독으로 쓰일 수 없습니다.", lineNumber);
 					continue;
 				}
@@ -457,7 +458,7 @@ class Parser {
 					continue;
 				
 				// 조건문 결과 타입이 정수형이 아니라면 (True:1, False:0) 에러를 출력한다.
-				if (parsedCondition.type != "number") {
+				if (parsedCondition.type != "number" && parsedCondition.type != "bool") {
 					Debug.reportError("Syntax error 13", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
 					continue;
 				}
@@ -502,6 +503,7 @@ class Parser {
 			}
 			
 			else if (ElseSyntax.match(tokens)) {
+				
 				var syntax:ElseSyntax = ElseSyntax.analyze(tokens, lineNumber);
 
 				// 만약 else 문이 유효하지 않을 경우 다음으로 건너 뛴다.
@@ -510,7 +512,7 @@ class Parser {
 				
 
 				// 확장된 조건문을 사용하지 않는 상태에서 else문이 등장하면 에러를 출력한다
-				if (extendedConditional) {
+				if (!extendedConditional) {
 					Debug.reportError("Syntax error 15", "else문은 단독으로 쓰일 수 없습니다.", lineNumber);
 					continue;
 				}
@@ -1095,18 +1097,18 @@ class Parser {
 
 			var array:VariableSymbol = cast(syntax.array.getTag(), VariableSymbol);
 
-			/*// 변수가 배열이 아닐 경우
+			// 변수가 배열이 아닐 경우
 			if (array.type != "array") {
 
 				// 변수가 문자열도 아니면, 에러
 				if (array.type != "string") {
-					Debug.report("Type error 35", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
+					Debug.reportError("Type error 35", "인덱스 참조는 배열에서만 가능합니다.", lineNumber);
 					return null;
 				}
 
 				// 문자열 인덱스 참조 명령을 처리한다.
 				if (syntax.references.length != 1) {
-					Debug.report("Type error 36", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
+					Debug.reportError("Type error 36", "문자열을 n차원 배열처럼 취급할 수 없습니다.", lineNumber);
 					return null;
 				}
 
@@ -1119,7 +1121,7 @@ class Parser {
 
 				// 인덱스가 정수가 아닐 경우
 				if (parsedIndex.type != "number") {
-					Debug.report("Type error 37", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
+					Debug.reportError("Type error 37", "문자열의 인덱스가 정수가 아닙니다.", lineNumber);
 					return null;
 				}
 				
@@ -1130,7 +1132,7 @@ class Parser {
 				
 				// 결과를 리턴한다.
 				return new ParsedPair(result, "string");
-			}*/
+			}
 
 			// 파싱된 인덱스들
 			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
@@ -1184,12 +1186,12 @@ class Parser {
 			if (syntax.castingType == "string") {
 
 				// 아직은 숫자 -> 문자만 가능하다.
-				if (parsedTarget.type != "number" && parsedTarget.type != "*") {
-					Debug.reportError("Type error 39", "실수형이 아닌 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
+				if (parsedTarget.type != "number" && parsedTarget.type != "bool" && parsedTarget.type != "*") {
+					Debug.reportError("Type error 39", "이 타입을 문자형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
 				
-				var result:Array<Token> = parsedTarget.data;
+				var result:Array<Token> = parsedTarget.data;				
 				result.push(Token.findByType(Type.CastToString));
 				
 				// 캐스팅된 문자열을 출력
@@ -1200,8 +1202,8 @@ class Parser {
 			else if (syntax.castingType == "number") {
 
 				// 아직은 문자 -> 숫자만 가능하다.
-				if (parsedTarget.type != "string" && parsedTarget.type != "*") {
-					Debug.reportError("Type error 40", "문자형이 아닌 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
+				if (parsedTarget.type != "string" && parsedTarget.type != "bool" && parsedTarget.type != "*") {
+					Debug.reportError("Type error 40", "이 타입을 실수형으로 캐스팅할 수 없습니다.", lineNumber);
 					return null;
 				}
 	
@@ -1386,7 +1388,10 @@ class Parser {
 					left.type = right.type = "number";
 				}
 			}
-
+			
+			if (right.type == "bool") right.type = "number";
+			if (left.type == "bool") left.type = "number";
+			
 			// 형 체크 프로세스: 두 항 타입이 같을 경우
 			if (left.type == right.type) {
 
@@ -1439,7 +1444,7 @@ class Parser {
 
 			// 형 체크 프로세스: 두 항의 타입이 다를 경우
 			else {
-
+				
 				// 자동 캐스팅을 시도한다.
 				switch (syntax.operator.type) {
 				case Type.Addition:
@@ -1700,7 +1705,7 @@ class Parser {
 			var possibleBranch:Lextree = tree.branch[index + 2];
 			if (!possibleBranch.hasBranch && possibleBranch.lexData.length > 0) {
 				var firstToken:Token = possibleBranch.lexData[0];
-
+				
 				// 이어지는 조건문이 있을 경우
 				if (firstToken.type == Type.Else || firstToken.type == Type.ElseIf)
 					return true;

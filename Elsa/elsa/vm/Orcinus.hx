@@ -73,7 +73,7 @@ class Orcinus {
 		
 		while (true) {
 			var opcode:Instruction = program[pointer];			
-			//trace(opcode.id+" "+opcode.args);
+			
 			switch(opcode.id) {
 				
 				// 스택에서 값을 꺼내 레지스터에 저장한다.
@@ -134,6 +134,7 @@ class Orcinus {
 							case 23: register[output] = Std.string(left);
 							case 24: register[output] = getRuntimeValue(left, parseInt(right));
 							case 25: register[output] = -left;
+							case 26: register[output] = Std.string(left).charAt(parseInt(right));
 						}						
 					}				
 					

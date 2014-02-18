@@ -278,7 +278,7 @@ enum Type {
 	
 	CastToNumber; CastToString;
 	
-	Instance; LoadContext; SaveContext;
+	Instance; CharAt;
 	As;
 	
 }

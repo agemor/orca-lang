@@ -30,6 +30,7 @@ class NativeLibrary {
 
 		var number:NativeClass = new NativeClass("number", []);
 		var string:NativeClass = new NativeClass("string", []);
+		var boolean:NativeClass = new NativeClass("bool", []);
 		var array:NativeClass = new NativeClass("array", []);
 		var void:NativeClass = new NativeClass("void", []);
 
@@ -104,6 +105,7 @@ class NativeLibrary {
 		addClass(number);
 		addClass(string);
 		addClass(array);
+		addClass(boolean);
 		addClass(void);
 		
 		addFunction(print);

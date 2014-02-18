@@ -32,7 +32,7 @@ class VariableSymbol extends Symbol {
 	 * @return
 	 */
 	public function isNumber():Bool {
-		if (type == "number" || type == "num")
+		if (type == "number" || type == "bool")
 			return true;
 		return false;
 

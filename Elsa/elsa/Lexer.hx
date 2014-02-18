@@ -136,7 +136,7 @@ class Lexer {
 
 				// 다음 과정을 준비한다.
 				buffer = "";
-				i += j;
+				i += j - 1;
 			}
 			
 			// 처리하지 않는 문자일 경우 버퍼에 쓴다.
@@ -163,6 +163,7 @@ class Lexer {
 	 * @return
 	 */
 	public function tokenize(code:String):Array<Token> {
+		
 		var tokens:Array<Token> = new Array<Token>();
 		var buffer:String = "";
 		
@@ -360,9 +361,8 @@ class Lexer {
 		Token.define(null, Token.Type.AppendAssignment);
 		Token.define(null, Token.Type.ArrayReference);
 		Token.define(null, Token.Type.Instance);
-		Token.define(null, Token.Type.LoadContext);
-		Token.define(null, Token.Type.SaveContext);
-
+		Token.define(null, Token.Type.CharAt);
+		
 		Token.define("include", Token.Type.Include, true);		
 		Token.define("define", Token.Type.Define, true);
 		Token.define("var", Token.Type.Variable, true);

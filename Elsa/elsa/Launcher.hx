@@ -24,6 +24,8 @@ class Launcher {
 		var if_test:String = File.getContent("test/if_test.orca");
 		var for_test:String = File.getContent("test/for_test.orca");
 		var while_test:String = File.getContent("test/while_test.orca");
+		var include_test:String = File.getContent("test/include_test.orca");
+		var evaluator:String = File.getContent("test/evaluator.orca");
 		
 		var parser:Parser = new Parser();
 		

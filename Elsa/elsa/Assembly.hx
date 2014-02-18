@@ -96,6 +96,8 @@ class Assembly {
 			return 24;
 		case Type.UnraryMinus:
 			return 25;
+		case Type.CharAt:
+			return 26;
 		default:
 			return 0;
 		}
@@ -171,7 +173,7 @@ class Assembly {
 				 Type.BitwiseRightShift, Type.LogicalAnd, Type.LogicalOr,
 				 Type.Append, Type.EqualTo, Type.NotEqualTo,
 				 Type.GreaterThan, Type.GreaterThanOrEqualTo, Type.LessThan,
-				 Type.LessThanOrEqualTo, Type.RuntimeValueAccess:	
+				 Type.LessThanOrEqualTo, Type.RuntimeValueAccess, Type.CharAt:	
 					 
 				writeCode("POP 0");
 				writeCode("POP 1");
@@ -225,7 +227,7 @@ class Assembly {
 
 					switch (token.value) {
 					// 실수형
-					case "number": writeCode("NDW &1, &0");
+					case "number", "bool": writeCode("NDW &1, &0");
 					// 문자형
 					case "string": writeCode("SDW &1, &0");						
 					// 배열	
@@ -346,35 +348,6 @@ class Assembly {
 
 				// 리터럴의 값을 추가한다.
 				writeCode("PSH @" + literal.address);
-
-			/*case Type.LoadContext:
-
-				// 클래스를 취득한다.
-				var classs:ClassSymbol = cast(token.getTag(), ClassSymbol);
-
-				// 인스턴스 주소를 뽑는다.
-				writeCode("POP 0");
-
-				// 오브젝트의 데이터와 리턴 결과 데이터를 일대일 대응시킨다.
-				var loadedIndex:Int = 0;
-				for ( j in 0...classs.members.length) { 
-
-					if (Std.is(classs.members[j], FunctionSymbol))
-						continue;
-
-					var member:VariableSymbol = cast(classs.members[j], VariableSymbol);
-
-					// 리턴값의 인자번호를 뽑는다.
-					writeCode("ESI 1, &0, " + loadedIndex);
-					loadedIndex++;
-					
-					// 공유 맴버의 레퍼런스를 업데이트한다.
-					writeCode("RDW " + member.address + ", &1");
-				}*/
-			case Type.SaveContext: // 함수 뒤.
-				
-				// 어차피 load 할 때 다 불러왔으므로 쓸 때도 그냥 쓰면 된다.
-				// a.(lc)b.(lc)c()(sc);
 				
 			case Type.Array:
 
@@ -418,7 +391,7 @@ class Assembly {
 						writeCode("DSA 1");
 						if (member.initialized)
 							writeCode("SDW &1, @" + member.address);
-					} else if (member.type == "number") {
+					} else if (member.type == "number" || member.type == "bool") {
 						writeCode("DNA 1");
 						if (member.initialized)
 							writeCode("NDW &1, @" + member.address);

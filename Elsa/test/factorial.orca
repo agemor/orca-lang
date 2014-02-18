@@ -1,0 +1,12 @@
+/**
+* n factorial을 계산한다.
+*/
+define factorial(n:number) -> number {
+    if(n < 1) {
+        return 1;
+	} else {
+        return n * factorial(n - 1);
+	}
+}
+
+print(factorial(10));

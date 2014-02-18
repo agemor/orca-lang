@@ -1,0 +1,26 @@
+
+// 연산자 정의
+var operators:array = ['+', '-', '/', '*'];
+
+define string -> getLangth() -> number {
+	return this ? 1;
+}
+
+define array -> indexOf
+
+define evaluate (expression:string) -> number {
+	
+	// 계산 식의 마지막 숫자도 더해주도록 임의로 연산자(선순위) 추가
+	expression += operators[0];
+	
+	var value:number = 0;
+	var operand:number = 0;
+	var operator:number = 0;
+	
+	var isEntry:bool = true;
+	var isNegative:bool = false;
+	var buffer:string = "";
+	
+	for( i in 0 ... expression ?
+	
+}
