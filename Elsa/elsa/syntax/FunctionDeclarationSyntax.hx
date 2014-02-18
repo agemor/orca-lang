@@ -76,7 +76,7 @@ class FunctionDeclarationSyntax implements Syntax {
 			
 			// 파라미터가 괄호로 싸여있지 않다면 에러.
 			if (tokens[parameterStartIndex - 1].type != Type.ShellOpen || tokens[parameterEndIndex].type != Type.ShellClose) {
-				Debug.report("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
+				Debug.reportError("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
 			}			
 			functionName = tokens[parameterStartIndex - 2];
@@ -85,7 +85,7 @@ class FunctionDeclarationSyntax implements Syntax {
 		
 		if (hasReturnType) {
 			if (tokens[tokens.length - 2].type != Type.Right) {
-				Debug.report("Syntax error", "There is no -> to set return type of function.", lineNumber);
+				Debug.reportError("Syntax error", "There is no -> to set return type of function.", lineNumber);
 				return null;
 			}			
 			returnType = tokens[tokens.length - 1];

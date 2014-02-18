@@ -41,19 +41,19 @@ class WhileSyntax implements Syntax {
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):WhileSyntax {
 				
 		if (tokens.length < 4) {
-			Debug.report("Syntax error", "While statement is too short", lineNumber);
+			Debug.reportError("Syntax error", "While statement is too short", lineNumber);
 			return null;
 		}
 
 		// 괄호로 시작하는지 확인한다
 		if (tokens[1].type != Type.ShellOpen) {
-			Debug.report("Syntax error", "While condition must start with \"(\"", lineNumber);
+			Debug.reportError("Syntax error", "While condition must start with \"(\"", lineNumber);
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
 		if (tokens[tokens.length - 1].type != Type.ShellClose) {
-			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);	
+			Debug.reportError("Syntax error", "insert \")\" to complete Expression", lineNumber);	
 			return null;
 		}
 		

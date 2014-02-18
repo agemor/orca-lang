@@ -48,29 +48,29 @@ class ForSyntax implements Syntax {
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):ForSyntax {
 		
 		if (tokens.length < 7) {
-			Debug.report("Syntax error", "For syntax is not valid", lineNumber);		
+			Debug.reportError("Syntax error", "For syntax is not valid", lineNumber);		
 			return null;
 		}
 
 		// 괄호로 시작하는지 확인한다
 		if (tokens[1].type != Type.ShellOpen) {
-			Debug.report("Syntax error", "For condition must start with \"(\"", lineNumber);		
+			Debug.reportError("Syntax error", "For condition must start with \"(\"", lineNumber);		
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
 		if (tokens[tokens.length - 1].type != Type.ShellClose) {
-			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);
+			Debug.reportError("Syntax error", "insert \")\" to complete Expression", lineNumber);
 			return null;
 		}
 
 		if (tokens[2].type != Type.ID) {
-			Debug.report("Syntax error", "Counter variable is not valid", lineNumber);		
+			Debug.reportError("Syntax error", "Counter variable is not valid", lineNumber);		
 			return null;
 		}
 		
 		if (tokens[3].type != Type.In) {
-			Debug.report("Syntax error", "Could not find token 'in'", lineNumber);
+			Debug.reportError("Syntax error", "Could not find token 'in'", lineNumber);
 			return null;
 		}
 
@@ -81,7 +81,7 @@ class ForSyntax implements Syntax {
 		var indexOfRange:Int = TokenTools.indexOf(range, Type.From);
 
 		if (indexOfRange < 0) {
-			Debug.report("Syntax error", "Could not find token '...'", lineNumber);
+			Debug.reportError("Syntax error", "Could not find token '...'", lineNumber);
 			return null;
 		}
 

@@ -54,14 +54,14 @@ class MemberReferenceSyntax implements Syntax {
 		var memberReferences:Array<Token> = new Array<Token>();
 		
 		if (instance.length < 1) {
-			Debug.report("Syntax error", "참조 대상이 올바르지 않습니다.", lineNumber);
+			Debug.reportError("Syntax error", "참조 대상이 올바르지 않습니다.", lineNumber);
 				return null;
 		}
 		
 		for ( i in 1...chunks.length) {
 			
 			if (chunks[i].length > 1 || chunks[i].length < 1) {
-				Debug.report("Syntax error", "참조 변수가 올바르지 않습니다.", lineNumber);
+				Debug.reportError("Syntax error", "참조 변수가 올바르지 않습니다.", lineNumber);
 				return null;
 			}			
 			memberReferences.push(chunks[i][0]);

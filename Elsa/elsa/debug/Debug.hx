@@ -7,18 +7,29 @@ package elsa.debug;
  */
 class Debug {
 	
+	/**
+	 * 에러 표시를 허용하는지의 여부
+	 */
 	public static var supressed:Bool = false;
 	
-	public static function report(errorType:String, errorMessage:String, lineNumber:Int = 1):Void {
-		if(!supressed) trace(errorType + ":" + errorMessage + " at " + Std.string(lineNumber));
+	/**
+	 * 에러를 출력한다.
+	 * 
+	 * @param	errorType
+	 * @param	errorMessage
+	 * @param	lineNumber
+	 */
+	public static function reportError(errorType:String, errorMessage:String, lineNumber:Int = 1):Void {
+		if(!supressed) trace(errorType + " :" + errorMessage + " at " + Std.string(lineNumber));
 	}
 	
+	/**
+	 * 잠시 에러 출력을 중지한다.
+	 * 
+	 * @param	status
+	 */
 	public static function supressError(status:Bool):Void {
 		supressed = status;
-	}
-
-	public static function print(value) {
-		Sys.println(value);
 	}
 	
 }

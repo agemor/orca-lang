@@ -42,7 +42,7 @@ class ClassDeclarationSyntax implements Syntax {
 		
 		// 토큰의 길이를 검사한다.
 		if (tokens.length != 2) {
-			Debug.report("Syntax error", "structure declaration syntax is not valid.", lineNumber);		
+			Debug.reportError("Syntax error", "structure declaration syntax is not valid.", lineNumber);		
 			return null;
 		}
 		

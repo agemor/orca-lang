@@ -89,12 +89,12 @@ class FunctionCallSyntax implements Syntax {
 			
 			// 매개 변수가 괄호로 싸여있지 않다면 에러.
 			if (tokens[argumentStartIndex - 1].type != Type.ShellOpen || tokens[argumentEndIndex].type != Type.ShellClose) {
-				Debug.report("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
+				Debug.reportError("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
 			}	
 			
 			if (TokenTools.indexOfShellClose(tokens, argumentStartIndex) != argumentEndIndex) {
-				Debug.report("Syntax error", "function shell close not match", lineNumber);
+				Debug.reportError("Syntax error", "function shell close not match", lineNumber);
 				return null;
 			}
 			

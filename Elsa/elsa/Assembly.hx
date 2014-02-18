@@ -92,7 +92,7 @@ class Assembly {
 			return 22;
 		case Type.CastToString:
 			return 23;
-		case Type.SysVal:
+		case Type.RuntimeValueAccess:
 			return 24;
 		case Type.UnraryMinus:
 			return 25;
@@ -171,7 +171,7 @@ class Assembly {
 				 Type.BitwiseRightShift, Type.LogicalAnd, Type.LogicalOr,
 				 Type.Append, Type.EqualTo, Type.NotEqualTo,
 				 Type.GreaterThan, Type.GreaterThanOrEqualTo, Type.LessThan,
-				 Type.LessThanOrEqualTo, Type.SysVal:	
+				 Type.LessThanOrEqualTo, Type.RuntimeValueAccess:	
 					 
 				writeCode("POP 0");
 				writeCode("POP 1");

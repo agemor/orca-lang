@@ -61,12 +61,12 @@ class PrefixSyntax implements Syntax {
 		// 껍데기가 온전히 닫혀 있는지 검사한다.
 		if (depth > 0) {
 			
-			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);			
+			Debug.reportError("Syntax error", "insert \")\" to complete Expression", lineNumber);			
 			return null;
 		}
 
 		if (depth < 0) {
-			Debug.report("Syntax error", "delete \"(\"", lineNumber);	
+			Debug.reportError("Syntax error", "delete \"(\"", lineNumber);	
 			return null;
 		}
 

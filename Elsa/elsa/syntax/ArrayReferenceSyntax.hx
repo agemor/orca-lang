@@ -67,18 +67,18 @@ class ArrayReferenceSyntax implements Syntax {
 		}
 
 		if (depth > 0) {
-			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);			
+			Debug.reportError("Syntax error", "insert \")\" to complete Expression", lineNumber);			
 			return null;
 		}
 
 		if (depth < 0) {
-			Debug.report("Syntax error", "delete \"(\"", lineNumber);	
+			Debug.reportError("Syntax error", "delete \"(\"", lineNumber);	
 			return null;
 		}
 
 		// 대상 변수의 타입이 ID가 아닐 경우 에러 발생
 		if (tokens[0].type != Type.ID) {
-			Debug.report("Syntax error", "The type of the expression must be an array type.", lineNumber);	
+			Debug.reportError("Syntax error", "The type of the expression must be an array type.", lineNumber);	
 			return null;
 		}
 

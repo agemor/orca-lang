@@ -42,19 +42,19 @@ class IfSyntax implements Syntax {
 		
 		// 미완성된 제어문의 경우
 		if (tokens.length < 4) {
-			Debug.report("Syntax error", "If syntax is too short.", lineNumber);
+			Debug.reportError("Syntax error", "If syntax is too short.", lineNumber);
 			return null;
 		}
 		
 		// 괄호로 시작하는지 확인한다
 		if (tokens[1].type != Type.ShellOpen) {
-			Debug.report("Syntax error", "If condition must start with \"(\"", lineNumber);
+			Debug.reportError("Syntax error", "If condition must start with \"(\"", lineNumber);
 			return null;
 		}
 
 		// 괄호로 끝나는지 확인한다.
 		if (tokens[tokens.length - 1].type != Type.ShellClose) {
-			Debug.report("Syntax error", "insert \")\" to complete Expression", lineNumber);	
+			Debug.reportError("Syntax error", "insert \")\" to complete Expression", lineNumber);	
 			return null;
 		}
 		

@@ -36,6 +36,9 @@ class NativeLibrary {
 		var print:NativeFunction = new NativeFunction("print", ["*"], "void");
 		print.write("POP 0");
 		print.write("EXE print, &0");
+		
+		var exit:NativeFunction = new NativeFunction("exit", [], "void");
+		exit.write("END");
 
 		var whoami:NativeFunction = new NativeFunction("whoami", [], "void");
 		whoami.write("EXE whoami");
@@ -46,7 +49,8 @@ class NativeLibrary {
 		addClass(void);
 		
 		addFunction(print);
-		addFunction(whoami);		
+		addFunction(exit);
+		addFunction(whoami);
 	}
 	
 	/**

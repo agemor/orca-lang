@@ -1,1 +1,3 @@
+include "class_test.orca";
+
 print('a');

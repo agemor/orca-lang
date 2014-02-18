@@ -52,7 +52,7 @@ class InstanceCreationSyntax implements Syntax {
 
 		// 생성자의 길이는 2이다.
 		if (tokens.length != 2) {
-			Debug.report("Syntax error", "New syntax is too long.", lineNumber);
+			Debug.reportError("Syntax error", "New syntax is too long.", lineNumber);
 			return null;
 		}
 
