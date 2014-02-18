@@ -166,7 +166,9 @@ class Lexer {
 		
 		var tokens:Array<Token> = new Array<Token>();
 		var buffer:String = "";
-
+		
+		var usingQuoteChar:String = null;
+		
 		var isString:Bool = false;
 		var isNumber:Bool = false;
 		var isFloat:Bool = false;
@@ -178,7 +180,11 @@ class Lexer {
 			var char:String = code.charAt(i);
 
 			// 문자열 처리
-			if (char == "\"") {
+			if (((char == "\"" || char == "\'") && !isString) || (char == usingQuoteChar && isString)) {
+				
+				// 처음일 경우
+				if (!isString) usingQuoteChar = char;
+				
 				isString = !isString;
 
 				// 문자열이 시작되었을때 기존의 버퍼를 저장한다.

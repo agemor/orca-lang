@@ -34,5 +34,5 @@ prettyGirl.score = 100;
 
 boy -> setPartner(girl);
 girl -> setPartner(prettyGirl);
-print(boy -> getTotalScore());
-print(boy -> getPartner() -> getPartner().name);
+print(boy->getTotalScore());
+print(boy->getPartner()->getPartner().name);
