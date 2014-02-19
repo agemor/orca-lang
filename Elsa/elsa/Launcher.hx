@@ -1,5 +1,6 @@
 package elsa;
 import elsa.vm.Orcinus;
+import elsa.debug.Debug;
 import haxe.Utf8;
 import sys.io.File;
 /**
@@ -29,15 +30,17 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(temp_test, "test/");
+		var compiledCode:String = parser.compile(include_test, "test/");
+		trace(compiledCode);
+		if (!Debug.errorReported){		
 		
-		var vm:Orcinus = new Orcinus();
-		vm.load(compiledCode);
-		
-		trace("-----------------init-----------------");
-		vm.run();
-		trace("--------------------------------------");
-		
+			var vm:Orcinus = new Orcinus();
+			vm.load(compiledCode);
+			
+			trace("-----------------init-----------------");
+			vm.run();
+			trace("--------------------------------------");
+		}
 		trace("Press any key to exit...");
 		Sys.getChar(false);
 	}	

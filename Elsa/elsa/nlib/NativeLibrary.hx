@@ -140,9 +140,7 @@ class NativeLibrary {
 
 		// 클래스 입력
 		for ( i in 0...classes.length ) {
-			var classs:ClassSymbol = new ClassSymbol(classes[i].className);
-		
-			symbolTable.local.set(classs.id, classs);
+			symbolTable.add(new ClassSymbol(classes[i].className));
 		}
 
 		// 함수 입력
@@ -154,15 +152,12 @@ class NativeLibrary {
 				parameters.push(new VariableSymbol("native_arg_" + Std.string(j), functions[i].parameters[j]));
 
 			// 함수 심볼 객체 생성
-			var functn:FunctionSymbol = new FunctionSymbol(functions[i].functionName, functions[i].returnType, parameters.length > 0 ? parameters : new Array<VariableSymbol>());
+			var functn:FunctionSymbol = new FunctionSymbol(functions[i].functionName, functions[i].returnType, parameters);
 						
 			functn.isNative = true;
 			functn.nativeFunction = functions[i];
 
-			symbolTable.local.set(functn.id, functn);
+			symbolTable.add(functn);
 		}
-
 	}
-	
-	
 }

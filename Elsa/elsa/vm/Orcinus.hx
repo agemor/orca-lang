@@ -101,8 +101,8 @@ class Orcinus {
 						var left:Dynamic = parseValue(opcode.args[2]);
 						var right:Dynamic = opcode.args.length > 3 ? parseValue(opcode.args[3]) : null;
 						
-						// 연산 처리할 수 없는 값이라면
-						/*if (!((Std.is(left, Float) || Std.is(left, String)) && (Std.is(right, Float) || Std.is(right, String)))) {
+						/*// 연산 처리할 수 없는 값이라면
+						if (!((Std.is(left, Float) || Std.is(left, String)) && (Std.is(right, Float) || Std.is(right, String)))) {
 							trace("Cannot calculate null.");
 							pointer++;
 							continue;

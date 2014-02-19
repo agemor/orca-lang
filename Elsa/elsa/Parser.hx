@@ -118,12 +118,12 @@ class Parser {
 		assembly.freeze();
 		
 		// 리터럴을 어셈블리에 쓴다.
-		for ( i in 0...symbolTable.literal.length ) {
+		for ( i in 0...symbolTable.literals.length ) {
 			
-			var literal:LiteralSymbol = symbolTable.literal[i];
+			var literal:LiteralSymbol = symbolTable.literals[i];
 			
 			// 실수형 리터럴인 경우
-			if (literal.type == LiteralSymbol.NUMBER) {
+			if (literal.type == "number") {
 				assembly.writeCode("SNA " + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
@@ -131,7 +131,7 @@ class Parser {
 			}
 
 			// 문자형 리터럴인 경우
-			else if (literal.type == LiteralSymbol.STRING) {
+			else if (literal.type == "string") {
 				assembly.writeCode("SSA " + Std.string(literal.address));
 
 				// 리터럴 어드레스에 값을 할당한다.
@@ -180,36 +180,6 @@ class Parser {
 
 			if (tokens.length < 1)
 				continue;
-
-			// 현재 내려진 명령이 유효한지 확인한다.
-			switch (tokens[0].type) {
-				
-			case Type.Variable, Type.Array:
-				
-			case Type.If, Type.ElseIf, Type.Else, Type.For, Type.While:
-				if (option.inStructure) {
-					Debug.reportError("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
-					continue;
-				}
-				
-			case Type.Continue, Type.Break:
-				if (!option.inIterator) {
-					Debug.reportError("Syntax error 3", "제어 명령은 반복문 내에서만 사용할 수 있습니다.", lineNumber);
-					continue;
-				}
-				
-			case Type.Return:
-				if (!option.inFunction) {
-					Debug.reportError("Syntax error 4", "리턴 명령은 함수 정의 내에서만 사용할 수 있습니다.", lineNumber);
-					continue;
-				}
-				
-			default:
-				if (option.inStructure) {
-					Debug.reportError("Syntax error 5", "구조체 정의에서 연산 처리를 할 수 없습니다.", lineNumber);
-					continue;
-				}
-			}
 			
 			// 변수 선언문
 			if (VariableDeclarationSyntax.match(tokens)) {				
@@ -225,13 +195,13 @@ class Parser {
 					continue;
 
 				// 변수 타입이 유효한지 확인한다.
-				if (!symbolTable.isValidClassID(syntax.variableType.value)) {
+				if (symbolTable.getClass(syntax.variableType.value) == null) {
 					Debug.reportError("Type error 6", "유효하지 않은 변수 타입입니다.", lineNumber);
 					continue;
 				}				
 
 				// 변수 정의가 유효한지 확인한다.
-				if (symbolTable.isValidVariableID(syntax.variableName.value)) {
+				if (symbolTable.getVariable(syntax.variableName.value) != null) {
 					Debug.reportError("Duplication error 7", "변수 정의가 중복되었습니다.", lineNumber);
 					continue;
 				}
@@ -274,9 +244,11 @@ class Parser {
 				var syntax:FunctionDeclarationSyntax = FunctionDeclarationSyntax.analyze(tokens, lineNumber);
 
 				// 만약 구문 분석 중 오류가 발생했다면 다음 구문으로 건너 뛴다.
-				if (syntax == null)	continue;
+				if (syntax == null)
+					continue;
+				
 				// 테이블에서 함수 심볼을 가져온다. (이미 스캐닝 과정에서 함수가 테이블에 등록되었으므로)
-				var functn:FunctionSymbol = cast(symbolTable.findInLocal(syntax.functionName.value), FunctionSymbol);
+				var functn:FunctionSymbol = symbolTable.getFunction(syntax.functionName.value);
 				
 				// 함수 심볼을 정의된 심볼 목록에 추가한다.
 				definedSymbols.push(functn);
@@ -312,7 +284,7 @@ class Parser {
 				
 				// 파라미터 변수를 제거한다.				
 				for ( j in 0...functn.parameters.length) {
-					symbolTable.removeInBoth(functn.parameters[j].id);
+					symbolTable.remove(functn.parameters[j]);
 				}
 				
 				/*
@@ -346,16 +318,16 @@ class Parser {
 					Debug.reportError("Syntax error  9", "클래스의 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
-
+				
+				// 클래스 정의를 취득한다.
+				var klass:ClassSymbol = cast(symbolTable.getClass(syntax.className.value), ClassSymbol);
+				
 				// 클래스 내부의 클래스일 경우 구현부를 스캔한다.
 				if (option.inStructure) {
-
-					// 클래스 정의를 취득한다.
-					var classs:ClassSymbol = cast(symbolTable.findInLocal(syntax.className.value), ClassSymbol);
-
+					
 					var innerScanOption:ScanOption = new ScanOption();
 					innerScanOption.inStructure = true;
-					innerScanOption.parentClass = classs;
+					innerScanOption.parentClass = klass;
 
 					scan(block.branch[i + 1], innerScanOption);
 				}
@@ -370,15 +342,19 @@ class Parser {
 				parseBlock(block.branch[++i], classOption);
 
 				// 정의된 심볼 목록에 추가한다.
-				definedSymbols.push(symbolTable.findInLocal(syntax.className.value));
+				definedSymbols.push(klass);
 			}
 			
 			
 			else if (IfSyntax.match(tokens)) {				
 				
+				if (option.inStructure) {
+					Debug.reportError("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
+					continue;
+				}
+				
 				var syntax:IfSyntax = IfSyntax.analyze(tokens, lineNumber);
-
-				// 만약 IF문의 구문이 유효하지 않으면 다음으로 건너 뛴다.
+				
 				if (syntax == null)
 					continue;
 
@@ -386,12 +362,12 @@ class Parser {
 				extendedConditional = false;
 
 				// 뒤에 else if 나 else를 가지고 있으면 확장된 조건문을 사용한다.
-				if (hasNextConditional(block, i))
+				if (hasNextConditional(block, i)) {
 					extendedConditional = true;
-				else
+					extendedConditionalExit = assignFlag();
+				} else {
 					extendedConditional = false;
-				
-				extendedConditionalExit = assignFlag();
+				}				
 
 				// 조건문을 취득한 후 파싱한다.
 				var parsedCondition:ParsedPair = parseLine(syntax.condition, lineNumber);
@@ -433,6 +409,11 @@ class Parser {
 			
 			else if (ElseIfSyntax.match(tokens)) {
 				
+				if (option.inStructure) {
+					Debug.reportError("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
+					continue;
+				}
+				
 				// 확장된 조건문을 사용하지 않는 상태에서 else if문이 등장하면 에러를 출력한다
 				if (!extendedConditional) {
 					Debug.reportError("Syntax error 12", "else-if문은 단독으로 쓰일 수 없습니다.", lineNumber);
@@ -440,17 +421,16 @@ class Parser {
 				}
 
 				var syntax:ElseIfSyntax = ElseIfSyntax.analyze(tokens, lineNumber);
-
-				// 만약 else if문의 구문이 유효하지 않으면 다음으로 건너 뛴다.
+				
 				if (syntax == null)
 					continue;
 
 				// 뒤에 else if 나 else를 가지고 있으면 확장된 조건문을 사용한다.
-				if (hasNextConditional(block, i))
+				if (hasNextConditional(block, i)) 
 					extendedConditional = true;
 				else
-					extendedConditional = false;
-
+					extendedConditional = false;				
+				
 				// 조건문을 취득한 후 파싱한다.
 				var parsedCondition:ParsedPair = parseLine(syntax.condition, lineNumber);
 				
@@ -504,6 +484,11 @@ class Parser {
 			
 			else if (ElseSyntax.match(tokens)) {
 				
+				if (option.inStructure) {
+					Debug.reportError("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
+					continue;
+				}
+				
 				var syntax:ElseSyntax = ElseSyntax.analyze(tokens, lineNumber);
 
 				// 만약 else 문이 유효하지 않을 경우 다음으로 건너 뛴다.
@@ -539,12 +524,21 @@ class Parser {
 			
 			else if (ForSyntax.match(tokens)) {
 				
+				if (option.inStructure) {
+					Debug.reportError("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
+					continue;
+				}
+				
 				var syntax:ForSyntax = ForSyntax.analyze(tokens, lineNumber);
 
-				// 만약 for문의 구문이 유효하지 않으면 다음으로 건너뛴다.
 				if (syntax == null) 
 					continue;
 				
+				// 증감 변수가 유효한지 확인한다.
+				if (symbolTable.getVariable(syntax.counter.value) != null) {
+					Debug.reportError("Duplication error 17", "증감 변수 정의가 충돌합니다.", lineNumber);
+					continue;
+				}
 
 				// 증감 변수를 생성한다.
 				var counter:VariableSymbol = new VariableSymbol(syntax.counter.value, "number");
@@ -555,7 +549,6 @@ class Parser {
 
 				// 테이블에 증감 변수를 등록한다.
 				symbolTable.add(counter);
-				definedSymbols.push(counter);
 
 				// 초기값 파싱
 				var parsedInitialValue:ParsedPair = parseLine(syntax.start, lineNumber);
@@ -576,7 +569,6 @@ class Parser {
 				if (parsedCondition == null)
 					continue;
 				
-				// 증감 조건문 파싱에 에러가 발생했다면 건너 뛴다.
 				if (parsedCondition == null || parsedInitialValue == null)
 					continue;
 
@@ -634,13 +626,20 @@ class Parser {
 
 				// 탈출 플래그를 심는다.
 				assembly.flag(forExit);
+				
+				// 증감 변수를 제거한다.
+				symbolTable.remove(counter);
 			}
 			
 			else if (WhileSyntax.match(tokens)) {
 				
+				if (option.inStructure) {
+					Debug.reportError("Syntax error 2", "conditional/iteration statements couldnt be used in class structure", lineNumber);
+					continue;
+				}
+				
 				var syntax:WhileSyntax = WhileSyntax.analyze(tokens, lineNumber);
 
-				// 만약 while문의 정의가 올바르지 않다면 다음으로 건너 뛴다.
 				if (syntax == null)
 					continue;
 
@@ -652,7 +651,6 @@ class Parser {
 				// 조건문을 파싱한다.
 				var parsedCondition:ParsedPair = parseLine(syntax.condition, lineNumber);
 
-				// 파싱 과정에서 에러가 발생했다면 건너 뛴다.
 				if (parsedCondition == null)
 					continue;
 
@@ -692,17 +690,32 @@ class Parser {
 			
 			else if (ContinueSyntax.match(tokens)) {
 				
+				if (!option.inIterator) {
+					Debug.reportError("Syntax error 3", "제어 명령은 반복문 내에서만 사용할 수 있습니다.", lineNumber);
+					continue;
+				}
+				
 				// 귀환 플래그로 점프한다.
 				assembly.writeCode("JMP 0, %" + Std.string(option.blockEntry));
 			}
 			
 			else if (BreakSyntax.match(tokens)) {
 				
+				if (!option.inIterator) {
+					Debug.reportError("Syntax error 3", "제어 명령은 반복문 내에서만 사용할 수 있습니다.", lineNumber);
+					continue;
+				}
+				
 				// 탈출 플래그로 점프한다.
 				assembly.writeCode("JMP 0, %" + Std.string(option.blockExit));
 			}
 			
 			else if (ReturnSyntax.match(tokens)) {
+				
+				if (!option.inFunction) {
+					Debug.reportError("Syntax error 4", "리턴 명령은 함수 정의 내에서만 사용할 수 있습니다.", lineNumber);
+					continue;
+				}
 				
 				var syntax:ReturnSyntax = ReturnSyntax.analyze(tokens, lineNumber);
 				
@@ -786,7 +799,13 @@ class Parser {
 			}
 			
 			// 일반 대입문을 파싱한다.
-			else {			
+			else {		
+				
+				if (option.inStructure) {
+					Debug.reportError("Syntax error 5", "구조체 정의에서 연산 처리를 할 수 없습니다.", lineNumber);
+					continue;
+				}
+				
 				var parsedLine:ParsedPair = parseLine(tokens, lineNumber);
 				if (parsedLine == null)
 					continue;
@@ -797,7 +816,7 @@ class Parser {
 		
 		// definition에 있던 심볼을 테이블에서 모두 제거한다.
 		for (i in 0...definedSymbols.length) { 
-			symbolTable.removeInLocal(definedSymbols[i].id);
+			symbolTable.remove(definedSymbols[i]);
 		}
 	}
 	
@@ -825,25 +844,24 @@ class Parser {
 
 			// 변수일 경우 토큰의 유효성 검사를 한다.
 			if (tokens[0].type == Type.ID) {
-
+				
+				var variable:VariableSymbol = symbolTable.getVariable(tokens[0].value);
+				
 				// 태그되지 않은 변수일 경우 유효성을 검증한 후 태그한다.
-				if (!tokens[0].tagged) {
-					if (!symbolTable.isValidVariableID(tokens[0].value)) {
+				if (!tokens[0].tagged) {					
+					if (variable == null) {
 						Debug.reportError("Undefined Error 24", tokens[0].value + "는 정의되지 않은 변수입니다.", lineNumber);
 						return null;
 					}
+					
 					// 토큰에 변수를 태그한다.
-					tokens[0].setTag(symbolTable.findInLocal(tokens[0].value));
+					tokens[0].setTag(variable);
 				}
-
-				// 심볼 테이블에서 변수를 취득한다.
-				var variable:VariableSymbol = cast(tokens[0].getTag(), VariableSymbol);
 
 				return new ParsedPair(tokens, variable.type);
 			}
 
-			// 리터럴 값
-			var literal:LiteralSymbol;
+			var literal:LiteralSymbol = null;
 
 			switch (tokens[0].type) {
 
@@ -873,71 +891,45 @@ class Parser {
 		if (FunctionCallSyntax.match(tokens)) {
 			
 			// 프로시저 호출 구문을 분석한다.
-			var syntax:FunctionCallSyntax = FunctionCallSyntax.analyze(tokens, lineNumber);
+			var syntax:FunctionCallSyntax = FunctionCallSyntax.analyze(tokens, lineNumber);			
 			
 			if (syntax == null)
-				return null;
+				return null;			
 			
-			// 태그되지 않았을 경우, 함수가 유효한지 검사한 후, 태그한다.
-			if (!syntax.functionName.tagged) {
+			var arguments:Array<Array<Token>> = new Array<Array<Token>>();			
+			var argumentsTypeList:Array<String> = new Array<String>();
+			
+			// 각각의 파라미터를 파싱한다.
+			for( i in 0...syntax.functionArguments.length) {
 
-				if (!symbolTable.isValidFunctionID(syntax.functionName.value)) {
-					Debug.reportError("Undefined Error 26", syntax.functionName.value+"유효하지 않은 프로시져입니다.", lineNumber);
+				// 파라미터가 비었을 경우
+				if (syntax.functionArguments[i].length < 1) {
+					Debug.reportError("Syntax error 28", "파라미터가 비었습니다.", lineNumber);
 					return null;
 				}
 
-				// 토큰에 함수를 태그한다.
-				syntax.functionName.setTag(symbolTable.findInLocal(syntax.functionName.value));
-			}
+				// 파라미터를 파싱한다.
+				var parsedArgument:ParsedPair = parseLine(syntax.functionArguments[i], lineNumber);
+					
+				if (parsedArgument == null)
+					return null;
 
-			// 심볼 테이블에서 프로시저를 취득한다.
-			var functn:FunctionSymbol = cast(syntax.functionName.getTag(), FunctionSymbol);			
+				// 파라미터를 쌓는다.
+				arguments.push(parsedArgument.data);
+				argumentsTypeList.push(parsedArgument.type);
+			}
+			arguments.push([syntax.functionName]);
+				
+			// 함수 심볼을 취득한다.
+			var functn:FunctionSymbol = symbolTable.getFunction(syntax.functionName.value, argumentsTypeList);
 			
-			// 매개 변수의 수 일치를 확인한다.
-			if (functn.parameters.length != syntax.functionArguments.length) {
-				Debug.reportError("Syntax error 27", "매개 변수의 수가 잘못되었습니다.", lineNumber);
+			if (functn == null) {
+				Debug.reportError("Undefined Error 26", syntax.functionName.value+"("+argumentsTypeList+") 는 정의되지 않은 프로시져입니다.", lineNumber);
 				return null;
-			}
-			
-			// 파라미터가 있을 경우
-			if (syntax.functionArguments.length > 0) {				
-				var parsedArguments:Array<Array<Token>> = new Array<Array<Token>>();
+			}			
+			syntax.functionName.setTag(functn);	
 				
-				// 각각의 파라미터를 파싱한다.
-				for( i in 0...syntax.functionArguments.length) {
-
-					// 파라미터가 비었을 경우
-					if (syntax.functionArguments[i].length < 1) {
-						Debug.reportError("Syntax error 28", "파라미터가 비었습니다.", lineNumber);
-						return null;
-					}
-
-					// 파라미터를 파싱한다.
-					var parsedArgument:ParsedPair = parseLine(syntax.functionArguments[i], lineNumber);
-
-					// 파라미터 파싱 과정에서 에러가 생겼다면 건너 뛴다.
-					if (parsedArgument == null)
-						return null;
-
-					// 파라미터의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하는지 검사한다.
-					if (functn.parameters[i].type != parsedArgument.type && functn.parameters[i].type != "*") {
-						Debug.reportError("Type error 29", "매개 변수의 타입이 프로시져 정의에 명시된 매개변수 타입과 일치하지 않습니다.", lineNumber);
-						return null;
-					}
-
-					// 파라미터를 쌓는다.
-					parsedArguments.push(parsedArgument.data);
-				}
-				
-				parsedArguments.push([syntax.functionName]);				
-				
-				return new ParsedPair(TokenTools.merge(parsedArguments), functn.type);
-			}
-
-			// 매개 변수가 없을 경우
-			else {
-				return new ParsedPair([syntax.functionName], functn.type);
-			}
+			return new ParsedPair(TokenTools.merge(arguments), functn.type);
 		}
 
 		/**
@@ -947,7 +939,6 @@ class Parser {
 
 			var syntax:ArraySyntax = ArraySyntax.analyze(tokens, lineNumber);
 
-			// 배열 리터럴 파싱 과정에 에러가 발생했다면 건너 뛴다.
 			if (syntax == null)
 				return null;
 			
@@ -958,14 +949,13 @@ class Parser {
 
 				// 배열의 원소가 유효한지 체크한다.
 				if (syntax.elements[i].length < 1) {
-					Debug.reportError("Syntax error 30", "배열에 불필요한 ','가 쓰였습니다.", lineNumber);
+					Debug.reportError("Syntax error 30", "배열이 비었습니다.", lineNumber);
 					return null;
 				}
 
 				// 배열의 원소를 파싱한다.
 				var parsedElement:ParsedPair = parseLine(syntax.elements[i], lineNumber);
 
-				// 원소에 에러가 있다면 건너 뛴다.
 				if (parsedElement == null)
 					return null;
 
@@ -994,14 +984,12 @@ class Parser {
 			if (syntax == null)
 				return null;
 			
-			// 오브젝트 네임의 유효성 검증
-			if (!symbolTable.isValidClassID(syntax.instanceType.value)) {
-				Debug.reportError("Syntax error 31", "유효하지 않은 오브젝트입니다.", lineNumber);
+			var targetClass:ClassSymbol = symbolTable.getClass(syntax.instanceType.value);	
+			
+			if (targetClass == null) {
+				Debug.reportError("Undefined error 31", "정의되지 않은 클래스입니다.", lineNumber);
 				return null;
 			}
-
-			// 오브젝트 심볼 취득
-			var targetClass:ClassSymbol = cast(symbolTable.findInLocal(syntax.instanceType.value), ClassSymbol);
 
 			// 토큰에 오브젝트 태그
 			syntax.instanceType.setTag(targetClass);
@@ -1026,25 +1014,23 @@ class Parser {
 			if (parsedInstance == null)
 				return null;
 			
-			var targetClass:ClassSymbol = cast(symbolTable.findInLocal(parsedInstance.type), ClassSymbol);
+			var targetClass:ClassSymbol = symbolTable.getClass(parsedInstance.type);
 			
 			// 맴버 참조를 배열 참조로 변환한다.
 			for ( j in 0...syntax.referneces.length) {	
 				
 				// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.							
-				var targetClassMember:Symbol = targetClass.findMemberByID(syntax.referneces[j].value);					
+				var targetClassMember:VariableSymbol = targetClass.findMemberByID(syntax.referneces[j].value);					
 				var memberIndex:Int = 0;
 				
-				for ( k in 0...targetClass.members.length) { 
-					if (Std.is(targetClass.members[k], FunctionSymbol))
-						continue;
+				for ( k in 0...targetClass.members.length) {
 						
 					var member:VariableSymbol = cast(targetClass.members[k], VariableSymbol);
 					
 					// 일치하는 속성을 찾았으면 해당하는 인덱스를 추가한다.
 					if (member.id == targetClassMember.id) {
 							
-						var indexValueLiteral:LiteralSymbol = symbolTable.getLiteral(Std.string(memberIndex), LiteralSymbol.NUMBER);
+						var indexValueLiteral:LiteralSymbol = symbolTable.getLiteral(Std.string(memberIndex), "number");
 						var indexValueToken:Token = new Token(Token.Type.Number, Std.string(memberIndex));							
 						indexValueToken.setTag(indexValueLiteral);
 							
@@ -1054,7 +1040,7 @@ class Parser {
 					memberIndex++;
 				}
 				
-				targetClass = cast(symbolTable.findInLocal(targetClassMember.type), ClassSymbol);
+				targetClass = symbolTable.getClass(targetClassMember.type);
 			}
 			
 			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
@@ -1080,24 +1066,18 @@ class Parser {
 			// 배열 참조 구문을 분석한다.
 			var syntax:ArrayReferenceSyntax = ArrayReferenceSyntax.analyze(tokens, lineNumber);
 
-			// Syntax error가 있을 경우 리턴
 			if (syntax == null)
 				return null;
 
-			// 배열이 태그되지 않은 경우 배열의 유효성을 검증한다.
-			if (!syntax.array.tagged) {
-				if (!symbolTable.isValidVariableID(syntax.array.value)) {
-					Debug.reportError("Undefined Error 34", "정의되지 않은 배열입니다.", lineNumber);
-					return null;
-				}
-
-				// 토큰에 배열 심볼을 태그한다.
-				syntax.array.setTag(symbolTable.findInLocal(syntax.array.value));
+			var array:VariableSymbol = symbolTable.getVariable(syntax.array.value);
+			
+			if (array == null) {
+				Debug.reportError("Undefined Error 34", "정의되지 않은 배열입니다.", lineNumber);
+				return null;
 			}
+			syntax.array.setTag(array);
 
-			var array:VariableSymbol = cast(syntax.array.getTag(), VariableSymbol);
-
-			// 변수가 배열이 아닐 경우
+			// 변수가 배열이 아닐 경우, 문자열 인덱스값 읽기로 처리
 			if (array.type != "array") {
 
 				// 변수가 문자열도 아니면, 에러
@@ -1218,7 +1198,7 @@ class Parser {
 			else {
 
 				// 캐스팅 타입이 적절한지 체크한다.
-				if (!symbolTable.isValidClassID(syntax.castingType)) {
+				if (symbolTable.getClass(syntax.castingType) == null) {
 					Debug.reportError("Undefined Error 41", "올바르지 않은 타입입니다.", lineNumber);
 					return null;
 				}
@@ -1261,7 +1241,6 @@ class Parser {
 				
 				// 그 외의 경우
 				else {
-					TokenTools.view1D(parsedOperand.data);
 					Debug.reportError("Type error 44", "증감 연산자 사용이 잘못되었습니다.", lineNumber);
 					return null;
 				}
@@ -1501,14 +1480,14 @@ class Parser {
 	 */
 	public function scan(block:Lextree, option:ScanOption):Void {
 		
-		// 구조체 스캔일 경우 맴버변수와 프로시져를 저장할 공간 생성
-		var members:Array<Symbol> = null;
+		// 구조체 스캔일 경우 맴버변수를 저장할 공간 생성
+		var members:Array<VariableSymbol> = null;
 	
 		// 임시 스코프용
 		var definedSymbols:Array<Symbol> = new Array<Symbol>();
 		
 		if (option.inStructure) {
-			members = new Array<Symbol>();
+			members = new Array<VariableSymbol>();
 		}
 	
 		var i:Int = -1;
@@ -1546,7 +1525,7 @@ class Parser {
 				var variable:VariableSymbol = new VariableSymbol(syntax.variableName.value, syntax.variableType.value);
 
 				// 이미 사용되고 있는 변수인지 체크
-				if (symbolTable.isValidVariableID(variable.id)) {
+				if (symbolTable.getVariable(variable.id) != null) {
 					Debug.reportError("Duplication error 52", "변수 정의가 충돌합니다.", lineNumber);
 					continue;
 				}
@@ -1577,50 +1556,50 @@ class Parser {
 				// 스캔시에는 에러를 표시하지 않는다. (파싱 단계에서 표시)
 				Debug.supressError(true);
 
-				// 올바르지 않은 프로시저일 경우 건너 뛴다
 				if (syntax == null)
 					continue;
 
 				Debug.supressError(false);
 				
 				var parameters:Array<VariableSymbol> = new Array<VariableSymbol>();
+				var parametersTypeList:Array<String> = new Array<String>();
 				
-				// 매개 변수 정의가 존재하면
-				if (syntax.parameters.length > 0) {
-
-					// 매개변수 각각의 유효성을 검증하고 심볼 형태로 가공한다.
-					for ( k in 0...syntax.parameters.length) {
+				// 매개변수 각각의 유효성을 검증하고 심볼 형태로 가공한다.
+				for ( k in 0...syntax.parameters.length) {
 					
-						if (!ParameterDeclarationSyntax.match(syntax.parameters[k])){
-							Debug.reportError("Syntax error 53", "파라미터 정의가 올바르지 않습니다.", lineNumber);
-							continue;
-						}
-						// 매개 변수의 구문을 분석한다.
-						var parameterSyntax:ParameterDeclarationSyntax = ParameterDeclarationSyntax.analyze(syntax.parameters[k], lineNumber);
-
-						// 매개 변수 선언문에 Syntax error가 있을 경우 건너 뛴다.
-						if (parameterSyntax == null)
-							continue;
-
-						// 매개 변수 이름의 유효성을 검증한다.
-						if (symbolTable.isValidVariableID(parameterSyntax.parameterName.value)) {
-							Debug.reportError("Duplication error 54", parameterSyntax.parameterName.value+"변수 정의가 충돌합니다.", lineNumber);
-							continue;
-						}
-
-						// 매개 변수 타입의 유효성을 검증한다.
-						if (!symbolTable.isValidClassID(parameterSyntax.parameterType.value)) {
-							Debug.reportError("Duplication error 55", "매개 변수 타입이 유효하지 않습니다.", lineNumber);
-							continue;
-						}
-						
-						// 매개 변수 심볼을 생성한다
-						var parameter:VariableSymbol = new VariableSymbol(parameterSyntax.parameterName.value, parameterSyntax.parameterType.value);
-						
-						parameterSyntax.parameterName.setTag(parameter);
-						
-						parameters[k] = parameter;
+					if (!ParameterDeclarationSyntax.match(syntax.parameters[k])){
+						Debug.reportError("Syntax error 53", "파라미터 정의가 올바르지 않습니다.", lineNumber);
+						continue;
 					}
+					// 매개 변수의 구문을 분석한다.
+					var parameterSyntax:ParameterDeclarationSyntax = ParameterDeclarationSyntax.analyze(syntax.parameters[k], lineNumber);
+
+					// 매개 변수 선언문에 Syntax error가 있을 경우 건너 뛴다.
+					if (parameterSyntax == null)
+						continue;
+
+					// 매개 변수 이름의 유효성을 검증한다.
+					if (symbolTable.getVariable(parameterSyntax.parameterName.value) != null) {
+						Debug.reportError("Duplication error 54", parameterSyntax.parameterName.value+" 변수 정의가 충돌합니다.", lineNumber);
+						continue;
+					}
+
+					// 매개 변수 타입의 유효성을 검증한다.
+					if (symbolTable.getClass(parameterSyntax.parameterType.value) == null) {
+						Debug.reportError("Duplication error 55", "매개 변수 타입이 유효하지 않습니다.", lineNumber);
+						continue;
+					}
+						
+					// 매개 변수 심볼을 생성한다
+					var parameter:VariableSymbol = new VariableSymbol(parameterSyntax.parameterName.value, parameterSyntax.parameterType.value);
+					parameterSyntax.parameterName.setTag(parameter);
+					parameters[k] = parameter;
+				}				
+				
+				// 함수 정의 충돌을 검사한다.
+				if (symbolTable.getFunction(syntax.functionName.value, parametersTypeList) != null) {
+					Debug.reportError("Duplication error 56", "함수 정의가 충돌합니다.", lineNumber);
+					continue;
 				}
 				
 				var functn:FunctionSymbol = new FunctionSymbol(syntax.functionName.value, syntax.returnType.value, parameters);				
@@ -1633,11 +1612,7 @@ class Parser {
 				syntax.functionName.setTag(functn);
 				
 				// 프로시져를 심볼 테이블에 추가한다.
-				symbolTable.add(functn);
-
-				// 구조체 스캔일 경우 맴버 프로시져에도 추가한다.
-				if (option.inStructure)
-					members.push(functn);				
+				symbolTable.add(functn);			
 			}
 			
 			else if (ClassDeclarationSyntax.match(tokens)) {
@@ -1650,7 +1625,7 @@ class Parser {
 					continue;
 
 				// 오브젝트 이름의 유효성을 검증한다.
-				if (symbolTable.isValidClassID(syntax.className.value)) {
+				if (symbolTable.getClass(syntax.className.value) != null) {
 					Debug.reportError("Syntax error 56", "오브젝트 정의가 중복되었습니다.", lineNumber);
 					continue;
 				}
@@ -1662,9 +1637,9 @@ class Parser {
 				}
 
 				// 오브젝트를 심볼 테이블에 추가한다.
-				var classs:ClassSymbol = new ClassSymbol(syntax.className.value);
+				var klass:ClassSymbol = new ClassSymbol(syntax.className.value);
 
-				symbolTable.add(classs);
+				symbolTable.add(klass);
 
 				// 클래스 내부의 클래스는 지금 스캔하지 않는다.
 				if (option.inStructure)
@@ -1673,7 +1648,7 @@ class Parser {
 				// 오브젝트의 하위 항목을 스캔한다.
 				var objectOption:ScanOption = option.copy();
 				objectOption.inStructure = true;
-				objectOption.parentClass = classs;
+				objectOption.parentClass = klass;
 
 				scan(block.branch[++i], objectOption);
 			}
@@ -1685,7 +1660,7 @@ class Parser {
 		}
 		
 		for ( i in 0...definedSymbols.length) {
-			symbolTable.removeInBoth(definedSymbols[i].id);
+			symbolTable.remove(definedSymbols[i]);
 		}
 	}	
 	

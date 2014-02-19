@@ -11,28 +11,25 @@ class SymbolTable {
 	 * 할당 가능한 메모리 주소
 	 */
 	public var availableAddress:Int = 0;
+	public function assignAddress():Int {
+		return availableAddress++;
+	}
 	
 	/**
-	 * 로컬 심볼 테이블
+	 * 심볼 테이블
 	 */
-	public var local:Map<String, Symbol>;
-
-	/**
-	 * 전역 심볼 테이블
-	 */
-	public var global:Map<Int, Symbol>;
-
-	/**
-	 * 리터럴 테이블
-	 */
-	public var literal:Array<LiteralSymbol>;
+	public var variables:Array<VariableSymbol>;
+	public var functions:Array<FunctionSymbol>;
+	public var classes:Array<ClassSymbol>;
+	public var literals:Array<LiteralSymbol>;
 	
 	public function new() {
 		
 		// 맵을 초기화한다.
-		local = new Map<String, Symbol>();
-		global = new Map<Int, Symbol>();
-		literal = new Array<LiteralSymbol>();
+		variables = new Array<VariableSymbol>();
+		functions = new Array<FunctionSymbol>();
+		classes = new Array<ClassSymbol>();
+		literals = new Array<LiteralSymbol>();
 	}
 	
 	/**
@@ -42,115 +39,107 @@ class SymbolTable {
 	 * @return
 	 */
 	public function add(symbol:Symbol):Symbol {
-
-		// 맵에 추가한다.
-		local.set(symbol.id, symbol);
-		global.set(availableAddress++, symbol);
-
+		
 		// 메모리 어드레스 할당
-		symbol.address = availableAddress - 1;
+		symbol.address = assignAddress();
+		
+		// 심볼의 타입에 따라 분류하여 추가한다.
+		if (Std.is(symbol, VariableSymbol))
+			variables.push(cast(symbol, VariableSymbol));
+		else if (Std.is(symbol, FunctionSymbol))
+			functions.push(cast(symbol, FunctionSymbol));
+		else if (Std.is(symbol, ClassSymbol))
+			classes.push(cast(symbol, ClassSymbol));
+		else if (Std.is(symbol, LiteralSymbol))
+			literals.push(cast(symbol, LiteralSymbol));
+
+		return symbol;
+	}
+	
+	/**
+	 * 테이블 내의 심볼을 제거한다.
+	 * 
+	 * @param symbol
+	 * @return
+	 */
+	public function remove(symbol:Symbol):Symbol {
+		
+		// 심볼의 타입에 따라 분류하여 삭제한다.
+		if (Std.is(symbol, VariableSymbol)) {
+			variables.remove(cast(symbol, VariableSymbol));
+		}else if (Std.is(symbol, FunctionSymbol))
+			functions.remove(cast(symbol, FunctionSymbol));
+		else if (Std.is(symbol, ClassSymbol))
+			classes.remove(cast(symbol, ClassSymbol));
+		else if (Std.is(symbol, LiteralSymbol))
+			literals.remove(cast(symbol, LiteralSymbol));
 
 		return symbol;
 	}
 
 	/**
-	 * 로컬 심볼을 취득한다.
+	 * 변수 심볼을 찾는다.
 	 * 
-	 * @param id
+	 * @param	id
 	 * @return
 	 */
-	public function findInLocal(id:String):Symbol {
-		return local.get(id);
-	}
-	
-	/**
-	 * 전역 심볼을 취득한다.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public function findInGlobal(address:Int):Symbol {
-		return global.get(address);
-	}
-
-	/**
-	 * 로컬 심볼을 제거한다.
-	 * 
-	 * @param id
-	 */
-	public function removeInLocal(id:String):Void {
-		local.remove(id);
-	}
-
-	/**
-	 * 전역 심볼을 제거한다.
-	 * 
-	 * @param address
-	 */
-	public function removeInGlobal(address:Int):Void {
-		global.remove(address);
-	}
-	
-	/**
-	 * 로컬과 전역 모두에서 삭제한다.
-	 * 
-	 * @param	address
-	 */
-	public function removeInBoth(id:String):Void {
-		var symbol:Symbol = local.get(id);
-		local.remove(id);
-		global.remove(symbol.address);
-	}
-	
-	/**
-	 * 주어진 변수 ID의 유효성을 검증한다.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public function isValidVariableID(id:String):Bool {
+	public function getVariable(id:String):VariableSymbol {
+		for ( i in 0...variables.length) {
+			if (variables[i].id == id)
+				return variables[i];
+		}		
 		
-		// 로컬 스코프에서 찾을 수 있으면 유효한 id이다.
-		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), VariableSymbol))
-				return true;
-				
-		return false;
+		return null;
 	}
-
+	
 	/**
-	 * 주어진 함수 ID의 유효성을 검증한다.
+	 * 함수 심볼을 찾는다.
 	 * 
-	 * @param id
+	 * @param	id
+	 * @param	parameterType
 	 * @return
 	 */
-	public function isValidFunctionID(id:String):Bool  {
-
-		// 로컬 스코프에서 찾을 수 있으면 유효한 id이다.
-		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), FunctionSymbol))
-				return true;
-
-		return false;
+	public function getFunction(id:String, parameterType:Array<String> = null):FunctionSymbol {
+		for (i in 0...functions.length) {
+			if (functions[i].id == id) {
+				
+				// 파라미터 옵션이 없으면 첫 번째 찾은 함수를 리턴한다.
+				if(parameterType == null)
+					return functions[i];
+				
+				if (functions[i].parameters.length != parameterType.length)	
+					continue;
+					
+				var match:Bool = true;	
+					
+				for (j in 0...functions[i].parameters.length) {
+					if (functions[i].parameters[j].type != parameterType[j] && functions[i].parameters[j].type != "*") {
+						match = false;
+						break;
+					}
+				}
+				
+				if (match)
+					return functions[i];
+			}
+		}
+		
+		return null;
 	}
-
+	
 	/**
-	 * 주어진 타입이 유효한지 체크한다.
+	 * 클래스 심볼을 찾는다.
 	 * 
+	 * @param	id
 	 * @return
 	 */
-	public function isValidClassID(id:String):Bool  {
-
-		// 리터럴 타입일 경우 항상 유효하다.
-		if (id == "number" || id == "string" || id == "array")
-			return true;
-
-		// 커스텀 타입일 경우 심볼 테이블에서 찾아 유효성을 검증한다.
-		if (findInLocal(id) != null)
-			if (Std.is(findInLocal(id), ClassSymbol))
-				return true;
-				
-		return false;
+	public function getClass(id:String):ClassSymbol {
+		for ( i in 0...classes.length) {
+			if (classes[i].id == id)
+				return classes[i];
+		}
+		
+		return null;
 	}
 
 	/**
@@ -162,17 +151,15 @@ class SymbolTable {
 	 */
 	public function getLiteral(value:String, type:String):LiteralSymbol {
 		
-		for (i in 0...literal.length) {
-			if (literal[i].type == type && literal[i].value == value)
-				return literal[i];
+		for (i in 0...literals.length) {
+			if (literals[i].type == type && literals[i].value == value)
+				return literals[i];
 		}
 
-		var newLiteral:LiteralSymbol = new LiteralSymbol(value, type);
-		newLiteral.address = availableAddress++;
-		literal.push(newLiteral);
+		var literal:LiteralSymbol = new LiteralSymbol(value, type);
+		add(literal);
 		
-		return newLiteral;
-
+		return literal;
 	}
 	
 }

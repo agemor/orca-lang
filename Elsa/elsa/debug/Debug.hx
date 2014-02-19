@@ -11,6 +11,7 @@ class Debug {
 	 * 에러 표시를 허용하는지의 여부
 	 */
 	public static var supressed:Bool = false;
+	public static var errorReported:Bool = false;
 	
 	/**
 	 * 에러를 출력한다.
@@ -20,7 +21,8 @@ class Debug {
 	 * @param	lineNumber
 	 */
 	public static function reportError(errorType:String, errorMessage:String, lineNumber:Int = 1):Void {
-		if(!supressed) trace(errorType + " :" + errorMessage + " at " + Std.string(lineNumber));
+		if (!supressed) trace(errorType + " :" + errorMessage + " at " + Std.string(lineNumber));
+		errorReported = true;
 	}
 	
 	/**

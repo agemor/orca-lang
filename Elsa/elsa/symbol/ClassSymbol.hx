@@ -8,7 +8,7 @@ class ClassSymbol extends Symbol {
 	/**
 	 * 클래스 맴버 (함수, 변수)
 	 */
-	public var members:Array<Symbol>;
+	public var members:Array<VariableSymbol>;
 	
 	public function new(id:String) {
 				
@@ -23,7 +23,7 @@ class ClassSymbol extends Symbol {
 	 * @param id
 	 * @return
 	 */
-	public function findMemberByID(id:String):Symbol {
+	public function findMemberByID(id:String):VariableSymbol {
 		for(i in 0...members.length){
 			if (members[i].id == id) {
 				return members[i];
