@@ -33,6 +33,7 @@ class Token {
 	public var wholeWord:Bool = false;
 	public var useAsAddress:Bool = false;
 	public var useAsArrayReference:Bool = false;
+	public var doNotPush:Bool = false;
 	
 	/**
 	 * 토큰을 생성한다. 두 번째 인수를 넣을 경우 이 토큰은 데이터 토큰이 된다.
@@ -101,6 +102,7 @@ class Token {
 		token.wholeWord = wholeWord;
 		token.useAsAddress = useAsAddress;
 		token.useAsArrayReference = useAsArrayReference;
+		token.doNotPush = doNotPush;
 		
 		return token;
 	}
@@ -253,7 +255,7 @@ enum Type {
 	
 	ID; Variable; New; ArrayReference;
 	
-	If; ElseIf; Else; For; While;
+	If; Else; For; While;
 	Continue; Break; Return; RuntimeValueAccess;
 	
 	True; False; String; Number; Array;
@@ -278,7 +280,7 @@ enum Type {
 	
 	CastToNumber; CastToString;
 	
-	Instance; CharAt;
+	Instance; CharAt; PushParameters;
 	As;
 	
 }

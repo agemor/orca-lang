@@ -26,7 +26,7 @@ class ElseIfSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		if (tokens.length > 0 && tokens[0].type == Type.ElseIf)
+		if (tokens.length > 1 && tokens[0].type == Type.Else && tokens[1].type == Type.If)
 			return true;
 		return false;
 	}
@@ -41,13 +41,13 @@ class ElseIfSyntax implements Syntax {
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):ElseIfSyntax {
 		
 		// 미완성된 제어문의 경우
-		if (tokens.length < 4) {
+		if (tokens.length < 5) {
 			Debug.reportError("Syntax error", "Else - If syntax is not valid", lineNumber);
 			return null;
 		}
 
 		// 괄호로 시작하는지 확인한다
-		if (tokens[1].type != Type.ShellOpen) {
+		if (tokens[2].type != Type.ShellOpen) {
 			Debug.reportError("Syntax error", "Condition must start with \"(\"", lineNumber);
 			return null;
 		}
@@ -58,6 +58,6 @@ class ElseIfSyntax implements Syntax {
 			return null;
 		}
 
-		return new ElseIfSyntax(tokens.slice(2, tokens.length - 1));
+		return new ElseIfSyntax(tokens.slice(3, tokens.length - 1));
 	}
 }

@@ -806,10 +806,16 @@ class Parser {
 					continue;
 				}
 				
+				/*// 스택 안전성 체크: 안전하지 않다면 명령 무시
+				if (!TokenTools.checkStackSafety(tokens)) {
+					Debug.reportError("Syntax error 5", "ignored", lineNumber);
+					continue;
+				}*/
+				
 				var parsedLine:ParsedPair = parseLine(tokens, lineNumber);
 				if (parsedLine == null)
 					continue;
-
+					
 				assembly.writeLine(parsedLine.data);
 			}
 		}
@@ -919,7 +925,7 @@ class Parser {
 				argumentsTypeList.push(parsedArgument.type);
 			}
 			arguments.push([syntax.functionName]);
-				
+			
 			// 함수 심볼을 취득한다.
 			var functn:FunctionSymbol = symbolTable.getFunction(syntax.functionName.value, argumentsTypeList);
 			
@@ -927,7 +933,12 @@ class Parser {
 				Debug.reportError("Undefined Error 26", syntax.functionName.value+"("+argumentsTypeList+") 는 정의되지 않은 프로시져입니다.", lineNumber);
 				return null;
 			}			
-			syntax.functionName.setTag(functn);	
+			syntax.functionName.setTag(functn);					
+			
+			var parameterPushToken:Token = new Token(Type.PushParameters);
+			parameterPushToken.setTag(functn);
+			if (!functn.isNative)
+				arguments.insert(0, [parameterPushToken]);
 				
 			return new ParsedPair(TokenTools.merge(arguments), functn.type);
 		}
@@ -1682,7 +1693,7 @@ class Parser {
 				var firstToken:Token = possibleBranch.lexData[0];
 				
 				// 이어지는 조건문이 있을 경우
-				if (firstToken.type == Type.Else || firstToken.type == Type.ElseIf)
+				if (firstToken.type == Type.Else)
 					return true;
 			}
 		}
@@ -1700,8 +1711,7 @@ class Parser {
 		if ((!(index < tree.branch.length)) || !tree.branch[index + 1].hasBranch)
 			return false;
 		return true;
-	}
-	
+	}	
 }
 
 

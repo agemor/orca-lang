@@ -101,12 +101,7 @@ class Orcinus {
 						var left:Dynamic = parseValue(opcode.args[2]);
 						var right:Dynamic = opcode.args.length > 3 ? parseValue(opcode.args[3]) : null;
 						
-						/*// 연산 처리할 수 없는 값이라면
-						if (!((Std.is(left, Float) || Std.is(left, String)) && (Std.is(right, Float) || Std.is(right, String)))) {
-							trace("Cannot calculate null.");
-							pointer++;
-							continue;
-						}*/
+						
 						
 						switch(operator) {
 							case 1: register[output] = left + right;
@@ -252,8 +247,7 @@ class Orcinus {
 				// 리턴값이 있는 외부 명령 실행	
 				case "EXR":
 					if (true) {
-						var output:Int = parseIndicator(opcode.args[0]);
-						var command:String = Std.string(parseValue(opcode.args[1]));						
+						var command:String = Std.string(parseValue(opcode.args[0]));						
 						var returnValue:Dynamic = null;						
 						
 						switch (command) {
@@ -275,7 +269,7 @@ class Orcinus {
 							case "random": returnValue = OrcinusAPI.random();
 						}
 						
-						register[output] = returnValue;
+						systemStack.push(returnValue);
 					}
 					
 				// 리턴값이 없는 외부 명령 실행	

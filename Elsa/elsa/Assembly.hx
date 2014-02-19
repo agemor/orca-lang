@@ -133,7 +133,8 @@ class Assembly {
 					writeCode("OPR 2, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", &2, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
 					writeCode("EAD &1, &0, &2");
-					writeCode("PSH &2");
+					if (!token.doNotPush)
+						writeCode("PSH &2");
 				} 
 				
 				else {
@@ -141,7 +142,8 @@ class Assembly {
 					writeCode("OPR 1, " + (token.type == Token.Type.PrefixIncrement ? 1 : 2) + ", @&0, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
 					writeCode("NDW &0, &1");
-					writeCode("PSH @&0");
+					if (!token.doNotPush)
+						writeCode("PSH @&0");
 				}
 				
 			// 값을 푸쉬한 다음 증감시킨다.
@@ -152,7 +154,8 @@ class Assembly {
 					writeCode("POP 0");
 					writeCode("POP 1");
 					writeCode("ESI 2, &1, &0");
-					writeCode("PSH &2");
+					if (!token.doNotPush)
+						writeCode("PSH &2");
 					writeCode("OPR 2, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", &2, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
 					writeCode("EAD &1, &0, &2");			
@@ -160,7 +163,8 @@ class Assembly {
 				
 				else {
 					writeCode("POP 0");
-					writeCode("PSH @&0");
+					if (!token.doNotPush)
+						writeCode("PSH @&0");
 					writeCode("OPR 1, " + (token.type == Token.Type.SuffixIncrement ? 1 : 2) + ", @&0, @"
 							+ symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address);
 					writeCode("NDW &0, &1");
@@ -276,8 +280,24 @@ class Assembly {
 					// 결과를 메인 스택에 집어넣는다.
 					writeCode("PSH &0");
 				}
+			
+			// 파라미터 저장
+			case Type.PushParameters:
+				if (true) {
+					
+					var functn:FunctionSymbol = cast(token.getTag(), FunctionSymbol);
+					
+					if (functn.parameters != null) {
+						for ( j in 0...functn.parameters.length) {
+							
+							var parameter:VariableSymbol = functn.parameters[j];								
+							
+							writeCode("PSH @" + parameter.address+", 1");	
+							//writeCode("EXE print, @" + parameter.address);	
+						}
+					}
+				}				
 				
-
 			// 함수 호출 / 어드레스 등의 역할
 			case Type.ID:
 
@@ -312,14 +332,42 @@ class Assembly {
 						 */
 						
 						// 인수를 뽑아 낸 후, 프로시져의 파라미터에 대응시킨다.
-						if (functn.parameters != null)
+						if (functn.parameters != null) {
 							for( j in 0...functn.parameters.length){
 
 								// 인수 값을 뽑는다.
-								writeCode("POP 0");
-
+								writeCode("POP 0");							
+								
 								// 파라미터 어드레스를 취득한다. 인수를 거꾸로 취득하고 있으므로, 매개변수도 거꾸로
 								// 취득한다.
+								var parameter:VariableSymbol = functn.parameters[functn.parameters.length - 1 - j];
+								
+								// 인수가 실수형일 경우
+								if (parameter.isNumber())
+									writeCode("NDW " + parameter.address + ", &0");
+
+								else if (parameter.isString())
+									writeCode("SDW " + parameter.address + ", &0");
+
+								else
+									writeCode("RDW " + parameter.address + ", &0");
+							}
+						}
+
+						// 현재 위치를 스택에 넣는다.
+						writeCode("PSH $0, 1");
+
+						// 함수 시작부로 점프한다.
+						writeCode("JMP 0, %" + functn.functionEntry);						
+						
+						// 파라미터를 복구한다.						
+						if (functn.parameters != null){
+							for( j in 0...functn.parameters.length){
+
+								// 인수 값을 뽑는다.
+								writeCode("POP 0, 1");
+
+								// 순서가 뒤바뀜
 								var parameter:VariableSymbol = functn.parameters[functn.parameters.length - 1 - j];
 
 								// 인수가 실수형일 경우
@@ -331,13 +379,9 @@ class Assembly {
 
 								else
 									writeCode("RDW " + parameter.address + ", &0");
+								//writeCode("EXE print, &0");
 							}
-
-						// 현재 위치를 스택에 넣는다.
-						writeCode("PSH $0, 1");
-
-						// 함수 시작부로 점프한다.
-						writeCode("JMP 0, %" + functn.functionEntry);
+						}
 					}
 				}
 

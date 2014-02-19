@@ -1,5 +1,5 @@
 /**
-* n factorial을 계산한다.
+* 팩토리얼인 N!의 값을 계산한다.
 */
 define factorial(n:number) -> number {
     if(n < 1) {

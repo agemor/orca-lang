@@ -222,6 +222,39 @@ class TokenTools {
 		return result;
 	}
 	
+	/**
+	 * 토큰이 스택에 쌓이지 않는 형태인지 확인한다.
+	 * 
+	 * @param	tokens
+	 * @return
+	 */
+	public static function checkStackSafety(tokens:Array<Token>):Bool {
+		
+		// 대입 연산자가 있는지 체크한다.		
+		for (i in 0...tokens.length) {
+			if (tokens[i].getPrecedence() > 15) 
+				return true;	
+		}
+		
+		// 증감 연산자는 끝에 토큰 추가하지 않기 명령을 추가하고, 다른 연산자가 나오면 false 리턴
+		for (i in 0...tokens.length) {
+			if (tokens[i].getPrecedence() == 0 || tokens[i].type == Token.Type.RuntimeValueAccess) 
+				continue;
+				
+			if (tokens[i].type == Token.Type.PrefixDecrement ||
+				tokens[i].type == Token.Type.PrefixIncrement ||
+				tokens[i].type == Token.Type.SuffixDecrement ||
+				tokens[i].type == Token.Type.SuffixIncrement) {
+				tokens[i].doNotPush = true;
+				continue;
+			}
+			
+			return false;
+		}
+		
+		return true;
+	}
+	
 	
 	/**
 	 * 1차원 토큰열의 내용을 출력한다.

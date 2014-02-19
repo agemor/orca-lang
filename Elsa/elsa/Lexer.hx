@@ -362,12 +362,12 @@ class Lexer {
 		Token.define(null, Token.Type.ArrayReference);
 		Token.define(null, Token.Type.Instance);
 		Token.define(null, Token.Type.CharAt);
+		Token.define(null, Token.Type.PushParameters);
 		
 		Token.define("include", Token.Type.Include, true);		
 		Token.define("define", Token.Type.Define, true);
 		Token.define("var", Token.Type.Variable, true);
 		Token.define("if", Token.Type.If, true);
-		Token.define("elif", Token.Type.ElseIf, true);
 		Token.define("else", Token.Type.Else, true);
 		Token.define("for", Token.Type.For, true);
 		Token.define("while", Token.Type.While, true);
