@@ -187,7 +187,9 @@ class TokenTools {
 
 			// 유효 구간에서 연산자가 발견되면 후보 여부를 검토한다.
 			if (targetDepth == shellDepth && subscriptDepth == 0) {
+				
 				var precedence:Int = tokens[i].getPrecedence();
+				
 				if (candidatePrecedence < precedence) {
 					candidatePrecedence = precedence;
 					candidateIndex = i;

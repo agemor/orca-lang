@@ -30,8 +30,7 @@ class InfixSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
-		
+		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);		
 		if (indexOfLPO < 0)
 			return false;
 

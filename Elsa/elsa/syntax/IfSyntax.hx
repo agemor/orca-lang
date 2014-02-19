@@ -14,6 +14,7 @@ import elsa.debug.Debug;
 class IfSyntax implements Syntax {
 
 	public var condition:Array<Token>;
+	public var omittedForm:Array<Token>;
 	
 	public function new(condition:Array<Token>) {
 		this.condition = condition;

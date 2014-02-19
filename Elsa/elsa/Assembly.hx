@@ -86,7 +86,7 @@ class Assembly {
 			return 19;
 		case Type.LogicalNot:
 			return 20;
-		case Type.Append:
+		case Type.Append, Type.AppendAssignment:
 			return 21;
 		case Type.CastToNumber:
 			return 22;

@@ -380,14 +380,14 @@ class Lexer {
 		Token.define("as", Token.Type.As, true);
 		Token.define("in", Token.Type.In, true);
 		
-		Token.define("->", Token.Type.Right, false);
-		Token.define("?", Token.Type.RuntimeValueAccess, false);
+		Token.define("->", Token.Type.Right, false);		
 		Token.define("[", Token.Type.ArrayOpen, false);
 		Token.define("]", Token.Type.ArrayClose, false);
 		Token.define("{", Token.Type.BlockOpen, false);
 		Token.define("}", Token.Type.BlockClose, false);
 		Token.define("(", Token.Type.ShellOpen, false);
 		Token.define(")", Token.Type.ShellClose, false);
+		Token.define("?", Token.Type.RuntimeValueAccess, false);
 		Token.define("...", Token.Type.From, false);
 		Token.define(".", Token.Type.Dot, false);
 		Token.define(",", Token.Type.Comma, false);

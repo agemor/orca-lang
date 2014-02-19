@@ -1,0 +1,10 @@
+define A(a:string) {
+	print(a+" is a string!");
+}
+
+define A(a:number) {
+	print(a+" is a number!");
+}
+
+A(30);
+A("Orange");

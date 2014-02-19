@@ -76,6 +76,7 @@ class FunctionDeclarationSyntax implements Syntax {
 			
 			// 파라미터가 괄호로 싸여있지 않다면 에러.
 			if (tokens[parameterStartIndex - 1].type != Type.ShellOpen || tokens[parameterEndIndex].type != Type.ShellClose) {
+				
 				Debug.reportError("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
 			}			

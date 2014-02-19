@@ -247,8 +247,26 @@ class Parser {
 				if (syntax == null)
 					continue;
 				
+				var parametersTypeList:Array<String> = new Array<String>();
+				
+				// 매개변수 각각의 유효성을 검증하고 심볼 형태로 가공한다.
+				for ( k in 0...syntax.parameters.length) {
+					
+					if (!ParameterDeclarationSyntax.match(syntax.parameters[k])){						
+						continue;
+					}
+					// 매개 변수의 구문을 분석한다.
+					var parameterSyntax:ParameterDeclarationSyntax = ParameterDeclarationSyntax.analyze(syntax.parameters[k], lineNumber);
+
+					// 매개 변수 선언문에 Syntax error가 있을 경우 건너 뛴다.
+					if (parameterSyntax == null)
+						continue;	
+						
+					parametersTypeList.push(parameterSyntax.parameterType.value);
+				}
+					
 				// 테이블에서 함수 심볼을 가져온다. (이미 스캐닝 과정에서 함수가 테이블에 등록되었으므로)
-				var functn:FunctionSymbol = symbolTable.getFunction(syntax.functionName.value);
+				var functn:FunctionSymbol = symbolTable.getFunction(syntax.functionName.value, parametersTypeList);
 				
 				// 함수 심볼을 정의된 심볼 목록에 추가한다.
 				definedSymbols.push(functn);
@@ -258,7 +276,6 @@ class Parser {
 					Debug.reportError("Syntax error 8", "함수 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
-
 
 				// 프로시져가 임의로 실행되는 것을 막기 위해 프로시저의 끝 부분으로 점프한다.
 				assembly.writeCode("JMP 0, %" + functn.functionExit);
@@ -377,6 +394,7 @@ class Parser {
 				
 				// 조건문 결과 타입이 정수형이 아니라면 (True:1, False:0) 에러를 출력한다.
 				if (parsedCondition.type != "number" && parsedCondition.type != "bool") {
+				
 					Debug.reportError("Syntax error 10", "참, 거짓 여부를 판별할 수 없는 조건식입니다.", lineNumber);
 					continue;
 				}
@@ -759,7 +777,8 @@ class Parser {
 						continue;
 
 					if (parsedReturnValue.type != option.parentFunction.type) {
-						Debug.reportError("Syntax error 22", "리턴된 데이터의 타입이 함수 리턴 타입과 일치하지 않습니다.", lineNumber);
+						TokenTools.view1D(parsedReturnValue.data);
+						Debug.reportError("Syntax error 22", "리턴된 데이터의 타입("+parsedReturnValue.type+")이 함수 리턴 타입("+option.parentFunction.type+")과 일치하지 않습니다.", lineNumber);
 						continue;
 					}
 					
@@ -1394,11 +1413,11 @@ class Parser {
 						syntax.operator = Token.findByType(Type.AppendAssignment);
 					case Type.Addition:
 						syntax.operator = Token.findByType(Type.Append);
-
+					case Type.EqualTo, Type.NotEqualTo:
+						left.type = right.type = "number";
 					// 문자열 - 문자열 대입이면 SDW명령을 활성화시킨다.
 					case Type.Assignment:
 						syntax.operator.value = "string";
-					case Type.EqualTo, Type.NotEqualTo:
 					default:
 						Debug.reportError("Syntax error 47", "이 연산자로 문자열 연산을 수행할 수 없습니다.", lineNumber);
 						return null;
@@ -1465,7 +1484,25 @@ class Parser {
 						Debug.reportError("Syntax error 49", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
 						return null;
 					}
+				case Type.AdditionAssignment:
+					
+					// 문자 + 숫자
+					if (left.type == "string" && right.type == "number") {
+						right.data.push(Token.findByType(Type.CastToString));
+						right.type = "string";
+
+						// 연산자를 APPEND로 수정한다.
+						syntax.operator = Token.findByType(Type.AppendAssignment);
+
+					}
+
+					else {
+						Debug.reportError("Syntax error 49", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
+						return null;
+					}
+						
 				default:
+					TokenTools.view1D(tokens);
 					Debug.reportError("Syntax error 50", "다른 두 타입 간 연산을 실행할 수 없습니다.", lineNumber);
 					return null;
 				}

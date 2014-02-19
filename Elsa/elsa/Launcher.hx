@@ -31,7 +31,7 @@ class Launcher {
 		var parser:Parser = new Parser();
 		
 		var compiledCode:String = parser.compile(temp_test, "test/");
-		trace(compiledCode);
+		
 		if (!Debug.errorReported){		
 		
 			var vm:Orcinus = new Orcinus();

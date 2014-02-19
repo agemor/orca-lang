@@ -101,8 +101,6 @@ class Orcinus {
 						var left:Dynamic = parseValue(opcode.args[2]);
 						var right:Dynamic = opcode.args.length > 3 ? parseValue(opcode.args[3]) : null;
 						
-						
-						
 						switch(operator) {
 							case 1: register[output] = left + right;
 							case 2:	register[output] = left - right;
@@ -307,6 +305,8 @@ class Orcinus {
 			// 문자열 길이	
 			case 1:
 				return cast(target, String).length;
+			case 2:
+				return cast(target, String).charCodeAt(0);
 		}
 		return null;
 	}

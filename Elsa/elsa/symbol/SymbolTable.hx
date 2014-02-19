@@ -99,7 +99,7 @@ class SymbolTable {
 	 * @param	parameterType
 	 * @return
 	 */
-	public function getFunction(id:String, parameterType:Array<String> = null):FunctionSymbol {
+	public function getFunction(id:String, parameterType:Array<String>):FunctionSymbol {
 		for (i in 0...functions.length) {
 			if (functions[i].id == id) {
 				

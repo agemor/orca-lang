@@ -118,11 +118,11 @@ class Token {
 	 */
 	public function getPrecedence():Int {
 		switch (type) {
-		case Type.Dot, Type.RuntimeValueAccess:
+		case Type.Dot:
 			return 1;
-		case Type.ArrayOpen:
+		case Type.ArrayOpen , Type.Right:
 			return 2;
-		case Type.As:
+		case Type.As: 
 			return 3;
 		case Type.SuffixIncrement, Type.SuffixDecrement:
 			return 4;
@@ -147,7 +147,7 @@ class Token {
 			return 13;
 		case Type.LogicalAnd:
 			return 14;
-		case Type.LogicalOr:
+		case Type.LogicalOr, Type.RuntimeValueAccess:
 			return 15;
 		case Type.Assignment, Type.AdditionAssignment, Type.SubtractionAssignment,
 			 Type.MultiplicationAssignment, Type.DivisionAssignment, Type.ModuloAssignment,

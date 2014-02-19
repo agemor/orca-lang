@@ -29,13 +29,10 @@ class FunctionCallSyntax implements Syntax {
 	 */
 	public static function match(tokens:Array<Token>):Bool {
 		
-		var lastIndexOfRight:Int = TokenTools.lastIndexOf(tokens, Type.Right);	
+		var lastIndexOfRight:Int = TokenTools.indexOfLPO(tokens);
 		
-		// 전체 래핑인지 확인한다.
-		if (tokens.length >= 3 && tokens[0].type == Type.ID && tokens[1].type == Type.ShellOpen) {
-			if (TokenTools.indexOfShellClose(tokens, 2) == tokens.length - 1)
-				return true;
-		}
+		if (lastIndexOfRight > 0 && tokens[lastIndexOfRight].type == Type.Right)
+			return true;
 		
 		// 기본적인 길이 제한을 만족하는지 확인
 		if (tokens.length < lastIndexOfRight + 3) 	
@@ -48,7 +45,8 @@ class FunctionCallSyntax implements Syntax {
 			
 		// 마지막 닫기 문자 확인
 		if (TokenTools.indexOfShellClose(tokens, lastIndexOfRight + 3) != tokens.length - 1)
-			return false;			
+			return false;	
+			
 		return true;
 	}
 	
@@ -61,7 +59,7 @@ class FunctionCallSyntax implements Syntax {
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):FunctionCallSyntax {		
 		
-		var lastIndexOfRight:Int = TokenTools.lastIndexOf(tokens, Type.Right);	
+		var lastIndexOfRight:Int = TokenTools.indexOfLPO(tokens);
 		var hasTarget:Bool = lastIndexOfRight > 0;		
 		
 		// 전체 래핑인지 확인한다.
@@ -89,6 +87,8 @@ class FunctionCallSyntax implements Syntax {
 			
 			// 매개 변수가 괄호로 싸여있지 않다면 에러.
 			if (tokens[argumentStartIndex - 1].type != Type.ShellOpen || tokens[argumentEndIndex].type != Type.ShellClose) {
+				trace("aaaa");
+				TokenTools.view1D(tokens);
 				Debug.reportError("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
 			}	
