@@ -42,7 +42,7 @@ import sys.io.File;
  * 
  * @author 김 현준
  */
-class Parser {
+class BelugaParser {
 
 	/**
 	 * 어휘 분석기
@@ -118,25 +118,18 @@ class Parser {
 		assembly.freeze();
 		
 		// 리터럴을 어셈블리에 쓴다.
-		for ( i in 0...symbolTable.literals.length ) {
-			
+		for ( i in 0...symbolTable.literals.length ) {			
 			var literal:LiteralSymbol = symbolTable.literals[i];
 			
-			// 실수형 리터럴인 경우
-			if (literal.type == "number") {
-				assembly.writeCode("SNA " + Std.string(literal.address));
-				
-				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("NDW " + Std.string(literal.address) + ", " + literal.value);
-			}
-
-			// 문자형 리터럴인 경우
-			else if (literal.type == "string") {
-				assembly.writeCode("SSA " + Std.string(literal.address));
-
-				// 리터럴 어드레스에 값을 할당한다.
-				assembly.writeCode("SDW " + Std.string(literal.address) + ", `" + literal.value + "`");
-			}
+			assembly.writeCode("SAL "+ literal.address);
+			
+			if (literal.type == "number")
+				assembly.writeCode("PSH " + literal.value);				
+			else if (literal.type == "string") 
+				assembly.writeCode("PSH " + literal.value + "s");			
+			
+			assembly.writeCode("PSH " + literal.address);
+			assembly.writeCode("STO");
 		}
 
 		assembly.melt();
@@ -214,13 +207,9 @@ class Parser {
 				// 정의된 심볼 목록에 추가한다.
 				definedSymbols.push(variable);
 
-				// 어셈블리에 변수의 메모리 어드레스 할당 명령을 추가한다,
-				if (variable.isNumber())
-					assembly.writeCode("SNA " + variable.address);
-
-				else if (variable.isString())
-					assembly.writeCode("SSA " + variable.address);
-
+				// 어셈블리에 변수의 메모리 어드레스 할당 명령을 추가한다.				
+				if (variable.isNumber() || variable.isString())
+					assembly.writeCode("SAL " + variable.address);
 				else					
 					assembly.writeCode("SAA " + variable.address);
 
@@ -277,7 +266,8 @@ class Parser {
 				}
 
 				// 프로시져가 임의로 실행되는 것을 막기 위해 프로시저의 끝 부분으로 점프한다.
-				assembly.writeCode("JMP 0, %" + functn.functionExit);
+				assembly.writeCode("PSH %" + functn.functionExit);
+				assembly.writeCode("JMP");
 
 				// 프로시져의 시작 부분을 알려주는 코드
 				assembly.flag(functn.functionEntry);
@@ -309,11 +299,10 @@ class Parser {
 				 * 호출 스택에 기반하여 프로시져의 끝에서 마지막 스택 플래그로 이동.(pop)
 				 */
 				// 마지막 호출 위치를 가져온다.
-				assembly.writeCode("POP 0, 1");
-
-				// 마지막 호출 위치로 이동한다. (이 명령은 함수가 void형이고, 리턴 명령을 결국 만나지 못했을 때 실행되게
-				// 된다.)
-				assembly.writeCode("JMP 0, &0");
+				assembly.writeCode("MOC");
+				
+				// 마지막 호출 위치로 이동한다. (이 명령은 함수가 void형이고, 리턴 명령을 결국 만나지 못했을 때 실행되게 된다.)
+				assembly.writeCode("JMP");
 				
 				// 프로시져의 끝 부분을 표시한다.
 				assembly.flag(functn.functionExit);
@@ -409,10 +398,10 @@ class Parser {
 
 				// 어셈블리에 조건식을 쓴다.
 				assembly.writeLine(parsedCondition.data);
-				assembly.writeCode("POP 0");
-
+				assembly.writeCode("PSH %" + ifExit);
+				
 				// 조건이 거짓일 경우 -> if절을 건너 뛴다.
-				assembly.writeCode("JMP &0, %" + Std.string(ifExit));
+				assembly.writeCode("JMF");
 
 				// 구현부를 파싱한다.
 				var ifOption:ParseOption = option.copy();
@@ -422,7 +411,8 @@ class Parser {
 				
 				// 만약 참이라서 여기까지 실행되면, 확장 조건문인 경우 끝으로 이동
 				if (extendedConditional) {
-					assembly.writeCode("JMP 0, %" + extendedConditionalExit);
+					assembly.writeCode("PSH %" + extendedConditionalExit);
+					assembly.writeCode("JMP");
 				}
 				
 				assembly.flag(ifExit);	
@@ -480,10 +470,10 @@ class Parser {
 
 				// 어셈블리에 조건식을 쓴다.
 				assembly.writeLine(parsedCondition.data);
-				assembly.writeCode("POP 0");
+				assembly.writeCode("PSH %" + elseIfExit);
 
 				// 조건이 거짓일 경우 구현부를 건너 뛴다.
-				assembly.writeCode("JMP &0, %" + Std.string(elseIfExit));
+				assembly.writeCode("JMF");
 
 				// 구현부를 파싱한다.
 				var ifOption:ParseOption = option.copy();
@@ -493,7 +483,8 @@ class Parser {
 
 				// 만약 참이라서 구현부가 실행되었을 경우, 조건 블록의 가장 끝으로 이동한다.
 				if (extendedConditional) {
-					assembly.writeCode("JMP 0, %" + Std.string(extendedConditionalExit));
+					assembly.writeCode("PSH %" + extendedConditionalExit);
+					assembly.writeCode("JMP");
 					assembly.flag(elseIfExit);
 				}
 				
@@ -609,29 +600,25 @@ class Parser {
 				var forEntry:Int = assignFlag();
 				var forExit:Int = assignFlag();
 
-				// 증감자 초기화
+				// 증감자 초기화 (-1)
 				assembly.writeLine(parsedInitialValue.data);
-				assembly.writeCode("POP 0");
-				assembly.writeCode("SNA " + Std.string(counter.address));
-				assembly.writeCode("NDW " + Std.string(counter.address) + ", &0");
-
-				// 증감자의 값에서 -1을 해 준다.
-				assembly.writeCode("OPR 1, 2, @" + Std.string(counter.address) + ", @"
-						+ Std.string(symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address));
-				assembly.writeCode("NDW " + Std.string(counter.address) + ", &1");
+				
+				assembly.writeCode("SAL " + counter.address);
+				assembly.writeCode("PSH -1");
+				assembly.writeCode("PSH " + counter.address);
+				assembly.writeCode("STO");
 
 				// 귀환 플래그를 심는다.
 				assembly.flag(forEntry);
 
-				// 증감자 증감
-				assembly.writeCode("OPR 1, 1, @" + Std.string(counter.address) + ", @"
-						+ Std.string(symbolTable.getLiteral("1", LiteralSymbol.NUMBER).address));
-				assembly.writeCode("NDW " + Std.string(counter.address) + ", &1");
+				// 증감자 증감 (+1)
+				assembly.writeCode("PSM " + counter.address);
+				assembly.writeCode("IVK 27");
 
 				// 조건문이 거짓이면 탈출 플래그로 이동
 				assembly.writeLine(parsedCondition.data);
-				assembly.writeCode("POP 0");
-				assembly.writeCode("JMP &0, %" + Std.string(forExit));
+				assembly.writeCode("PSH %" + forExit);
+				assembly.writeCode("JMF");
 
 				// for문의 구현부를 파싱한다. 이 때, 기존의 옵션은 뒤의 과정에서도 동일한 내용으로 사용되므로 새로운 옵션을
 				// 생성한다.
@@ -644,7 +631,8 @@ class Parser {
 				parseBlock(block.branch[++i], forOption);
 
 				// 귀환 플래그로 점프
-				assembly.writeCode("JMP 0, %" + Std.string(forEntry));
+				assembly.writeCode("PSH %" + forEntry);
+				assembly.writeCode("JMP");
 
 				// 탈출 플래그를 심는다.
 				assembly.flag(forExit);
@@ -691,8 +679,8 @@ class Parser {
 
 				// 조건문을 체크하여 거짓일 경우 탈출 플래그로 이동한다.
 				assembly.writeLine(parsedCondition.data);
-				assembly.writeCode("POP 0");
-				assembly.writeCode("JMP &0, %" + Std.string(whileExit));
+				assembly.writeCode("PSH %" + whileExit);
+				assembly.writeCode("JMF");
 
 				// while문의 구현부를 파싱한다.
 				var whileOption:ParseOption = option.copy();
@@ -704,7 +692,8 @@ class Parser {
 				parseBlock(block.branch[++i], whileOption);
 
 				// 귀환 플래그로 점프한다.
-				assembly.writeCode("JMP 0, %" + Std.string(whileEntry));
+				assembly.writeCode("PSH %" + whileEntry);
+				assembly.writeCode("JMP");
 
 				// 탈출 플래그를 심는다.
 				assembly.flag(whileExit);
@@ -718,7 +707,8 @@ class Parser {
 				}
 				
 				// 귀환 플래그로 점프한다.
-				assembly.writeCode("JMP 0, %" + Std.string(option.blockEntry));
+				assembly.writeCode("PSH %" + option.blockEntry);
+				assembly.writeCode("JMP");
 			}
 			
 			else if (BreakSyntax.match(tokens)) {
@@ -729,7 +719,8 @@ class Parser {
 				}
 				
 				// 탈출 플래그로 점프한다.
-				assembly.writeCode("JMP 0, %" + Std.string(option.blockExit));
+				assembly.writeCode("PSH %" + option.blockExit);
+				assembly.writeCode("JMP");
 			}
 			
 			else if (ReturnSyntax.match(tokens)) {
@@ -759,10 +750,10 @@ class Parser {
 					}
 
 					// 마지막 호출 지점을 가져온다.
-					assembly.writeCode("POP 0, 1");
+					assembly.writeCode("MOC");
 
-					// 마지막 호출 지점으로 이동한다. (레지스터 값으로 점프 명령)
-					assembly.writeCode("JMP 0, &0");
+					// 마지막 호출 지점으로 이동한다.
+					assembly.writeCode("JMP");
 				}
 
 				// 반환 타입이 있을 경우
@@ -790,10 +781,10 @@ class Parser {
 					assembly.writeLine(parsedReturnValue.data);
 					
 					// 마지막 호출 지점을 가져온다.
-					assembly.writeCode("POP 0, 1");
+					assembly.writeCode("MOC");
 					
 					// 마지막 호출 지점으로 이동한다. (레지스터 값으로 점프 명령)
-					assembly.writeCode("JMP 0, &0");
+					assembly.writeCode("JMP");
 				}
 			}
 			
@@ -845,6 +836,11 @@ class Parser {
 		
 		// definition에 있던 심볼을 테이블에서 모두 제거한다.
 		for (i in 0...definedSymbols.length) { 
+			
+			// 변수일 경우 시스템에 메모리를 반환한다.
+			if(Std.is(definedSymbols[i], VariableSymbol)
+				assembly.writeCode("FRE " + definedSymbols[i].address);
+			
 			symbolTable.remove(definedSymbols[i]);
 		}
 	}
@@ -932,20 +928,20 @@ class Parser {
 			for( i in 0...syntax.functionArguments.length) {
 
 				// 파라미터가 비었을 경우
-				if (syntax.functionArguments[i].length < 1) {
+				if (syntax.functionArguments[syntax.functionArguments.length - 1 - i].length < 1) {
 					Debug.reportError("Syntax error 28", "파라미터가 비었습니다.", lineNumber);
 					return null;
 				}
 
 				// 파라미터를 파싱한다.
-				var parsedArgument:ParsedPair = parseLine(syntax.functionArguments[i], lineNumber);
+				var parsedArgument:ParsedPair = parseLine(syntax.functionArguments[syntax.functionArguments.length - 1 - i], lineNumber);
 					
 				if (parsedArgument == null)
 					return null;
 
 				// 파라미터를 쌓는다.
 				arguments.push(parsedArgument.data);
-				argumentsTypeList.push(parsedArgument.type);
+				argumentsTypeList.insert(0, parsedArgument.type);
 			}
 			arguments.push([syntax.functionName]);
 			
@@ -982,18 +978,19 @@ class Parser {
 			for ( i in 0...syntax.elements.length) { 
 
 				// 배열의 원소가 유효한지 체크한다.
-				if (syntax.elements[i].length < 1) {
+				if (syntax.elements[syntax.elements.length - 1 - i].length < 1) {
 					Debug.reportError("Syntax error 30", "배열이 비었습니다.", lineNumber);
 					return null;
 				}
 
 				// 배열의 원소를 파싱한다.
-				var parsedElement:ParsedPair = parseLine(syntax.elements[i], lineNumber);
+				var parsedElement:ParsedPair = parseLine(syntax.elements[syntax.elements.length - 1 - i], lineNumber);
 
 				if (parsedElement == null)
 					return null;
 
 				parsedElements.push(parsedElement.data);
+				parsedElements.push([new Token(Type.Number, Std.string(syntax.elements.length - 1 - i))]);
 			}
 
 			/*
@@ -1054,7 +1051,7 @@ class Parser {
 			for ( j in 0...syntax.referneces.length) {	
 				
 				// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.							
-				var targetClassMember:VariableSymbol = targetClass.findMemberByID(syntax.referneces[j].value);					
+				var targetClassMember:VariableSymbol = targetClass.findMemberByID(syntax.referneces[syntax.referneces.length - 1 - j].value);					
 				var memberIndex:Int = 0;
 				
 				for ( k in 0...targetClass.members.length) {
@@ -1151,10 +1148,10 @@ class Parser {
 			// 파싱된 인덱스들
 			var parsedReferences:Array<Array<Token>> = new Array<Array<Token>>();
 			
-			// 가장 높은 인덱스부터 차례로 파싱한다.
+			// 가장 낮은 인덱스부터 차례로 파싱한다.
 			for (i in 0...syntax.references.length) { 
 
-				var reference:Array<Token> = syntax.references[i];
+				var reference:Array<Token> = syntax.references[syntax.references.length - 1 - i];
 
 				var parsedReference:ParsedPair = parseLine(reference, lineNumber);
 
@@ -1171,7 +1168,7 @@ class Parser {
 				parsedReferences.push(parsedReference.data);
 			}
 
-			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
+			// A[a][b][c] 를 c b a A Array_reference(3) 로 배열한다.
 			var result:Array<Token> = TokenTools.merge(parsedReferences);
 			result.push(syntax.array);
 			result.push(new Token(Type.ArrayReference, Std.string(parsedReferences.length)));

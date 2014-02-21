@@ -1,6 +1,11 @@
-include "api.orca";
-
-
-var sts:string = "Hello World!";
-var test:string = "avvvv-b-c-d-e-f";
-print(test -> split("-"));
+for( i in 0...10){
+	print(i);
+	var j:number = 0;
+	while( j++ < 5){
+		
+		if(j > 5){
+			continue;
+		}
+		print(j +"aaa");
+	}
+}

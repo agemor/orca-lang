@@ -1,5 +1,4 @@
 package elsa.vm;
-import elsa.syntax.ArrayReferenceSyntax;
 import elsa.vm.Orcinus.Instruction;
 
 /**
@@ -246,8 +245,7 @@ class Orcinus {
 				case "EXR":
 					if (true) {
 						var command:String = Std.string(parseValue(opcode.args[0]));						
-						var returnValue:Dynamic = null;						
-						
+						var returnValue:Dynamic = null;			
 						switch (command) {
 							case "abs": returnValue = OrcinusAPI.abs(cast(parseValue(opcode.args[1]), Float));
 							case "acos": returnValue = OrcinusAPI.acos(cast(parseValue(opcode.args[1]), Float));
@@ -307,6 +305,9 @@ class Orcinus {
 				return cast(target, String).length;
 			case 2:
 				return cast(target, String).charCodeAt(0);
+			case 3:
+				var index:Int = parseInt(target);	
+				return String.fromCharCode(index);
 		}
 		return null;
 	}
@@ -407,8 +408,8 @@ class Orcinus {
 			// 각각의 매개변수를 trim한다.
 			for ( i in 0...args.length) {
 				args[i] = StringTools.trim(args[i]);
-				if (args[i].indexOf("/") >= 0)
-					args[i] = args[i].split("/")[1];
+				if (args[i].indexOf("`") >= 0)
+					args[i] = args[i].split("`")[1];
 			}
 
 			// 명령 객체를 생성한다.
@@ -417,7 +418,6 @@ class Orcinus {
 
 		return instructions;
 	}
-	
 }
 
 enum Status {

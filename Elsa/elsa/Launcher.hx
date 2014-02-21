@@ -30,9 +30,13 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(temp_test, "test/");
+		var compiledCode:String = parser.compile(evaluator, "test/");
+		//trace(compiledCode);
 		
-		if (!Debug.errorReported){		
+		//var test:Array<Int> = [1, 2, 3, 4, 5];
+		//f(test.pop(), test.pop(), test.pop());
+		
+		if (!Debug.errorReported && false){		
 		
 			var vm:Orcinus = new Orcinus();
 			vm.load(compiledCode);
@@ -44,4 +48,8 @@ class Launcher {
 		trace("Press any key to exit...");
 		Sys.getChar(false);
 	}	
+	
+	public static function f(n1:Int, n2:Int, n3:Int):Void {
+		trace(n1 + "/" + n2 + "/" + n3);
+	}
 }

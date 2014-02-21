@@ -1,0 +1,98 @@
+/****************************************
+* Orca String API (version 1.0)
+* 2014. 2. 20
+*
+* Written by HyunJun Kim
+*****************************************/
+
+/**
+* The number of characters in the String.
+*/
+define string -> length() -> number {
+	return this ? 1;
+}
+
+/**
+* Returns the character at the given position.
+* Returns the empty String if outside of String bounds.
+*/
+define string -> charAt(index:number) -> string {
+	return this[index];
+}
+
+/**
+* Returns the character code at the given position.
+* Returns null if outside of String bounds.
+*/
+define string -> charCodeAt(index:number) -> number {
+	return this[index] ? 2;
+}
+
+/**
+* Returns the String corresponding to the character code code.
+*/
+define string -> fromCharCode(code:number) -> string {
+	return code ? 3;
+}
+
+/**
+* Returns the index of first occurence of str. Returns -1 if str is not found.
+* The optional startIndex parameter allows you to specify at which character to start searching.
+* The position returned is still relative to the beginning of the string.
+*/
+define string -> indexOf(str:string) -> number {
+	var length:number = this -> length();
+	for(i in 0...length - 1){
+		if(this -> charAt(i) == str){
+			return i;
+		}
+	}
+	return -1;
+}
+
+/**
+* Similar to indexOf but returns the latest index. If startIndex is specified,
+* then the search starts at that position and works backwards. A long string will still
+* be found if starts before startIndex, even if it extends past the startIndex.
+*/
+define string -> lastIndexOf(str:string) -> number {
+	var length:number = this -> length();
+	for(i in 0...length - 1){
+		if(this -> charAt(length - 1 - i) == str){
+			return length - 1 - i;
+		}
+	}
+	return -1;
+}
+
+/**
+* Returns a part of the String, taking from startIndex to endIndex - 1.
+* If endIndex is not specified, length is used. If startIndex or endIndex is
+* smaller than 0, than 0 is used. If startIndex > endIndex then they are swaped.
+*/
+define string -> substring(startIndex:number, endIndex:number) -> string {
+	var result:string = "";
+	var length:number = this -> length();
+	for(i in startIndex...endIndex - 1){
+		result += this -> charAt(i);
+	}
+	return result;
+}
+
+/**
+* Split the string using the specified delimiter.
+*/
+define string -> split(delimiter:string) -> array {
+	var result:array;
+	var length:number = this -> length();
+	var prevIndex:number = 0;
+	var resultIndex:number = 0;	
+	for(i in 0...length - 1){		
+		if(this -> charAt(i) == delimiter){			
+			result[resultIndex++] = this -> substring(prevIndex, i);
+			prevIndex = i + 1;
+		}
+	}
+	result[resultIndex] = this -> substring(prevIndex, length);
+	return result;
+}

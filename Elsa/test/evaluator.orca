@@ -1,17 +1,12 @@
-
-// 연산자 정의
-var operators:array = ['+', '-', '/', '*'];
-
-define string -> getLangth() -> number {
-	return this ? 1;
-}
-
-define array -> indexOf
+include "string.orca";
 
 define evaluate (expression:string) -> number {
 	
+	// 연산자 정의
+	var operators:string = "+-/*";
+	
 	// 계산 식의 마지막 숫자도 더해주도록 임의로 연산자(선순위) 추가
-	expression += operators[0];
+	expression += operators -> charAt(0);
 	
 	var value:number = 0;
 	var operand:number = 0;
@@ -21,6 +16,55 @@ define evaluate (expression:string) -> number {
 	var isNegative:bool = false;
 	var buffer:string = "";
 	
-	for( i in 0 ... expression ?
-	
+	for( i in 0 ... expression -> length() - 1){		
+		var char:string = expression -> charAt(i);
+		
+		// 괄호는 쌍으로 묶어 그 중간 부분을 재귀적으로 계산
+		if (char == "(") {   
+			var l:number = 1;
+			var depth:number = 0;
+			
+			while (true) {
+				
+				if (expression -> charAt(i + l++) == "("){
+					depth++;
+				} else if (expression -> charAt(i + l - 1) == ")"){
+					if( --depth < 0) {						
+						buffer = evaluate(expression -> substring(i + 1, i + l - 1)) as string;
+						i += l - 1;	
+						break;
+					}
+				}
+			}
+			
+		} else if (operators -> indexOf(char) >= 0){		
+			
+			// 후순위 연산자일 경우 피연산자 값만 조정
+			if(isEntry == false) {	
+				if(operator == 2) { operand /= buffer as number; }
+				if(operator == 3) { operand *= buffer as number; }
+			} else {				
+				operand = buffer as number;				
+				isEntry = false;
+			}
+			operator = operators -> indexOf(char);
+			buffer = "";
+			
+			// 선순위 연산자는 피연산자 값을 출력 값에 저장
+			if (operator < 2){
+				if (isNegative) { value -= operand;}
+				else { value = value + operand; }
+				
+				if (operator == 0) { isNegative = false; }
+				else { isNegative = true; }
+				
+				isEntry = true;
+			}			
+		} else {
+			buffer += char;			
+		}  
+	}
+	return value;
 }
+
+print(evaluate("(1+10)/2"));

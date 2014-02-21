@@ -11,6 +11,8 @@ class FunctionSymbol extends Symbol {
 	
 	public var parameters:Array<VariableSymbol>;
 	
+	public var isRecursive:Bool = false;
+	
 	public var isNative:Bool = false;
 	public var nativeFunction:NativeFunction;
 	

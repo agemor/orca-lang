@@ -1,0 +1,13 @@
+/****************************************
+* Orca Array API (version 1.0)
+* 2014. 2. 20
+*
+* Written by HyunJun Kim
+*****************************************/
+
+/**
+* The length of this Array.
+*/
+define array -> length() -> number {
+	return this ? 0;
+}

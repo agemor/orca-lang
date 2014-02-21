@@ -33,7 +33,9 @@ class FunctionCallSyntax implements Syntax {
 		
 		if (lastIndexOfRight > 0 && tokens[lastIndexOfRight].type == Type.Right)
 			return true;
-		
+			
+		if (lastIndexOfRight > 0) return false;
+			
 		// 기본적인 길이 제한을 만족하는지 확인
 		if (tokens.length < lastIndexOfRight + 3) 	
 			return false;
@@ -46,7 +48,7 @@ class FunctionCallSyntax implements Syntax {
 		// 마지막 닫기 문자 확인
 		if (TokenTools.indexOfShellClose(tokens, lastIndexOfRight + 3) != tokens.length - 1)
 			return false;	
-			
+		
 		return true;
 	}
 	
@@ -86,8 +88,7 @@ class FunctionCallSyntax implements Syntax {
 			var argumentEndIndex:Int = tokens.length - 1;
 			
 			// 매개 변수가 괄호로 싸여있지 않다면 에러.
-			if (tokens[argumentStartIndex - 1].type != Type.ShellOpen || tokens[argumentEndIndex].type != Type.ShellClose) {
-				trace("aaaa");
+			if (tokens[argumentStartIndex - 1].type != Type.ShellOpen || tokens[argumentEndIndex].type != Type.ShellClose) {				
 				TokenTools.view1D(tokens);
 				Debug.reportError("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
 				return null;
