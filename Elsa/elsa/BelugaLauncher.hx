@@ -33,9 +33,6 @@ class BelugaLauncher {
 		var compiledCode:String = parser.compile(temp_test, "test/");
 		trace(compiledCode);
 		
-		//var test:Array<Int> = [1, 2, 3, 4, 5];
-		//f(test.pop(), test.pop(), test.pop());
-		
 		if (!Debug.errorReported){		
 		
 			var vm:Beluga = new Beluga();
@@ -48,8 +45,4 @@ class BelugaLauncher {
 		trace("Press any key to exit...");
 		Sys.getChar(false);
 	}	
-	
-	public static function f(n1:Int, n2:Int, n3:Int):Void {
-		trace(n1 + "/" + n2 + "/" + n3);
-	}
 }

@@ -1,4 +1,4 @@
 del /q/s "cpp\src\elsa\*"
 haxe cppbuild.hxml
-cpp\Launcher.exe
+cpp\BelugaLauncher.exe
 pause

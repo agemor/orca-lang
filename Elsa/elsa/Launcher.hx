@@ -30,6 +30,9 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
+		
+		
+		
 		var compiledCode:String = parser.compile(evaluator, "test/");
 		//trace(compiledCode);
 		

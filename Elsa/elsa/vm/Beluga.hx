@@ -1,6 +1,5 @@
 package elsa.vm;
-import elsa.vm.Beluga.Instruction;
-import elsa.vm.Beluga.Memory;
+import elsa.vm.Beluga;
 
 /**
  * Beluga Advanced Orca Virtual Machine
@@ -98,9 +97,7 @@ class Beluga {
 				// IVK	
 				case 8: invoke(inst.intArg);					
 				// SAL	
-			case 9:
-				trace(inst.intArg);
-				memory.allocate(undefined, inst.intArg);
+				case 9:	memory.allocate(undefined, inst.intArg);
 				// SAA	
 				case 10: memory.allocate(new Array<Dynamic>(), inst.intArg);
 				// DAL
@@ -134,8 +131,8 @@ class Beluga {
 		var n1:Dynamic = null;
 		var n2:Dynamic = null;
 		var n3:Dynamic = null;	
-		var n1Int:Int = null;
-		var n2Int:Int = null;
+		var n1Int:Int = 0;
+		var n2Int:Int = 0;
 		var n1Array:Array<Dynamic> = null;
 		
 		switch(oprcode) {
@@ -228,10 +225,10 @@ class Beluga {
 			case 18: mainStack.push(OrcinusAPI.random());
 			case 27:
 				var array:Array<Dynamic> = memory.storage[cast(mainStack.pop(), Int)];
+				trace(array);
 				array[array.length - 1] ++;
+			default: trace("Undefined inkcode error.");
 		}
-		
-		trace("Undefined inkcode error.");
 	}
 	
 	private function getRuntimeValue(target:Dynamic, valueType:Int = 0):Dynamic {
@@ -288,7 +285,11 @@ class Beluga {
 				case "s":
 					arg = line.substring(4, line.length - 1);
 				default:
-					arg = Std.parseFloat(StringTools.trim(line.substring(4)));
+					var rawnum:String = StringTools.trim(line.substring(4));					
+					if (rawnum.indexOf(".") > 0)
+						arg = Std.parseFloat(rawnum);
+					else					
+						arg = Std.parseInt(rawnum);
 			}
 			
 			// 명령 객체를 생성한다.
@@ -307,7 +308,7 @@ class Instruction {
 	public var opcode:Int;
 	
 	// 빠른 실행을 위해 미리 캐스팅
-	public var intArg:Int;
+	public var intArg:Int = 0;
 	public var arg:Dynamic;
 	
 	public function new(opcode:Int, arg:Dynamic = null) {
@@ -319,6 +320,7 @@ class Instruction {
 		}
 	}
 }
+
 
 /**
  * 가상 메모리 스토리지
@@ -349,15 +351,7 @@ class Memory {
 			storage.push(initValue);
 			return storage.length - 1;
 		}
-		trace("address is: " + address); // address is 0
-		trace(Std.is(address, Int)); // true
-		
-		trace(storage[address]) // error
-		
-		var test:Array<Int> = [1, 2, 3, 4, 5];
-		trace(test[address]); // error		
-		trace(test[Std.parseInt(Std.string(address))]); // not error
-		
+	
 		
 		// 스토리지가 없다면 생성해 준다.
 		if (storage[address] == null)
@@ -430,7 +424,7 @@ class Memory {
 	 */
 	public function readArray(address:Int, index:Int):Dynamic {
 		var array:Array<Dynamic> = cast(read(address), Array<Dynamic>);
-		return array[index];
+		return array[Std.int(index)];
 	}
 
 }
