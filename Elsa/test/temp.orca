@@ -1,11 +1,1 @@
-for( i in 0...10){
-	print(i);
-	var j:number = 0;
-	while( j++ < 5){
-		
-		if(j > 5){
-			continue;
-		}
-		print(j +"aaa");
-	}
-}
+print("a");

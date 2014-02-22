@@ -2,11 +2,11 @@ package elsa;
 
 import elsa.debug.Debug;
 import elsa.Lexer.Lextree;
-import elsa.nlib.NativeLibrary;
+import elsa.nlib.BelugaNativeLibrary;
 import elsa.Token.Type;
-import elsa.Parser.ParsedPair;
-import elsa.Parser.ParseOption;
-import elsa.Parser.ScanOption;
+import elsa.BelugaParser.ParsedPair;
+import elsa.BelugaParser.ParseOption;
+import elsa.BelugaParser.ScanOption;
 import elsa.symbol.SymbolTable;
 import elsa.symbol.Symbol;
 import elsa.symbol.VariableSymbol;
@@ -52,7 +52,7 @@ class BelugaParser {
 	/**
 	 * 코드 최적화
 	 */
-	public var optimizer:Optimizer;
+	public var optimizer:BelugaOptimizer;
 	
 	/**
 	 * 심볼 테이블
@@ -62,12 +62,12 @@ class BelugaParser {
 	/**
 	 * 어셈블리 코드 저장소
 	 */
-	private var assembly:Assembly;
+	private var assembly:BelugaAssembly;
 	
 	/**
 	 * 네이티브 라이브러리
 	 */
-	public var nlib:NativeLibrary;
+	public var nlib:BelugaNativeLibrary;
 	
 	/**
 	 * 빌드 패스
@@ -96,15 +96,15 @@ class BelugaParser {
 		
 		// 파싱 시 필요한 객체를 초기화한다.
 		lexer = new Lexer();
-		optimizer = new Optimizer();	
+		optimizer = new BelugaOptimizer();	
 		symbolTable = new SymbolTable();		
-		assembly = new Assembly(symbolTable);
+		assembly = new BelugaAssembly(symbolTable);
 		
 		this.buildPath = buildPath;
 		flagCount = 0;
 
 		// 네이티브 라이브러리를 로드한다.
-		nlib = new NativeLibrary();
+		nlib = new BelugaNativeLibrary();
 		nlib.load(symbolTable);
 		
 		// 어휘 트리를 취득한다.
@@ -838,7 +838,7 @@ class BelugaParser {
 		for (i in 0...definedSymbols.length) { 
 			
 			// 변수일 경우 시스템에 메모리를 반환한다.
-			if(Std.is(definedSymbols[i], VariableSymbol)
+			if(Std.is(definedSymbols[i], VariableSymbol))
 				assembly.writeCode("FRE " + definedSymbols[i].address);
 			
 			symbolTable.remove(definedSymbols[i]);

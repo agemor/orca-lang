@@ -46,60 +46,45 @@ class BelugaAssembly {
 	 */
 	public static function getOperatorNumber(type:Token.Type):Int {
 		switch (type) {
-		case Type.Addition, Type.AdditionAssignment:
-			return 1;
-		case Type.Subtraction, Type.SubtractionAssignment:
-			return 2;
-		case Type.Division, Type.DivisionAssignment:
-			return 3;
-		case Type.Multiplication, Type.MultiplicationAssignment:
-			return 4;
-		case Type.Modulo, Type.ModuloAssignment:
-			return 5;
-		case Type.BitwiseAnd, Type.BitwiseAndAssignment:
-			return 6;
-		case Type.BitwiseOr, Type.BitwiseOrAssignment:
-			return 7;
-		case Type.BitwiseXor, Type.BitwiseXorAssignment:
-			return 8;
-		case Type.BitwiseNot:
-			return 9;
-		case Type.BitwiseLeftShift, Type.BitwiseLeftShiftAssignment:
-			return 10;
-		case Type.BitwiseRightShift, Type.BitwiseRightShiftAssignment:
-			return 11;
-		case Type.EqualTo:
-			return 12;
-		case Type.NotEqualTo:
-			return 13;
-		case Type.GreaterThan:
-			return 14;
-		case Type.GreaterThanOrEqualTo:
-			return 15;
-		case Type.LessThan:
-			return 16;
-		case Type.LessThanOrEqualTo:
-			return 17;
-		case Type.LogicalAnd:
-			return 18;
-		case Type.LogicalOr:
-			return 19;
-		case Type.LogicalNot:
-			return 20;
-		case Type.Append, Type.AppendAssignment:
-			return 21;
-		case Type.CastToNumber:
-			return 22;
-		case Type.CastToString:
-			return 23;
-		case Type.RuntimeValueAccess:
-			return 24;
-		case Type.UnraryMinus:
-			return 25;
-		case Type.CharAt:
-			return 26;
-		default:
-			return 0;
+		case Type.Addition:  return 1;
+		case Type.Subtraction: return 2;
+		case Type.Division: return 3;
+		case Type.Multiplication: return 4;
+		case Type.Modulo: return 5;
+		case Type.BitwiseAnd: return 6;
+		case Type.BitwiseOr: return 7;
+		case Type.BitwiseXor: return 8;
+		case Type.BitwiseNot: return 9;
+		case Type.UnraryMinus: return 10;
+		case Type.BitwiseLeftShift: return 11;
+		case Type.BitwiseRightShift: return 12;
+		case Type.Append: return 13;
+		case Type.Assignment: return 14;
+		case Type.AdditionAssignment, Type.PrefixIncrement, Type.SuffixIncrement: return 15;
+		case Type.SubtractionAssignment, Type.PrefixDecrement, Type.SuffixDecrement: return 16;
+		case Type.DivisionAssignment: return 17;
+		case Type.MultiplicationAssignment: return 18;
+		case Type.ModuloAssignment: return 19;
+		case Type.BitwiseAndAssignment: return 20;
+		case Type.BitwiseOrAssignment: return 21;
+		case Type.BitwiseXorAssignment: return 22;
+		case Type.BitwiseLeftShiftAssignment: return 23;	
+		case Type.BitwiseRightShiftAssignment: return 24;
+		case Type.AppendAssignment:	return 25;		
+		case Type.EqualTo: return 38;
+		case Type.NotEqualTo: return 39;
+		case Type.GreaterThan: return 40;
+		case Type.GreaterThanOrEqualTo: return 41;
+		case Type.LessThan: return 42;
+		case Type.LessThanOrEqualTo: return 43;
+		case Type.LogicalAnd: return 44;
+		case Type.LogicalOr: return 45;
+		case Type.LogicalNot: return 46;
+		case Type.CastToNumber: return 47;
+		case Type.CastToString:	return 48;	
+		case Type.CharAt: return 49;
+		case Type.RuntimeValueAccess: return 50;
+		default: return 0;
 		}
 	}
 	
@@ -123,29 +108,22 @@ class BelugaAssembly {
 			// 값을 증감시킨 다음 푸쉬한다.
 			case Type.PrefixDecrement, Type.PrefixIncrement:
 				
-				// 배열 인덱스 연산
-				if (token.useAsArrayReference) {					
-					
-					
-					if (token.doNotPush)
-						writeCode("POP 0");
-				} 
+				writeCode("PSH " + (token.type == Type.PrefixIncrement ? "1" : "-1"));
+				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 12 : 0)));
 				
-				else {
-				}
+				if (token.doNotPush)
+					writeCode("POP 0");
 				
-			// 값을 푸쉬한 다음 증감시킨다.
+			// 값을 증감시킨 후 예전 값을 반환한다.
 			case Type.SuffixDecrement, Type.SuffixIncrement:
 				
-				// 배열 인덱스 연산
-				if (token.useAsArrayReference) {
-					if (token.doNotPush)
-						writeCode("POP 0");
-				} 
+				writeCode("PSH " + (token.type == Type.SuffixIncrement ? "1" : "-1"));
+				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 12 : 0)));				
+				writeCode("PSH " + (token.type == Type.SuffixIncrement ? "-1" : "1"));
+				writeCode("OPR " + getOperatorNumber(Type.Addition));
 				
-				else {
-					
-				}
+				if (token.doNotPush)
+					writeCode("POP 0");
 				
 			// 이항 연산자
 			case Type.Addition, Type.Subtraction, Type.Division,
@@ -163,17 +141,8 @@ class BelugaAssembly {
 				 Type.MultiplicationAssignment, Type.ModuloAssignment, Type.BitwiseAndAssignment,
 				 Type.BitwiseOrAssignment, Type.BitwiseXorAssignment, Type.BitwiseLeftShiftAssignment,
 				 Type.BitwiseRightShiftAssignment, Type.AppendAssignment:
-				
-				// 배열 인덱스 연산	 
-				if (token.useAsArrayReference) {	 
-					writeCode("OPR " + getOperatorNumber(token.type));
-				}
-				
-				// 일반 변수 연산
-				else {
-					
-					writeCode("OPR " + getOperatorNumber(token.type));
-				}
+					 
+				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 13 : 0)));
 
 			// 배열 참조 연산자
 			case Type.ArrayReference:

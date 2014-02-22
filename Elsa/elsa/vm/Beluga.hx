@@ -98,7 +98,9 @@ class Beluga {
 				// IVK	
 				case 8: invoke(inst.intArg);					
 				// SAL	
-				case 9:	memory.allocate(undefined, inst.intArg);
+			case 9:
+				trace(inst.intArg);
+				memory.allocate(undefined, inst.intArg);
 				// SAA	
 				case 10: memory.allocate(new Array<Dynamic>(), inst.intArg);
 				// DAL
@@ -129,78 +131,75 @@ class Beluga {
 	
 	private function operate(oprcode:Int):Dynamic {
 		
-		var n1:Dynamic;
-		var n2:Dynamic;
-		var n3:Dynamic;	
-		var n1Int:Int;
-		var n2Int:Int;
-		var n1Array:Array<Dynamic>;
+		var n1:Dynamic = null;
+		var n2:Dynamic = null;
+		var n3:Dynamic = null;	
+		var n1Int:Int = null;
+		var n2Int:Int = null;
+		var n1Array:Array<Dynamic> = null;
 		
 		switch(oprcode) {
-			case 1:
+			case 9, 10, 46, 47, 48:
 				n1 = mainStack.pop();
-			case 1:
+			case 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 38, 39, 40, 41, 42, 43, 44, 45, 49, 50:
 				n2 = mainStack.pop(); n1 = mainStack.pop();
-			case 1:
+			case 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25:
 				n2 = mainStack.pop(); n1Int = cast(mainStack.pop(), Int);
-			case 1:
+			case 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37:
 				n3 = mainStack.pop(); n2Int = cast(mainStack.pop(), Int); n1Array = cast(mainStack.pop(), Array<Dynamic>);
 		}
 		
 		switch(oprcode) {
 			case 1: return n1 + n2;
-			case 1:	return n1 - n2;
-			case 1:	return n1 / n2;	
-			case 1:	return n1 * n2;
-			case 1:	return n1 % n2;
-			case 1: return n1 & n2;
-			case 1: return n1 | n2;
-			case 1: return n1 ^ n2;
-			case 1: return ~ n1;
-			case 1: return n1 << n2;
-			case 1: return n1 >> n2;
-			case 1: return Std.string(n1) + Std.string(n2);
-			case 1: return memory.write(n1Int, n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) + n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) - n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) / n2);
-			case 1:	return memory.write(n1Int, memory.read(n1Int) * n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) % n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) & n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) | n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) ^ n2);
-			case 1: return memory.write(n1Int, ~ memory.read(n1Int));
-			case 1: return memory.write(n1Int, memory.read(n1Int) << n2);
-			case 1: return memory.write(n1Int, memory.read(n1Int) >> n2);
-			case 1: return memory.write(n1Int, Std.string(memory.read(n1Int)) + Std.string(n2));
-			case 1: return n1Array[n2Int] = n3;			
-			case 1: return n1Array[n2Int] = n1Array[n2Int] + n3;
-			case 1: return n1Array[n2Int] = n1Array[n2Int] - n3;
-			case 1: return n1Array[n2Int] = n1Array[n2Int] / n3;
-			case 1:	return n1Array[n2Int] = n1Array[n2Int] * n3;
-			case 1: return n1Array[n2Int] = n1Array[n2Int] % n3;
-			case 1: return n1Array[n2Int] = n1Array[n2Int] & n3;
-			case 1:	return n1Array[n2Int] = n1Array[n2Int] | n3;
-			case 1:	return n1Array[n2Int] = n1Array[n2Int] ^ n3;
-			case 1:	return n1Array[n2Int] = ~ n1Array[n2Int];
-			case 1:	return n1Array[n2Int] = n1Array[n2Int] << n3;
-			case 1:	return n1Array[n2Int] = n1Array[n2Int] >> n3;
-			case 1:	return n1Array[n2Int] = Std.string(n1Array[n2Int]) + Std.string(n3);
-			case 1: return (n1 == n2 ? 1 : 0);
-			case 1: return (n1 != n2 ? 1 : 0);
-			case 1: return (n1 > n2 ? 1 : 0);
-			case 1: return (n1 >= n2 ? 1 : 0);
-			case 1: return (n1 < n2 ? 1 : 0);
-			case 1: return (n1 <= n2 ? 1 : 0);
-			case 1: return (n1 + n2 > 1 ? 1 : 0);
-			case 1: return (n1 + n2 > 0 ? 1 : 0);
-			case 1: return (n1 < 1 ? 1 : 0);			
-			case 1: return Std.parseFloat(n1);
-			case 1: return Std.string(n1);
-			case 1: return getRuntimeValue(n1, parseInt(n2));
-			case 1: return -n1;
-			case 1: return Std.string(n1).charAt(parseInt(n2));	
-			case 1: return memory.read(parseInt(n1));
+			case 2:	return n1 - n2;
+			case 3:	return n1 / n2;
+			case 4:	return n1 * n2;
+			case 5:	return n1 % n2;
+			case 6: return n1 & n2;
+			case 7: return n1 | n2;
+			case 8: return n1 ^ n2;
+			case 9: return ~ n1;
+			case 10: return - n1;
+			case 11: return n1 << n2;
+			case 12: return n1 >> n2;
+			case 13: return Std.string(n1) + Std.string(n2);
+			case 14: return memory.write(n1Int, n2);
+			case 15: return memory.write(n1Int, memory.read(n1Int) + n2);
+			case 16: return memory.write(n1Int, memory.read(n1Int) - n2);
+			case 17: return memory.write(n1Int, memory.read(n1Int) / n2);
+			case 18: return memory.write(n1Int, memory.read(n1Int) * n2);
+			case 19: return memory.write(n1Int, memory.read(n1Int) % n2);
+			case 20: return memory.write(n1Int, memory.read(n1Int) & n2);
+			case 21: return memory.write(n1Int, memory.read(n1Int) | n2);
+			case 22: return memory.write(n1Int, memory.read(n1Int) ^ n2);
+			case 23: return memory.write(n1Int, memory.read(n1Int) << n2);
+			case 24: return memory.write(n1Int, memory.read(n1Int) >> n2);
+			case 25: return memory.write(n1Int, Std.string(memory.read(n1Int)) + Std.string(n2));
+			case 26: return n1Array[n2Int] = n3;
+			case 27: return n1Array[n2Int] = n1Array[n2Int] + n3;
+			case 28: return n1Array[n2Int] = n1Array[n2Int] - n3;
+			case 29: return n1Array[n2Int] = n1Array[n2Int] / n3;
+			case 30: return n1Array[n2Int] = n1Array[n2Int] * n3;
+			case 31: return n1Array[n2Int] = n1Array[n2Int] % n3;
+			case 32: return n1Array[n2Int] = n1Array[n2Int] & n3;
+			case 33: return n1Array[n2Int] = n1Array[n2Int] | n3;
+			case 34: return n1Array[n2Int] = n1Array[n2Int] ^ n3;
+			case 35: return n1Array[n2Int] = n1Array[n2Int] << n3;
+			case 36: return n1Array[n2Int] = n1Array[n2Int] >> n3;
+			case 37: return n1Array[n2Int] = Std.string(n1Array[n2Int]) + Std.string(n3);
+			case 38: return (n1 == n2 ? 1 : 0);
+			case 39: return (n1 != n2 ? 1 : 0);
+			case 40: return (n1 > n2 ? 1 : 0);
+			case 41: return (n1 >= n2 ? 1 : 0);
+			case 42: return (n1 < n2 ? 1 : 0);
+			case 43: return (n1 <= n2 ? 1 : 0);
+			case 44: return (n1 + n2 > 1 ? 1 : 0);
+			case 45: return (n1 + n2 > 0 ? 1 : 0);
+			case 46: return (n1 < 1 ? 1 : 0);
+			case 47: return Std.parseFloat(n1);
+			case 48: return Std.string(n1);
+			case 49: return Std.string(n1).charAt(cast(n2, Int));
+			case 50: return getRuntimeValue(n1, cast(n2, Int));
 		}
 		
 		trace("Undefined oprcode error.");
@@ -209,22 +208,24 @@ class Beluga {
 	
 	private function invoke(inkcode:Int):Void {
 		switch(inkcode) {
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
-			case 7:
-			case 8:
-			case 9:
-			case 10:
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-			case 16:
+			case 1: trace(mainStack.pop());
+			case 2: mainStack.push(Sys.stdin().readLine());
+			case 3: trace("ORCA VM(BELUGA) UNSTABLE");
+			case 4: mainStack.push(OrcinusAPI.abs(cast(mainStack.pop(), Float)));
+			case 5: mainStack.push(OrcinusAPI.acos(cast(mainStack.pop(), Float)));
+			case 6: mainStack.push(OrcinusAPI.asin(cast(mainStack.pop(), Float)));
+			case 7: mainStack.push(OrcinusAPI.atan(cast(mainStack.pop(), Float)));
+			case 8: mainStack.push(OrcinusAPI.atan2(cast(mainStack.pop(), Float), cast(mainStack.pop(), Float)));
+			case 9: mainStack.push(OrcinusAPI.ceil(cast(mainStack.pop(), Float)));
+			case 10: mainStack.push(OrcinusAPI.floor(cast(mainStack.pop(), Float)));
+			case 11: mainStack.push(OrcinusAPI.round(cast(mainStack.pop(), Float)));
+			case 12: mainStack.push(OrcinusAPI.cos(cast(mainStack.pop(), Float)));
+			case 13: mainStack.push(OrcinusAPI.sin(cast(mainStack.pop(), Float)));
+			case 14: mainStack.push(OrcinusAPI.tan(cast(mainStack.pop(), Float)));
+			case 15: mainStack.push(OrcinusAPI.log(cast(mainStack.pop(), Float)));
+			case 16: mainStack.push(OrcinusAPI.sqrt(cast(mainStack.pop(), Float)));
+			case 17: mainStack.push(OrcinusAPI.pow(cast(mainStack.pop(), Float), cast(mainStack.pop(), Float)));
+			case 18: mainStack.push(OrcinusAPI.random());
 			case 27:
 				var array:Array<Dynamic> = memory.storage[cast(mainStack.pop(), Int)];
 				array[array.length - 1] ++;
@@ -244,7 +245,7 @@ class Beluga {
 			case 2:
 				return cast(target, String).charCodeAt(0);
 			case 3:
-				var index:Int = parseInt(target);	
+				var index:Int = cast(target, Int);	
 				return String.fromCharCode(index);
 		}
 		return null;
@@ -331,7 +332,7 @@ class Memory {
 		storage = new Array<Array<Dynamic>>();	
 		
 		this.dynamicMemoryIndex = dynamicMemoryIndex;
-		storage[dynamicMemoryIndex] = 0;
+		storage[dynamicMemoryIndex] = new Array<Dynamic>();
 	}
 	
 	/**
@@ -348,12 +349,21 @@ class Memory {
 			storage.push(initValue);
 			return storage.length - 1;
 		}
+		trace("address is: " + address); // address is 0
+		trace(Std.is(address, Int)); // true
 		
-		var memory:Array<Dynamic> = storage[address];
+		trace(storage[address]) // error
+		
+		var test:Array<Int> = [1, 2, 3, 4, 5];
+		trace(test[address]); // error		
+		trace(test[Std.parseInt(Std.string(address))]); // not error
+		
 		
 		// 스토리지가 없다면 생성해 준다.
-		if (memory == null)
+		if (storage[address] == null)
 			storage[address] = new Array<Dynamic>();
+		
+		var memory:Array<Dynamic> = storage[address];	
 			
 		memory.push(initValue);
 		
