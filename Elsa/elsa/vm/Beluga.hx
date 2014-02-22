@@ -79,47 +79,57 @@ class Beluga {
 			var inst:Instruction = program[pointer];			
 			
 			switch(inst.opcode) {				
-				// PSH
-				case 1: mainStack.push(inst.arg);					
-				// PSR	
-				case 2: mainStack.push(register[inst.intArg]);					
-				// PSM	
-				case 3:	mainStack.push(memory.read(inst.intArg));					
-				// POP	
-				case 4: register[inst.intArg] = mainStack.pop();					
-				// OPR	
-				case 5: mainStack.push(operate(inst.intArg));					
-				// JMP	
-				case 6: pointer = cast(mainStack.pop(), Int);					
-				// JMF	
-				case 7: if (mainStack.pop() < 0) pointer = cast(mainStack.pop(), Int);
-						else mainStack.pop();	
-				// IVK	
-				case 8: invoke(inst.intArg);					
-				// SAL	
-				case 9:	memory.allocate(undefined, inst.intArg);
-				// SAA	
-				case 10: memory.allocate(new Array<Dynamic>(), inst.intArg);
-				// DAL
-				case 11: mainStack.push(memory.allocate(undefined));			
-				// DAA	
-				case 12: mainStack.push(memory.read(memory.allocate(new Array<Dynamic>())));
-				// STO	
-				case 13: memory.write(cast(mainStack.pop(), Int), mainStack.pop());
-				// STA	
-				case 14: memory.writeArray(cast(mainStack.pop(), Int), cast(mainStack.pop(), Int), mainStack.pop());
-				// FRE
-				case 15: memory.free(inst.intArg);
-				// RDA	
-				case 16: mainStack.push(memory.readArray(cast(mainStack.pop(), Int), cast(mainStack.pop(), Int)));
-				// PSC	
-				case 17: callStack.push(pointer + 2);
-				// MOC	
-				case 18: mainStack.push(callStack.pop());				
-				// END	
-				case 19: break;					
-				// 정의되지 않은 명령	
-				default: trace("Undefined opcode error."); break;					
+			// PSH
+			case 1: mainStack.push(inst.arg);					
+			// PSR	
+			case 2: mainStack.push(register[inst.intArg]);					
+			// PSM	
+			case 3:	mainStack.push(memory.read(inst.intArg));					
+			// POP	
+			case 4: register[inst.intArg] = mainStack.pop();					
+			// OPR	
+			case 5: mainStack.push(operate(inst.intArg));					
+			// JMP	
+			case 6: pointer = cast(mainStack.pop(), Int); continue;					
+			// JMF	
+			case 7:
+				var condition:Dynamic = mainStack.pop();
+				if (mainStack.pop() <= 0) {
+					pointer = cast(condition, Int);
+					continue;
+				}
+			// IVK	
+			case 8: invoke(inst.intArg);					
+			// SAL	
+			case 9:	memory.allocate(undefined, inst.intArg);
+			// SAA	
+			case 10: memory.allocate(new Array<Dynamic>(), inst.intArg);
+			// DAL
+			case 11: mainStack.push(memory.allocate(undefined));			
+			// DAA	
+			case 12: mainStack.push(memory.read(memory.allocate(new Array<Dynamic>())));
+			// STO	
+			case 13: memory.write(cast(mainStack.pop(), Int), mainStack.pop());
+			// STA	
+			case 14:			
+				var targetArray:Array<Dynamic> = cast(mainStack.pop(), Array<Dynamic>);
+				var targetIndex:Int = cast(mainStack.pop(), Int);				
+				targetArray[targetIndex] = mainStack.pop();
+			// FRE
+			case 15: memory.free(inst.intArg);
+			// RDA	
+			case 16:
+				var targetArray:Array<Dynamic> = cast(mainStack.pop(), Array<Dynamic>);
+				var targetIndex:Int = cast(mainStack.pop(), Int);	
+				mainStack.push(targetArray[targetIndex]);
+			// PSC	
+			case 17: callStack.push(pointer + 3);
+			// MOC	
+			case 18: mainStack.push(callStack.pop());				
+			// END	
+			case 19: break;					
+			// 정의되지 않은 명령	
+			default: trace("Undefined opcode error."); break;					
 			}
 			pointer ++;
 		}		
@@ -223,10 +233,10 @@ class Beluga {
 			case 16: mainStack.push(OrcinusAPI.sqrt(cast(mainStack.pop(), Float)));
 			case 17: mainStack.push(OrcinusAPI.pow(cast(mainStack.pop(), Float), cast(mainStack.pop(), Float)));
 			case 18: mainStack.push(OrcinusAPI.random());
-			case 27:
-				var array:Array<Dynamic> = memory.storage[cast(mainStack.pop(), Int)];
-				trace(array);
-				array[array.length - 1] ++;
+			case 27: 
+				var counterAddr:Int = cast(mainStack.pop(), Int);
+				var counterMem:Array<Dynamic> = memory.storage[counterAddr];
+				counterMem[counterMem.length - 1] ++;
 			default: trace("Undefined inkcode error.");
 		}
 	}
@@ -348,11 +358,9 @@ class Memory {
 		
 		// 동적 할당이라면 스토리지의 끝에 메모리를 할당한다.
 		if (address < 0) {
-			storage.push(initValue);
+			storage.push([initValue]);
 			return storage.length - 1;
 		}
-	
-		
 		// 스토리지가 없다면 생성해 준다.
 		if (storage[address] == null)
 			storage[address] = new Array<Dynamic>();
@@ -384,8 +392,7 @@ class Memory {
 	 * @param	data
 	 */
 	public function write(address:Int, data:Dynamic):Dynamic {
-		var memory:Array<Dynamic> = storage[address];
-		
+		var memory:Array<Dynamic> = storage[address];		
 		memory[memory.length - 1] = data;
 		return data;
 	}
@@ -411,7 +418,6 @@ class Memory {
 	 */
 	public function read(address:Int):Dynamic {
 		var memory:Array<Dynamic> = storage[address];
-		
 		return memory[memory.length - 1];
 	}
 	

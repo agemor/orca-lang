@@ -264,7 +264,7 @@ class BelugaParser {
 					Debug.reportError("Syntax error 8", "함수 구현부가 존재하지 않습니다.", lineNumber);
 					continue;
 				}
-
+				
 				// 프로시져가 임의로 실행되는 것을 막기 위해 프로시저의 끝 부분으로 점프한다.
 				assembly.writeCode("PSH %" + functn.functionExit);
 				assembly.writeCode("JMP");
@@ -280,7 +280,7 @@ class BelugaParser {
 				functionOption.inIterator = false;
 				functionOption.parentFunction = functn;
 				
-				// 파라미터 변수를 추가한다.
+				// 파라미터 변수를 추가/할당한다.
 				for ( j in 0...functn.parameters.length) {
 					// 심볼 테이블에 추가한다.
 					symbolTable.add(functn.parameters[j]);
@@ -601,10 +601,11 @@ class BelugaParser {
 				var forExit:Int = assignFlag();
 
 				// 증감자 초기화 (-1)
-				assembly.writeLine(parsedInitialValue.data);
-				
+								
 				assembly.writeCode("SAL " + counter.address);
+				assembly.writeLine(parsedInitialValue.data);
 				assembly.writeCode("PSH -1");
+				assembly.writeCode("OPR 1");
 				assembly.writeCode("PSH " + counter.address);
 				assembly.writeCode("STO");
 
@@ -612,7 +613,7 @@ class BelugaParser {
 				assembly.flag(forEntry);
 
 				// 증감자 증감 (+1)
-				assembly.writeCode("PSM " + counter.address);
+				assembly.writeCode("PSH " + counter.address);
 				assembly.writeCode("IVK 27");
 
 				// 조건문이 거짓이면 탈출 플래그로 이동
@@ -1001,6 +1002,8 @@ class BelugaParser {
 			var mergedElements:Array<Token> = TokenTools.merge(parsedElements);
 			mergedElements.push(new Token(Type.Array, Std.string(parsedElements.length)));
 			
+			TokenTools.view1D(mergedElements);
+			
 			return new ParsedPair(mergedElements, "array");
 		}
 
@@ -1077,6 +1080,8 @@ class BelugaParser {
 			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
 			arrayReference = arrayReference.concat(parsedInstance.data);
 			arrayReference.push(new Token(Type.ArrayReference, Std.string(syntax.referneces.length)));
+			
+			TokenTools.view1D(arrayReference);
 			
 			return new ParsedPair(arrayReference, targetClass.id);
 		}
@@ -1591,6 +1596,12 @@ class BelugaParser {
 				definedSymbols.push(variable);
 				symbolTable.add(variable);
 				
+				// 메모리에 할당
+				if (variable.type == "number" || variable.type == "string" || variable.type == "bool")
+					assembly.writeCode("SAL " + variable.address);
+				else 
+					assembly.writeCode("SAA " + variable.address);				
+				
 				// 초기화 데이터가 존재할 경우
 				if (syntax.initializer != null) {
 					variable.initialized = true;
@@ -1601,6 +1612,8 @@ class BelugaParser {
 					if (parsedInitializer == null) continue;
 					assembly.writeLine(parsedInitializer.data);
 				}
+				
+				
 				
 				members.push(variable);	
 			}

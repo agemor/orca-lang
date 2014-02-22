@@ -1,2 +1,8 @@
-for( i in 0...10){
+define Student {
+	var name:string = "Hyunjun";
 }
+
+var boy:Student = new Student;
+
+boy.name = "fff";
+print(boy.name);

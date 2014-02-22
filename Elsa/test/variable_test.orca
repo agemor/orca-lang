@@ -1,5 +1,5 @@
 var A:number = (1+2+3)*6; // 26
-var B:number = 14 * 14 / 14 % 14; // 1
+var B:number = (14 * 14 / 14) % 14; // 0
 var C:number = "2.3" as number;
 var D:number = ( A + B ) / C;
 

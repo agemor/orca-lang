@@ -203,10 +203,11 @@ class BelugaAssembly {
 						 */
 						
 						// 인수를 뽑아 낸 후, 프로시져의 파라미터에 대응시킨다.						
-						for( j in 0...functn.parameters.length){									
-							writeCode("PSH " + functn.parameters[j].address);								
+						for ( j in 0...functn.parameters.length) {
+							writeCode("SAL " + functn.parameters[j].address);
+							writeCode("PSH " + functn.parameters[j].address);
 							writeCode("STO");
-						}						
+						}
 
 						// 현재 위치를 스택에 넣는다.
 						writeCode("PSC");
@@ -226,7 +227,6 @@ class BelugaAssembly {
 				
 				if (!token.tagged) {					
 					writeCode("PSH " + token.value);
-					
 				} else {
 					// 리터럴 심볼을 취득한다.
 					var literal:LiteralSymbol = cast(token.getTag(), LiteralSymbol);
@@ -245,6 +245,7 @@ class BelugaAssembly {
 				
 				// 배열에 집어넣기 작업
 				for ( j in 0...numberOfArguments) {
+					if (j % 2 == 0) continue;
 					writeCode("PSR 0");
 					writeCode("STA");
 				}					
