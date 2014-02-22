@@ -25,7 +25,6 @@ import elsa.syntax.IfSyntax;
 import elsa.syntax.ElseIfSyntax;
 import elsa.syntax.InfixSyntax;
 import elsa.syntax.InstanceCreationSyntax;
-import elsa.syntax.MemberReferenceSyntax;
 import elsa.syntax.PrefixSyntax;
 import elsa.syntax.SuffixSyntax;
 import elsa.syntax.VariableDeclarationSyntax;
@@ -35,6 +34,7 @@ import elsa.syntax.BreakSyntax;
 import elsa.syntax.ReturnSyntax;
 import elsa.syntax.ParameterDeclarationSyntax;
 import elsa.syntax.IncludeSyntax;
+import elsa.syntax.AttributeSyntax;
 import sys.io.File;
 
 /**
@@ -953,12 +953,7 @@ class BelugaParser {
 				Debug.reportError("Undefined Error 26", syntax.functionName.value+"("+argumentsTypeList+") 는 정의되지 않은 프로시져입니다.", lineNumber);
 				return null;
 			}			
-			syntax.functionName.setTag(functn);					
-			
-			var parameterPushToken:Token = new Token(Type.PushParameters);
-			parameterPushToken.setTag(functn);
-			if (!functn.isNative)
-				arguments.insert(0, [parameterPushToken]);
+			syntax.functionName.setTag(functn);		
 				
 			return new ParsedPair(TokenTools.merge(arguments), functn.type);
 		}
@@ -1030,60 +1025,113 @@ class BelugaParser {
 
 			return new ParsedPair([syntax.instanceType, Token.findByType(Type.Instance)], targetClass.id);
 		}
-
+		
 		/**
-		 * 인스턴스 참조 : A.B.C -> 배열 취급하여 파싱한다.
+		 * 속성 선택문 : A.B.C -> 배열 취급하여 파싱한다.
 		 */
-		else if (MemberReferenceSyntax.match(tokens)) {
-
-			var syntax:MemberReferenceSyntax = MemberReferenceSyntax.analyze(tokens, lineNumber);
+		else if (AttributeSyntax.match(tokens)) {
 			
+			var syntax:AttributeSyntax = AttributeSyntax.analyze(tokens, lineNumber);
+		
 			if (syntax == null)
 				return null;
 			
-			var arrayReference:Array<Token> = new Array<Token>();	
+			var target:Array<Token> = syntax.attributes[0];	
+			var parentClass:ClassSymbol = null;
 			
-			// 참조 대상을 파싱한다.
-			var parsedInstance:ParsedPair = parseLine(syntax.instance, lineNumber);
-			if (parsedInstance == null)
-				return null;
+			// 타겟을 파싱한다. 타입은 무조건 array 계열
+			var parsedTarget:ParsedPair = parseLine(target, lineNumber);
+			parentClass = symbolTable.getClass(parsedTarget.type);
 			
-			var targetClass:ClassSymbol = symbolTable.getClass(parsedInstance.type);
+			var parsedAttributes:Array<Array<Token>> = new Array<Array<Token>>();
+			parsedAttributes.push(parsedTarget.data);
 			
-			// 맴버 참조를 배열 참조로 변환한다.
-			for ( j in 0...syntax.referneces.length) {	
+			// 각각의 속성을 파싱한다.
+			for (j in 1...syntax.attributes.length) {
+				var attribute:Array<Token> = syntax.attributes[j];
 				
-				// 타겟 클래스에서 맴버 변수의 인덱스를 취득한다.							
-				var targetClassMember:VariableSymbol = targetClass.findMemberByID(syntax.referneces[syntax.referneces.length - 1 - j].value);					
-				var memberIndex:Int = 0;
-				
-				for ( k in 0...targetClass.members.length) {
-						
-					var member:VariableSymbol = cast(targetClass.members[k], VariableSymbol);
+				// 함수형일 경우
+				if (FunctionCallSyntax.match(attribute)) {
 					
-					// 일치하는 속성을 찾았으면 해당하는 인덱스를 추가한다.
-					if (member.id == targetClassMember.id) {
-							
-						var indexValueLiteral:LiteralSymbol = symbolTable.getLiteral(Std.string(memberIndex), "number");
-						var indexValueToken:Token = new Token(Token.Type.Number, Std.string(memberIndex));							
-						indexValueToken.setTag(indexValueLiteral);
-							
-						arrayReference.push(indexValueToken);
-						break;
+					var functionSyntax:FunctionCallSyntax = FunctionCallSyntax.analyze(attribute, lineNumber);
+					
+					if (functionSyntax == null)
+						continue;
+					
+					// 맨 앞의 파라미터는 앞쪽과 자연스럽게 연결됨.
+					var parsedFunction:Array<Array<Token>> = [];
+					var typeList:Array<String> = [parentClass.id];	
+						
+					// 매개 변수를 파싱하면서, 함수를 찾기 위한 타입 리스트를 만든다.
+					for (i in 0...functionSyntax.functionArguments.length) {
+						var parsedArgument:ParsedPair = parseLine(functionSyntax.functionArguments[i], lineNumber);						
+						if (parsedArgument == null) continue;
+						
+						parsedFunction.push(parsedArgument.data);
+						typeList.push(parsedArgument.type);
 					}
-					memberIndex++;
+					
+					// 함수 심볼을 취득한다.
+					var functionSymbol:FunctionSymbol = symbolTable.getFunction(functionSyntax.functionName.value, typeList);
+					
+					if (functionSymbol == null) {
+						trace(typeList);
+						Debug.reportError("Undefined error 351", "속성을 찾을 수 없습니다.", lineNumber);
+						return null;
+					}					
+					functionSyntax.functionName.setTag(functionSymbol);
+					parsedFunction.push([functionSyntax.functionName]);
+					
+					// 일렬로 줄 세운 후 파싱된 속성 목록에 추가한다.
+					parsedAttributes.push(TokenTools.merge(parsedFunction));
+					
+					// 다음 속성을 위해 parentClass를 지정해 준다.
+					parentClass = symbolTable.getClass(functionSymbol.type);
 				}
 				
-				targetClass = symbolTable.getClass(targetClassMember.type);
+				// 데이터 참조(변수) 일 경우 맴버 인덱스를 검색해서 배열 참조 형태로 리턴
+				else {
+					
+					// 두개 이상으로 이루어져 있을 경우, (괄호형이나 배열은 첫 번째에서만 허용함)
+					if (attribute.length > 1) {
+						Debug.reportError("Syntax Error 3333", "Unexpected Token", lineNumber);
+						return null;
+					}
+					// 속성을 찾는다.	
+					var memberSymbol:VariableSymbol = parentClass.findMemberByID(attribute[0].value);
+					
+					if (memberSymbol == null) {
+						Debug.reportError("Undefined error 424", "속성을 찾을 수 없습니다.", lineNumber);
+						return null;
+					}
+					attribute[0].setTag(memberSymbol);
+					
+					var memberIndex:Int = 0;
+					for (k in 0...parentClass.members.length) {
+						if (parentClass.members[k] == memberSymbol) {
+							memberIndex = k;
+							break;
+						}
+					}
+					
+					// 맴버 인덱스 토큰
+					var memberIndexToken:Token = new Token(Token.Type.Number, Std.string(memberIndex));
+					
+					// A[a][b][c] 를 c b a A Array_reference(3) 로 배열한다. 즉					
+					
+					// 파싱된 속성 목록의 가장 앞에 추가한다.
+					parsedAttributes.insert(0, [memberIndexToken]);
+					parsedAttributes.push([new Token(Type.ArrayReference, "1")]);
+					
+					// 다음 속성을 위해 parentClass를 지정해 준다.
+					parentClass = symbolTable.getClass(memberSymbol.type);
+				}				
 			}
 			
-			// A[a][b][c] 를 a b c A Array_reference(3) 로 배열한다.
-			arrayReference = arrayReference.concat(parsedInstance.data);
-			arrayReference.push(new Token(Type.ArrayReference, Std.string(syntax.referneces.length)));
+			// 속성을 일렬로 줄 세운 후, 리턴한다.
+			var mergedAttributes:Array<Token> = TokenTools.merge(parsedAttributes);
 			
-			TokenTools.view1D(arrayReference);
-			
-			return new ParsedPair(arrayReference, targetClass.id);
+			return new ParsedPair(mergedAttributes, parentClass.id);
 		}
 
 		/**
@@ -1317,6 +1365,7 @@ class BelugaParser {
 				
 				// 배열이나 맴버 변수 대입이면
 				if (parsedOperand.data[parsedOperand.data.length - 1].type == Type.ArrayReference) {
+					
 					parsedOperand.data[parsedOperand.data.length - 1].useAsAddress = true;	
 					syntax.operator.useAsArrayReference = true;
 				}
@@ -1365,22 +1414,6 @@ class BelugaParser {
 				return null;	
 			}
 			
-			// 대입 명령이면
-			if (syntax.operator.getPrecedence() > 15) {
-				
-				// 배열이나 맴버 변수 대입이면
-				if (left.data[left.data.length - 1].type == Type.ArrayReference) {
-					left.data[left.data.length - 1].useAsAddress = true;	
-					syntax.operator.useAsArrayReference = true;
-				}
-				
-				// 전역/로컬 변수 대입이면
-				else {
-					left.data[left.data.length - 1].useAsAddress = true;
-					syntax.operator.useAsArrayReference = false;
-				}				
-			}
-			
 			// 시스템 값 참조 연산자일 경우
 			if (syntax.operator.type == Type.RuntimeValueAccess) {
 				
@@ -1413,10 +1446,9 @@ class BelugaParser {
 
 				// 만약 문자열에 대한 이항 연산이라면, 대입/더하기만 허용한다.
 				if (left.type == "string") {
-
 					// 산술 연산자를 문자열 연산자로 수정한다.
 					switch (syntax.operator.type) {
-					case Type.AdditionAssignment:
+					case Type.AdditionAssignment:					
 						syntax.operator = Token.findByType(Type.AppendAssignment);
 					case Type.Addition:
 						syntax.operator = Token.findByType(Type.Append);
@@ -1509,10 +1541,26 @@ class BelugaParser {
 					}
 						
 				default:
-					//TokenTools.view1D(right.data);
+					TokenTools.view1D(tokens);
 					Debug.reportError("Syntax error 50", "다른 두 타입(" + left.type + "," + right.type + ") 간 연산을 실행할 수 없습니다.", lineNumber);
 					return null;
 				}
+			}
+			
+			// 대입 명령이면
+			if (syntax.operator.getPrecedence() > 15) {
+				
+				// 배열이나 맴버 변수 대입이면
+				if (left.data[left.data.length - 1].type == Type.ArrayReference) {
+					left.data[left.data.length - 1].useAsAddress = true;	
+					syntax.operator.useAsArrayReference = true;
+				}
+				
+				// 전역/로컬 변수 대입이면
+				else {
+					left.data[left.data.length - 1].useAsAddress = true;
+					syntax.operator.useAsArrayReference = false;
+				}				
 			}
 			
 			// 시스템 값 참조 연산자일 경우
@@ -1528,7 +1576,7 @@ class BelugaParser {
 			
 			return new ParsedPair(result, right.type);
 		}
-
+		TokenTools.view1D(tokens);
 		Debug.reportError("Syntax error 51", "연산자가 없는 식입니다.", lineNumber);
 		return null;
 	}
@@ -1637,7 +1685,8 @@ class BelugaParser {
 				// 매개변수 각각의 유효성을 검증하고 심볼 형태로 가공한다.
 				for ( k in 0...syntax.parameters.length) {
 					
-					if (!ParameterDeclarationSyntax.match(syntax.parameters[k])){
+					if (!ParameterDeclarationSyntax.match(syntax.parameters[k])) {
+						TokenTools.view2D(syntax.parameters);
 						Debug.reportError("Syntax error 53", "파라미터 정의가 올바르지 않습니다.", lineNumber);
 						continue;
 					}

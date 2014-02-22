@@ -168,7 +168,7 @@ class TokenTools {
 	 * @param start
 	 * @return
 	 */
-	public static function indexOfLPO(tokens:Array<Token> , targetDepth:Int = 0, start:Int = 0):Int {
+	public static function indexOfLpo(tokens:Array<Token> , targetDepth:Int = 0, start:Int = 0):Int {
 		
 		var shellDepth:Int = 0;
 		var subscriptDepth:Int = 0;

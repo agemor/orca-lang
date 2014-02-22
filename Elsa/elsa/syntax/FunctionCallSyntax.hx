@@ -7,7 +7,7 @@ import elsa.debug.Debug;
 /**
  * 함수 호출 구문 패턴
  * 
- * 형식: [Target ->] name(parameters);
+ * 형식: name(parameters);
  * 
  * @author 김 현준
  */
@@ -29,26 +29,20 @@ class FunctionCallSyntax implements Syntax {
 	 */
 	public static function match(tokens:Array<Token>):Bool {
 		
-		var lastIndexOfRight:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLpo:Int = TokenTools.indexOfLpo(tokens);
 		
-		if (lastIndexOfRight > 0 && tokens[lastIndexOfRight].type == Type.Right)
-			return true;
-			
-		if (lastIndexOfRight > 0) return false;
-			
-		// 기본적인 길이 제한을 만족하는지 확인
-		if (tokens.length < lastIndexOfRight + 3) 	
+		// 어떠한 유효 연산자라도 있을 경우 함수 호출이 아님
+		if (indexOfLpo >= 0)
 			return false;
 			
-		// 패턴 매칭 확인	
-		
-		if (tokens[lastIndexOfRight + 1].type != Type.ID || tokens[lastIndexOfRight + 2].type != Type.ShellOpen)
+		// 최소 길이 조건 확인
+		if (tokens.length < 3) 	
 			return false;
 			
-		// 마지막 닫기 문자 확인
-		if (TokenTools.indexOfShellClose(tokens, lastIndexOfRight + 3) != tokens.length - 1)
-			return false;	
-		
+		// 첫 토큰이 ID이고 두 번째 토큰이 ShellOpen이면 조건 만족	
+		if (tokens[0].type != Type.ID || tokens[1].type != Type.ShellOpen)
+			return false;
+			
 		return true;
 	}
 	
@@ -61,49 +55,21 @@ class FunctionCallSyntax implements Syntax {
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):FunctionCallSyntax {		
 		
-		var lastIndexOfRight:Int = TokenTools.indexOfLPO(tokens);
-		var hasTarget:Bool = lastIndexOfRight > 0;		
-		
-		// 전체 래핑인지 확인한다.
-		if (tokens[0].type == Type.ID && tokens[1].type == Type.ShellOpen) {
-			if (TokenTools.indexOfShellClose(tokens, 2) == tokens.length - 1)
-				hasTarget = false;
-		}		
-		
-		var hasArguments:Bool = hasTarget ? tokens[lastIndexOfRight + 3].type != Type.ShellClose : tokens[2].type != Type.ShellClose;
-		
-		var functionName:Token = tokens[0];
-		var functionArguments:Array<Array<Token>> = new Array<Array<Token>>();
-		
-		if (hasTarget) {
-			functionArguments.push(tokens.slice(0, lastIndexOfRight));
-			functionName = tokens[lastIndexOfRight + 1];
+		// 함수가 완전히 닫혔는지 확인
+		if (TokenTools.indexOfShellClose(tokens, 2) != tokens.length - 1) {
+			Debug.reportError("Syntax error", "함수가 종결되지 않았습니다.", lineNumber);
+			return null;	
 		}
 		
-		if (hasArguments) {
-			
-			var argumentStartIndex:Int = 2;
-			if (hasTarget) argumentStartIndex += lastIndexOfRight + 1;
-			
-			var argumentEndIndex:Int = tokens.length - 1;
-			
-			// 매개 변수가 괄호로 싸여있지 않다면 에러.
-			if (tokens[argumentStartIndex - 1].type != Type.ShellOpen || tokens[argumentEndIndex].type != Type.ShellClose) {				
-				TokenTools.view1D(tokens);
-				Debug.reportError("Syntax error", "Parameter declaration must contained within the parantheses", lineNumber);
-				return null;
-			}	
-			
-			if (TokenTools.indexOfShellClose(tokens, argumentStartIndex) != argumentEndIndex) {
-				Debug.reportError("Syntax error", "function shell close not match", lineNumber);
-				return null;
-			}
-			
-			functionName = tokens[argumentStartIndex - 2];
-			functionArguments = functionArguments.concat(TokenTools.getArguments(tokens.slice(argumentStartIndex, argumentEndIndex)));
-			
+		// 함수 매개 변수를 가져온다.
+		var arguments:Array<Array<Token>> = TokenTools.split(tokens.slice(2, tokens.length - 1), Type.Comma, true);
+		var trimmedArguments:Array<Array<Token>> = new Array<Array<Token>>();
+		
+		for (i in 0...arguments.length) {
+			if (arguments[i].length > 0 ) trimmedArguments.push(arguments[i]);
 		}
 		
-		return new FunctionCallSyntax(functionName, functionArguments);
+		
+		return new FunctionCallSyntax(tokens[0], trimmedArguments);
 	}
 }

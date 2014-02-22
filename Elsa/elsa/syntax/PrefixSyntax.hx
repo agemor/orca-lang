@@ -29,7 +29,7 @@ class PrefixSyntax implements Syntax {
 	 */
 	public static function match(tokens:Array<Token>):Bool {
 		
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLPO:Int = TokenTools.indexOfLpo(tokens);
 		
 		if (indexOfLPO < 0)
 			return false;
@@ -48,7 +48,7 @@ class PrefixSyntax implements Syntax {
 	 * @return
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):PrefixSyntax {
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLpo:Int = TokenTools.indexOfLpo(tokens);
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
@@ -70,6 +70,6 @@ class PrefixSyntax implements Syntax {
 			return null;
 		}
 
-		return new PrefixSyntax(tokens[indexOfLPO], tokens.slice(indexOfLPO + 1, tokens.length));
+		return new PrefixSyntax(tokens[indexOfLpo], tokens.slice(indexOfLpo + 1, tokens.length));
 	}
 }

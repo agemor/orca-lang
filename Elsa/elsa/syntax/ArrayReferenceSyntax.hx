@@ -29,12 +29,12 @@ class ArrayReferenceSyntax implements Syntax {
 	 */
 	public static function match(tokens:Array<Token>):Bool {
 		
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLpo:Int = TokenTools.indexOfLpo(tokens);
 
-		if (indexOfLPO < 0)
+		if (indexOfLpo < 0)
 			return false;
 			
-		if (tokens[indexOfLPO].type != Type.ArrayOpen)
+		if (tokens[indexOfLpo].type != Type.ArrayOpen)
 			return false;
 			
 		return true;

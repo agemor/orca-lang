@@ -120,7 +120,7 @@ class Token {
 		switch (type) {
 		case Type.Dot:
 			return 1;
-		case Type.ArrayOpen , Type.Right:
+		case Type.ArrayOpen:
 			return 2;
 		case Type.As: 
 			return 3;
@@ -152,7 +152,7 @@ class Token {
 		case Type.Assignment, Type.AdditionAssignment, Type.SubtractionAssignment,
 			 Type.MultiplicationAssignment, Type.DivisionAssignment, Type.ModuloAssignment,
 			 Type.BitwiseAndAssignment, Type.BitwiseXorAssignment, Type.BitwiseOrAssignment,
-			 Type.BitwiseLeftShiftAssignment, Type.BitwiseRightShiftAssignment:
+			 Type.BitwiseLeftShiftAssignment, Type.BitwiseRightShiftAssignment, Type.AppendAssignment:
 			return 16;
 		default:
 			return 0;

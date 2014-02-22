@@ -28,7 +28,7 @@ class SuffixSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLPO:Int = TokenTools.indexOfLpo(tokens);
 		
 		if (indexOfLPO < 0)
 			return false;
@@ -47,7 +47,7 @@ class SuffixSyntax implements Syntax {
 	 * @return
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):SuffixSyntax {
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLpo:Int = TokenTools.indexOfLpo(tokens);
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) {
@@ -69,6 +69,6 @@ class SuffixSyntax implements Syntax {
 			return null;
 		}
 
-		return new SuffixSyntax(tokens[indexOfLPO], tokens.slice(0, indexOfLPO));
+		return new SuffixSyntax(tokens[indexOfLpo], tokens.slice(0, indexOfLpo));
 	}
 }

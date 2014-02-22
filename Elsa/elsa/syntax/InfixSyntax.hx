@@ -30,7 +30,7 @@ class InfixSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);		
+		var indexOfLPO:Int = TokenTools.indexOfLpo(tokens);		
 		if (indexOfLPO < 0)
 			return false;
 
@@ -49,7 +49,7 @@ class InfixSyntax implements Syntax {
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):InfixSyntax {
 		
-		var LPOIndex:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLpo:Int = TokenTools.indexOfLpo(tokens);
 
 		var depth:Int = 0;
 		for (i in 0...tokens.length) { 
@@ -72,11 +72,11 @@ class InfixSyntax implements Syntax {
 		}
 
 		// 연산자 취득
-		var operator:Token = tokens[LPOIndex];
+		var operator:Token = tokens[indexOfLpo];
 
 		// 좌항과 우항
-		var left:Array<Token> = tokens.slice(0, LPOIndex);
-		var right:Array<Token> = tokens.slice(LPOIndex + 1, tokens.length);
+		var left:Array<Token> = tokens.slice(0, indexOfLpo);
+		var right:Array<Token> = tokens.slice(indexOfLpo + 1, tokens.length);
 
 		return new InfixSyntax(operator, left, right);
 	}

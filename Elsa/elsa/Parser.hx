@@ -25,7 +25,6 @@ import elsa.syntax.IfSyntax;
 import elsa.syntax.ElseIfSyntax;
 import elsa.syntax.InfixSyntax;
 import elsa.syntax.InstanceCreationSyntax;
-import elsa.syntax.MemberReferenceSyntax;
 import elsa.syntax.PrefixSyntax;
 import elsa.syntax.SuffixSyntax;
 import elsa.syntax.VariableDeclarationSyntax;

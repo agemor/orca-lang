@@ -31,7 +31,7 @@ class CastingSyntax implements Syntax {
 	 * @return
 	 */
 	public static function match(tokens:Array<Token>):Bool {
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLPO:Int = TokenTools.indexOfLpo(tokens);
 		
 		if (indexOfLPO < 0)
 			return false;
@@ -51,16 +51,16 @@ class CastingSyntax implements Syntax {
 	 */
 	public static function analyze(tokens:Array<Token>, lineNumber:Int):CastingSyntax {
 		
-		var indexOfLPO:Int = TokenTools.indexOfLPO(tokens);
+		var indexOfLpo:Int = TokenTools.indexOfLpo(tokens);
 
 		// 캐스팅 대상이 없다면
-		if (tokens.length <= indexOfLPO + 1) {
+		if (tokens.length <= indexOfLpo + 1) {
 			Debug.reportError("Syntax error", "Cannot find casting target.", lineNumber);		
 			return null;
 		}
 
-		var target:Array<Token> = tokens.slice(0, indexOfLPO);
-		var castingType:String = tokens[indexOfLPO + 1].value;
+		var target:Array<Token> = tokens.slice(0, indexOfLpo);
+		var castingType:String = tokens[indexOfLpo + 1].value;
 
 		return new CastingSyntax(target, castingType);
 	}

@@ -142,7 +142,7 @@ class BelugaAssembly {
 				 Type.BitwiseOrAssignment, Type.BitwiseXorAssignment, Type.BitwiseLeftShiftAssignment,
 				 Type.BitwiseRightShiftAssignment, Type.AppendAssignment:
 					 
-				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 13 : 0)));
+				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 12 : 0)));
 
 			// 배열 참조 연산자
 			case Type.ArrayReference:
@@ -204,8 +204,8 @@ class BelugaAssembly {
 						
 						// 인수를 뽑아 낸 후, 프로시져의 파라미터에 대응시킨다.						
 						for ( j in 0...functn.parameters.length) {
-							writeCode("SAL " + functn.parameters[j].address);
-							writeCode("PSH " + functn.parameters[j].address);
+							writeCode("SAL " + functn.parameters[functn.parameters.length - 1 - j].address);
+							writeCode("PSH " + functn.parameters[functn.parameters.length - 1 - j].address);
 							writeCode("STO");
 						}
 

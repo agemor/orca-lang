@@ -142,8 +142,7 @@ class Beluga {
 		var n2:Dynamic = null;
 		var n3:Dynamic = null;	
 		var n1Int:Int = 0;
-		var n2Int:Int = 0;
-		var n1Array:Array<Dynamic> = null;
+		var n2Array:Array<Dynamic> = null;
 		
 		switch(oprcode) {
 			case 9, 10, 46, 47, 48:
@@ -153,7 +152,7 @@ class Beluga {
 			case 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25:
 				n2 = mainStack.pop(); n1Int = cast(mainStack.pop(), Int);
 			case 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37:
-				n3 = mainStack.pop(); n2Int = cast(mainStack.pop(), Int); n1Array = cast(mainStack.pop(), Array<Dynamic>);
+				n3 = mainStack.pop(); n2Array = cast(mainStack.pop(), Array<Dynamic>); n1Int = cast(mainStack.pop(), Int);
 		}
 		
 		switch(oprcode) {
@@ -182,18 +181,18 @@ class Beluga {
 			case 23: return memory.write(n1Int, memory.read(n1Int) << n2);
 			case 24: return memory.write(n1Int, memory.read(n1Int) >> n2);
 			case 25: return memory.write(n1Int, Std.string(memory.read(n1Int)) + Std.string(n2));
-			case 26: return n1Array[n2Int] = n3;
-			case 27: return n1Array[n2Int] = n1Array[n2Int] + n3;
-			case 28: return n1Array[n2Int] = n1Array[n2Int] - n3;
-			case 29: return n1Array[n2Int] = n1Array[n2Int] / n3;
-			case 30: return n1Array[n2Int] = n1Array[n2Int] * n3;
-			case 31: return n1Array[n2Int] = n1Array[n2Int] % n3;
-			case 32: return n1Array[n2Int] = n1Array[n2Int] & n3;
-			case 33: return n1Array[n2Int] = n1Array[n2Int] | n3;
-			case 34: return n1Array[n2Int] = n1Array[n2Int] ^ n3;
-			case 35: return n1Array[n2Int] = n1Array[n2Int] << n3;
-			case 36: return n1Array[n2Int] = n1Array[n2Int] >> n3;
-			case 37: return n1Array[n2Int] = Std.string(n1Array[n2Int]) + Std.string(n3);
+			case 26: return n2Array[n1Int] = n3;
+			case 27: return n2Array[n1Int] = n2Array[n1Int] + n3;
+			case 28: return n2Array[n1Int] = n2Array[n1Int] - n3;
+			case 29: return n2Array[n1Int] = n2Array[n1Int] / n3;
+			case 30: return n2Array[n1Int] = n2Array[n1Int] * n3;
+			case 31: return n2Array[n1Int] = n2Array[n1Int] % n3;
+			case 32: return n2Array[n1Int] = n2Array[n1Int] & n3;
+			case 33: return n2Array[n1Int] = n2Array[n1Int] | n3;
+			case 34: return n2Array[n1Int] = n2Array[n1Int] ^ n3;
+			case 35: return n2Array[n1Int] = n2Array[n1Int] << n3;
+			case 36: return n2Array[n1Int] = n2Array[n1Int] >> n3;
+			case 37: return n2Array[n1Int] = Std.string(n2Array[n1Int]) + Std.string(n3);
 			case 38: return (n1 == n2 ? 1 : 0);
 			case 39: return (n1 != n2 ? 1 : 0);
 			case 40: return (n1 > n2 ? 1 : 0);
