@@ -219,9 +219,10 @@ class BelugaParser {
 
 					// 초기화문을 파싱한 후 어셈블리에 쓴다.
 					var parsedInitializer:ParsedPair = parseLine(syntax.initializer, lineNumber);
-
+					
 					if (parsedInitializer == null) continue;
 					assembly.writeLine(parsedInitializer.data);
+					assembly.writeCode("POP 0");
 				}
 			}
 			
@@ -376,7 +377,7 @@ class BelugaParser {
 
 				// 조건문을 취득한 후 파싱한다.
 				var parsedCondition:ParsedPair = parseLine(syntax.condition, lineNumber);
-
+				
 				if (parsedCondition == null)
 					continue;
 				
@@ -821,27 +822,23 @@ class BelugaParser {
 					continue;
 				}
 				
-				/*// 스택 안전성 체크: 안전하지 않다면 명령 무시
-				if (!TokenTools.checkStackSafety(tokens)) {
-					Debug.reportError("Syntax error 5", "ignored", lineNumber);
-					continue;
-				}*/
-				
 				var parsedLine:ParsedPair = parseLine(tokens, lineNumber);
 				if (parsedLine == null)
 					continue;
 					
 				assembly.writeLine(parsedLine.data);
+				
+				// 스택이 쌓이는 것을 방지하기 위해 pop 명령 추가.
+				// 예외는 함수.
+				if (!FunctionCallSyntax.match(tokens)) {					
+					assembly.writeCode("POP 0");
+				}
+				
 			}
 		}
 		
 		// definition에 있던 심볼을 테이블에서 모두 제거한다.
-		for (i in 0...definedSymbols.length) { 
-			
-			// 변수일 경우 시스템에 메모리를 반환한다.
-			if(Std.is(definedSymbols[i], VariableSymbol))
-				assembly.writeCode("FRE " + definedSymbols[i].address);
-			
+		for (i in 0...definedSymbols.length) {			
 			symbolTable.remove(definedSymbols[i]);
 		}
 	}
@@ -954,7 +951,6 @@ class BelugaParser {
 				return null;
 			}			
 			syntax.functionName.setTag(functn);		
-				
 			return new ParsedPair(TokenTools.merge(arguments), functn.type);
 		}
 
@@ -975,8 +971,7 @@ class BelugaParser {
 
 				// 배열의 원소가 유효한지 체크한다.
 				if (syntax.elements[syntax.elements.length - 1 - i].length < 1) {
-					Debug.reportError("Syntax error 30", "배열이 비었습니다.", lineNumber);
-					return null;
+					continue;
 				}
 
 				// 배열의 원소를 파싱한다.
@@ -997,7 +992,6 @@ class BelugaParser {
 			var mergedElements:Array<Token> = TokenTools.merge(parsedElements);
 			mergedElements.push(new Token(Type.Array, Std.string(parsedElements.length)));
 			
-			TokenTools.view1D(mergedElements);
 			
 			return new ParsedPair(mergedElements, "array");
 		}
@@ -1242,7 +1236,9 @@ class BelugaParser {
 
 			// 캐스팅 대상을 파싱한 후 끝에 캐스팅 명령을 추가한다.
 			var parsedTarget:ParsedPair = parseLine(syntax.target, lineNumber);
-
+			
+			
+			
 			if (parsedTarget == null)
 				return null;
 

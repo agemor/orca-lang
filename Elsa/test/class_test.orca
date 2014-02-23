@@ -4,15 +4,15 @@ define Student {
 	var partner:Student;
 }
 
-define Student -> setPartner(partner:Student) {
+define Student.setPartner(partner:Student) {
 	this.partner = partner;
 }
 
-define Student -> getTotalScore() -> number {
+define Student.getTotalScore() -> number {
 	return this.score + this.partner.score;
 }
 
-define Student -> getPartner() -> Student {
+define Student.getPartner() -> Student {
 	return this.partner;
 }
 
@@ -32,13 +32,13 @@ girl.score = 70;
 prettyGirl.name = "Charlotte";
 prettyGirl.score = 100;
 
-boy -> setPartner(girl);
-girl -> setPartner(prettyGirl);
+boy.setPartner(girl);
+girl.setPartner(prettyGirl);
 
-print(boy->getTotalScore());
-print(boy->getTotalScore());
-print(boy->getPartner()->getPartner());
+print(boy.getTotalScore());
+print(boy.getTotalScore());
+print(boy.getPartner().getPartner());
 
 prettyGirl.name = "Israa";
 
-print(boy->getPartner()->getPartner());
+print(boy.getPartner().getPartner().name);

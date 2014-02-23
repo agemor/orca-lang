@@ -190,7 +190,7 @@ class TokenTools {
 				
 				var precedence:Int = tokens[i].getPrecedence();
 				
-				if (candidatePrecedence < precedence) {
+				if (candidatePrecedence <= precedence) {
 					candidatePrecedence = precedence;
 					candidateIndex = i;
 				}

@@ -8,7 +8,7 @@
 /**
 * The number of characters in the String.
 */
-define string -> length() -> number {
+define string.length() -> number {
 	return this ? 1;
 }
 
@@ -16,7 +16,7 @@ define string -> length() -> number {
 * Returns the character at the given position.
 * Returns the empty String if outside of String bounds.
 */
-define string -> charAt(index:number) -> string {
+define string.charAt(index:number) -> string {
 	return this[index];
 }
 
@@ -24,14 +24,14 @@ define string -> charAt(index:number) -> string {
 * Returns the character code at the given position.
 * Returns null if outside of String bounds.
 */
-define string -> charCodeAt(index:number) -> number {
+define string.charCodeAt(index:number) -> number {
 	return this[index] ? 2;
 }
 
 /**
 * Returns the String corresponding to the character code code.
 */
-define string -> fromCharCode(code:number) -> string {
+define string.fromCharCode(code:number) -> string {
 	return code ? 3;
 }
 
@@ -40,10 +40,11 @@ define string -> fromCharCode(code:number) -> string {
 * The optional startIndex parameter allows you to specify at which character to start searching.
 * The position returned is still relative to the beginning of the string.
 */
-define string -> indexOf(str:string) -> number {
-	var length:number = this -> length();
+define string.indexOf(str:string) -> number {
+	var length:number = this.length();
+	var ss:number = 7343;
 	for(i in 0...length - 1){
-		if(this -> charAt(i) == str){
+		if(this.charAt(i) == str){
 			return i;
 		}
 	}
@@ -55,10 +56,10 @@ define string -> indexOf(str:string) -> number {
 * then the search starts at that position and works backwards. A long string will still
 * be found if starts before startIndex, even if it extends past the startIndex.
 */
-define string -> lastIndexOf(str:string) -> number {
-	var length:number = this -> length();
-	for(i in 0...length - 1){
-		if(this -> charAt(length - 1 - i) == str){
+define string.lastIndexOf(str:string) -> number {
+	var length:number = this.length();
+	for(i in 0...length - 1) {		
+		if(this.charAt(length - 1 - i) == str){
 			return length - 1 - i;
 		}
 	}
@@ -70,11 +71,11 @@ define string -> lastIndexOf(str:string) -> number {
 * If endIndex is not specified, length is used. If startIndex or endIndex is
 * smaller than 0, than 0 is used. If startIndex > endIndex then they are swaped.
 */
-define string -> substring(startIndex:number, endIndex:number) -> string {
+define string.substring(startIndex:number, endIndex:number) -> string {
 	var result:string = "";
-	var length:number = this -> length();
+	var length:number = this.length();
 	for(i in startIndex...endIndex - 1){
-		result += this -> charAt(i);
+		result += this.charAt(i);
 	}
 	return result;
 }
@@ -82,17 +83,17 @@ define string -> substring(startIndex:number, endIndex:number) -> string {
 /**
 * Split the string using the specified delimiter.
 */
-define string -> split(delimiter:string) -> array {
+define string.split(delimiter:string) -> array {
 	var result:array;
-	var length:number = this -> length();
+	var length:number = this.length();
 	var prevIndex:number = 0;
 	var resultIndex:number = 0;	
 	for(i in 0...length - 1){		
-		if(this -> charAt(i) == delimiter){			
-			result[resultIndex++] = this -> substring(prevIndex, i);
+		if(this.charAt(i) == delimiter){			
+			result[resultIndex++] = this.substring(prevIndex, i);
 			prevIndex = i + 1;
 		}
 	}
-	result[resultIndex] = this -> substring(prevIndex, length);
+	result[resultIndex] = this.substring(prevIndex, length);
 	return result;
 }

@@ -22,11 +22,13 @@ class Beluga {
 												   "DAA" => 0xC,
 												   "STO" => 0xD,
 												   "STA" => 0xE,
-												   "FRE" => 0xF,
-												   "RDA" => 0x10,
-												   "PSC" => 0x11,
-												   "MOC" => 0x12,
-												   "END" => 0x13];
+												   "OSC" => 0xF,
+												   "CSC" => 0x10,
+												   "FRE" => 0x11,
+												   "RDA" => 0x12,
+												   "PSC" => 0x13,
+												   "MOC" => 0x14,
+												   "END" => 0x15];
 												   
 	private static var undefined:String = "undefined";
 	
@@ -43,6 +45,7 @@ class Beluga {
 	public var register:Array<Dynamic>;
 	public var mainStack:Array<Dynamic>;
 	public var callStack:Array<Int>;
+	public var scope:Array<Array<Int>>;
 	
 	/**
 	 * 프로그램
@@ -69,14 +72,19 @@ class Beluga {
 		memory = new Memory(dynamicMemoryIndex);
 		register = new Array<Dynamic>();		
 		mainStack = new Array<Dynamic>();
-		callStack = new Array<Int>();
+		callStack = new Array<Int>();		
+		scope = new Array<Array<Int>>();
+		
+		// 최상위 스코프
+		scope.push(new Array<Int>());
 		
 		pointer = 0;
 	}
 	
-	public function run():Void {		
+	public function run():Void {	
+		
 		while (true) {
-			var inst:Instruction = program[pointer];			
+			var inst:Instruction = program[pointer];	
 			
 			switch(inst.opcode) {				
 			// PSH
@@ -101,9 +109,9 @@ class Beluga {
 			// IVK	
 			case 8: invoke(inst.intArg);					
 			// SAL	
-			case 9:	memory.allocate(undefined, inst.intArg);
+			case 9:	memory.allocate(undefined, inst.intArg); scope[scope.length - 1].push(inst.intArg);
 			// SAA	
-			case 10: memory.allocate(new Array<Dynamic>(), inst.intArg);
+			case 10: memory.allocate(new Array<Dynamic>(), inst.intArg); scope[scope.length - 1].push(inst.intArg);
 			// DAL
 			case 11: mainStack.push(memory.allocate(undefined));			
 			// DAA	
@@ -115,19 +123,24 @@ class Beluga {
 				var targetArray:Array<Dynamic> = cast(mainStack.pop(), Array<Dynamic>);
 				var targetIndex:Int = cast(mainStack.pop(), Int);				
 				targetArray[targetIndex] = mainStack.pop();
+			// OSC
+			case 15: scope.push(new Array<Int>());
+			// CSC
+			case 16: var currentScope:Array<Int> = scope.pop();
+					 for (j in 0...currentScope.length) memory.free(currentScope[j]); 
 			// FRE
-			case 15: memory.free(inst.intArg);
+			case 17: memory.free(inst.intArg);
 			// RDA	
-			case 16:
+			case 18:
 				var targetArray:Array<Dynamic> = cast(mainStack.pop(), Array<Dynamic>);
 				var targetIndex:Int = cast(mainStack.pop(), Int);	
 				mainStack.push(targetArray[targetIndex]);
 			// PSC	
-			case 17: callStack.push(pointer + 3);
+			case 19: callStack.push(pointer + 3);
 			// MOC	
-			case 18: mainStack.push(callStack.pop());				
+			case 20: mainStack.push(callStack.pop());				
 			// END	
-			case 19: break;					
+			case 21: break;					
 			// 정의되지 않은 명령	
 			default: trace("Undefined opcode error."); break;					
 			}
@@ -152,7 +165,9 @@ class Beluga {
 			case 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25:
 				n2 = mainStack.pop(); n1Int = cast(mainStack.pop(), Int);
 			case 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37:
-				n3 = mainStack.pop(); n2Array = cast(mainStack.pop(), Array<Dynamic>); n1Int = cast(mainStack.pop(), Int);
+				n3 = mainStack.pop();	
+				n2Array = cast(mainStack.pop(), Array<Dynamic>);
+				n1Int = cast(mainStack.pop(), Int);
 		}
 		
 		switch(oprcode) {
@@ -202,7 +217,7 @@ class Beluga {
 			case 44: return (n1 + n2 > 1 ? 1 : 0);
 			case 45: return (n1 + n2 > 0 ? 1 : 0);
 			case 46: return (n1 < 1 ? 1 : 0);
-			case 47: return Std.parseFloat(n1);
+			case 47: return (cast(n1, String).indexOf(".") > 0)  ? Std.parseFloat(n1) : Std.parseInt(n1);					 
 			case 48: return Std.string(n1);
 			case 49: return Std.string(n1).charAt(cast(n2, Int));
 			case 50: return getRuntimeValue(n1, cast(n2, Int));
@@ -365,7 +380,7 @@ class Memory {
 			storage[address] = new Array<Dynamic>();
 		
 		var memory:Array<Dynamic> = storage[address];	
-			
+		
 		memory.push(initValue);
 		
 		return address;		
@@ -380,7 +395,7 @@ class Memory {
 		var memory:Array<Dynamic> = storage[address];
 		
 		if (memory != null && memory.length > 0) {
-			memory.pop();
+			memory.pop();			
 		}
 	}
 	

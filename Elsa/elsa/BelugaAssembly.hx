@@ -108,7 +108,7 @@ class BelugaAssembly {
 			// 값을 증감시킨 다음 푸쉬한다.
 			case Type.PrefixDecrement, Type.PrefixIncrement:
 				
-				writeCode("PSH " + (token.type == Type.PrefixIncrement ? "1" : "-1"));
+				writeCode("PSH 1");
 				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 12 : 0)));
 				
 				if (token.doNotPush)
@@ -117,7 +117,7 @@ class BelugaAssembly {
 			// 값을 증감시킨 후 예전 값을 반환한다.
 			case Type.SuffixDecrement, Type.SuffixIncrement:
 				
-				writeCode("PSH " + (token.type == Type.SuffixIncrement ? "1" : "-1"));
+				writeCode("PSH 1");
 				writeCode("OPR " + (getOperatorNumber(token.type) + (token.useAsArrayReference ? 12 : 0)));				
 				writeCode("PSH " + (token.type == Type.SuffixIncrement ? "-1" : "1"));
 				writeCode("OPR " + getOperatorNumber(Type.Addition));
@@ -202,6 +202,9 @@ class BelugaAssembly {
 						 * ARGn, ARGn-1, ... ARG1, PROC_ID 로 되어 있다.
 						 */
 						
+						// 스코프 시작
+						writeCode("OSC");
+						 
 						// 인수를 뽑아 낸 후, 프로시져의 파라미터에 대응시킨다.						
 						for ( j in 0...functn.parameters.length) {
 							writeCode("SAL " + functn.parameters[functn.parameters.length - 1 - j].address);
@@ -216,9 +219,8 @@ class BelugaAssembly {
 						writeCode("PSH %" + functn.functionEntry);
 						writeCode("JMP");
 						
-						// 파라미터를 시스템에 반환한다.
-						for ( j in 0...functn.parameters.length) 
-							writeCode("FRE " + functn.parameters[j].address);
+						// 스코프 끝
+						writeCode("CSC");
 						
 					}
 				}

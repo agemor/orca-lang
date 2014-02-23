@@ -30,8 +30,8 @@ class BelugaLauncher {
 		
 		var parser:BelugaParser = new BelugaParser();
 		
-		var compiledCode:String = parser.compile(temp_test, "test/");
-		trace(compiledCode);
+		var compiledCode:String = parser.compile(evaluator, "test/");
+		//trace(compiledCode);
 		
 		if (!Debug.errorReported){		
 		
