@@ -5,7 +5,7 @@ package elsa;
  * 
  * @author 김 현준
  */
-class BelugaOptimizer {
+class Optimizer {
 
 	/**
 	 * 플래그 맵
@@ -48,8 +48,8 @@ class BelugaOptimizer {
 			else
 				totalLines++;
 
-			// PUSH 문이라면
-			if (lines[i].substring(0, 3) == "PSH")
+			// 점프문이라면
+			if (lines[i].substring(0, 3) == "JMP")
 				jumps.push(i);
 		}
 

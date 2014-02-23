@@ -1,8 +1,9 @@
 package elsa;
+import elsa.debug.Debug;
 import elsa.Token.Type;
 
 /**
- * 토큰열 처리 관련 유틸
+ * Orca Token Untility
  * 
  * @author 김 현준
  */
@@ -277,7 +278,7 @@ class TokenTools {
 		}
 		buffer += "]";
 
-		trace(buffer);
+		Debug.print(buffer);
 	}
 	
 	/**

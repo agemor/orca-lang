@@ -1,7 +1,7 @@
 package elsa;
 
 /**
- * 어셈블리 코드 최적화 클래스
+ * Orca Assembly Optimizer
  * 
  * @author 김 현준
  */
@@ -48,8 +48,8 @@ class Optimizer {
 			else
 				totalLines++;
 
-			// 점프문이라면
-			if (lines[i].substring(0, 3) == "JMP")
+			// PUSH 문이라면
+			if (lines[i].substring(0, 3) == "PSH")
 				jumps.push(i);
 		}
 

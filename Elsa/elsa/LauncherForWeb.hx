@@ -1,5 +1,5 @@
 package elsa;
-import elsa.vm.Orcinus;
+import elsa.vm.Machine;
 import sys.io.File;
 
 /**
@@ -9,7 +9,7 @@ import sys.io.File;
 class LauncherForWeb {
 
 	public static function main() {
-		haxe.Log.trace = function (log, ?d) Sys.println(log+"<br/>");
+		haxe.Log.Debug.print = function (log, ?d) Sys.println(log+"<br/>");
 		
 		var targetCode:String = File.getContent("target.orca");
 		
@@ -17,12 +17,12 @@ class LauncherForWeb {
 		
 		var compiledCode:String = parser.compile(targetCode);
 		
-		var vm:Orcinus = new Orcinus();
+		var vm:Machine = new Machine();
 		vm.load(compiledCode);		
 		vm.run();
 		
-		trace("<br/><br/>참고: 이 프로그램의 오르카 어셈블리는:");
-		trace(StringTools.replace(compiledCode, "\n", "<br/>"));
+		Debug.print("<br/><br/>참고: 이 프로그램의 오르카 어셈블리는:");
+		Debug.print(StringTools.replace(compiledCode, "\n", "<br/>"));
 		
 	}
 	

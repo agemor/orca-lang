@@ -1,7 +1,6 @@
 package elsa;
-import elsa.vm.Orcinus;
+import elsa.vm.Machine;
 import elsa.debug.Debug;
-import haxe.Utf8;
 import sys.io.File;
 /**
  * Orca Compiler & VM Launcher
@@ -12,9 +11,7 @@ class Launcher {
 	
 	public static function main() {
 		
-		haxe.Log.trace = function (log, ?d) Sys.println(Std.string(log));
-		
-		trace("Orca Compiler 2.0 (Unstable)");		
+		Debug.print("Orca BELUGA Compiler 2.0 (Unstable)");		
 		
 		// 테스트용 오르카 소스
 		var temp_test:String = File.getContent("test/temp.orca");
@@ -30,29 +27,19 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
+		var compiledCode:String = parser.compile(include_test, "test/");
+		//Debug.print(compiledCode);
 		
+		if (!Debug.errorReported){		
 		
-		
-		var compiledCode:String = parser.compile(evaluator, "test/");
-		//trace(compiledCode);
-		
-		//var test:Array<Int> = [1, 2, 3, 4, 5];
-		//f(test.pop(), test.pop(), test.pop());
-		
-		if (!Debug.errorReported && false){		
-		
-			var vm:Orcinus = new Orcinus();
+			var vm:Machine = new Machine();
 			vm.load(compiledCode);
 			
-			trace("-----------------init-----------------");
+			Debug.print("-----------------init-----------------");
 			vm.run();
-			trace("--------------------------------------");
+			Debug.print("--------------------------------------");
 		}
-		trace("Press any key to exit...");
+		Debug.print("Press any key to exit...");
 		Sys.getChar(false);
 	}	
-	
-	public static function f(n1:Int, n2:Int, n3:Int):Void {
-		trace(n1 + "/" + n2 + "/" + n3);
-	}
 }

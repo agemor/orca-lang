@@ -19,8 +19,6 @@ class Symbol {
 	 */
 	public var address:Int;	
 	
-	public function new() {
-		
-	}
+	public function new() {	}
 	
 }

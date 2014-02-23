@@ -35,76 +35,61 @@ class NativeLibrary {
 		var void:NativeClass = new NativeClass("void", []);
 
 		var print:NativeFunction = new NativeFunction("print", ["*"], "void");
-		print.write("POP 0");
-		print.write("EXE print, &0");
+		print.write("IVK 1");
+		
+		var read:NativeFunction = new NativeFunction("read", [], "void");
+		read.write("IVK 2");
 		
 		var exit:NativeFunction = new NativeFunction("exit", [], "void");
 		exit.write("END");
 
-		var whoami:NativeFunction = new NativeFunction("whoami", [], "void");
-		whoami.write("EXE whoami");
+		var info:NativeFunction = new NativeFunction("info", [], "void");
+		info.write("IVK 3");
 		
 		var abs:NativeFunction = new NativeFunction("abs", ["number"], "number");
-		abs.write("POP 0");
-		abs.write("EXR abs, &0");
+		abs.write("IVK 4");
 		
 		var acos:NativeFunction = new NativeFunction("acos", ["number"], "number");
-		acos.write("POP 0");
-		acos.write("EXR acos, &0");
+		acos.write("IVK 5");
 		
 		var asin:NativeFunction = new NativeFunction("asin", ["number"], "number");
-		asin.write("POP 0");
-		asin.write("EXR asin, &0");
+		asin.write("IVK 6");
 		
 		var atan:NativeFunction = new NativeFunction("atan", ["number"], "number");
-		atan.write("POP 0");
-		atan.write("EXR atan, &0");
+		atan.write("IVK 7");
 		
 		var atan2:NativeFunction = new NativeFunction("atan2", ["number", "number"], "number");
-		atan2.write("POP 0");
-		atan2.write("POP 1");
-		atan2.write("EXR atan2, &0, &1");
+		atan2.write("IVK 8");
 		
 		var ceil:NativeFunction = new NativeFunction("ceil", ["number"], "number");
-		ceil.write("POP 0");
-		ceil.write("EXR ceil, &0");
+		ceil.write("IVK 9");
 		
 		var floor:NativeFunction = new NativeFunction("floor", ["number"], "number");
-		floor.write("POP 0");
-		floor.write("EXR floor, &0");
+		floor.write("IVK 10");
 		
 		var round:NativeFunction = new NativeFunction("round", ["number"], "number");
-		round.write("POP 0");
-		round.write("EXR round, &0");
+		round.write("IVK 11");
 		
 		var cos:NativeFunction = new NativeFunction("cos", ["number"], "number");
-		cos.write("POP 0");
-		cos.write("EXR cos, &0");
+		cos.write("IVK 12");
 		
 		var sin:NativeFunction = new NativeFunction("sin", ["number"], "number");
-		sin.write("POP 0");
-		sin.write("EXR sin, &0");
+		sin.write("IVK 13");
 		
 		var tan:NativeFunction = new NativeFunction("tan", ["number"], "number");
-		tan.write("POP 0");
-		tan.write("EXR tan, &0");
+		tan.write("IVK 14");
 		
 		var log:NativeFunction = new NativeFunction("log", ["number"], "number");
-		log.write("POP 0");
-		log.write("EXR log, &0");
+		log.write("IVK 15");
 		
 		var sqrt:NativeFunction = new NativeFunction("sqrt", ["number"], "number");
-		sqrt.write("POP 0");
-		sqrt.write("EXR sqrt, &0");
+		sqrt.write("IVK 16");
 		
 		var pow:NativeFunction = new NativeFunction("pow", ["number", "number"], "number");
-		pow.write("POP 0");
-		pow.write("POP 1");
-		pow.write("EXR pow, &0, &1");
+		pow.write("IVK 17");
 		
 		var random:NativeFunction = new NativeFunction("random", [], "number");
-		random.write("POP 0");
-		random.write("EXR random, &0");		
+		random.write("IVK 18");	
 		
 		addClass(number);
 		addClass(string);
@@ -112,9 +97,10 @@ class NativeLibrary {
 		addClass(boolean);
 		addClass(void);
 		
-		addFunction(print);
+		addFunction(print);		
+		addFunction(read);
+		addFunction(info);
 		addFunction(exit);
-		addFunction(whoami);
 		addFunction(abs);
 		addFunction(asin);
 		addFunction(acos);
@@ -160,7 +146,7 @@ class NativeLibrary {
 
 		// 클래스 입력
 		for ( i in 0...classes.length ) {
-			symbolTable.add(new ClassSymbol(classes[i].className));
+			symbolTable.classes.push(new ClassSymbol(classes[i].className));
 		}
 
 		// 함수 입력
@@ -176,8 +162,8 @@ class NativeLibrary {
 						
 			functn.isNative = true;
 			functn.nativeFunction = functions[i];
-
-			symbolTable.add(functn);
+			
+			symbolTable.functions.push(functn);
 		}
 	}
 }

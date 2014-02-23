@@ -1,21 +1,22 @@
 package elsa.vm;
+import elsa.debug.Debug;
 
 /**
  * Orcinus Application Programming Interface
  * 
  * @author 김 현준
  */
-class OrcinusAPI {
+class Api {
 
 	public function new() {		
 	}
 	
 	public static function print(message:Dynamic):Void {
-		trace(message);
+		Debug.print(message);
 	}
 	
 	public static function whoAmI():Void {
-		trace("I am Orca Virtual Machine.");
+		Debug.print("I am Orca Virtual Machine.");
 	}
 	
 	public static function abs(v:Float):Float {

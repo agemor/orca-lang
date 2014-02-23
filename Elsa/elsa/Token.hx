@@ -3,7 +3,7 @@ import elsa.Token.Affix;
 import elsa.symbol.Symbol;
 
 /**
- * 토큰 클래스
+ * Orca Token
  * 
  * @author 김 현준
  */

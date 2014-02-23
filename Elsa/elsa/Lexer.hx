@@ -3,7 +3,7 @@ import elsa.Lexer.Lextree;
 import elsa.debug.Debug;
 
 /**
- * 어휘 분석 클래스
+ * Orca Lexer
  * 
  * 코드를 분석하여 어휘 계층 트리를 생성한다.
  * 

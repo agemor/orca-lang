@@ -1,5 +1,5 @@
 package elsa;
-import elsa.vm.Beluga;
+import elsa.vm.oldMachine;
 import elsa.debug.Debug;
 import haxe.Utf8;
 import sys.io.File;
@@ -8,13 +8,13 @@ import sys.io.File;
  * 
  * @author 김 현준
  */
-class BelugaLauncher {
+class Launcher {
 	
 	public static function main() {
 		
 		haxe.Log.trace = function (log, ?d) Sys.println(Std.string(log));
 		
-		trace("Orca BELUGA Compiler 2.0 (Unstable)");		
+		trace("Orca Compiler 2.0 (Unstable)");		
 		
 		// 테스트용 오르카 소스
 		var temp_test:String = File.getContent("test/temp.orca");
@@ -28,14 +28,20 @@ class BelugaLauncher {
 		var include_test:String = File.getContent("test/include_test.orca");
 		var evaluator:String = File.getContent("test/evaluator.orca");
 		
-		var parser:BelugaParser = new BelugaParser();
+		var parser:Parser = new Parser();
+		
+		
+		
 		
 		var compiledCode:String = parser.compile(evaluator, "test/");
 		//trace(compiledCode);
 		
-		if (!Debug.errorReported){		
+		//var test:Array<Int> = [1, 2, 3, 4, 5];
+		//f(test.pop(), test.pop(), test.pop());
 		
-			var vm:Beluga = new Beluga();
+		if (!Debug.errorReported && false){		
+		
+			var vm:oldMachine = new oldMachine();
 			vm.load(compiledCode);
 			
 			trace("-----------------init-----------------");
@@ -45,4 +51,8 @@ class BelugaLauncher {
 		trace("Press any key to exit...");
 		Sys.getChar(false);
 	}	
+	
+	public static function f(n1:Int, n2:Int, n3:Int):Void {
+		trace(n1 + "/" + n2 + "/" + n3);
+	}
 }

@@ -1,12 +1,12 @@
 package elsa.vm;
-import elsa.vm.Orcinus.Instruction;
+import elsa.vm.oldMachine.Instruction;
 
 /**
  * Orcinus Advanced Orca Virtual Machine
  * 
  * @author 김 현준
  */
-class Orcinus {
+class oldMachine {
 	
 	/**
 	 * VM 환경 변수
@@ -247,22 +247,22 @@ class Orcinus {
 						var command:String = Std.string(parseValue(opcode.args[0]));						
 						var returnValue:Dynamic = null;			
 						switch (command) {
-							case "abs": returnValue = OrcinusAPI.abs(cast(parseValue(opcode.args[1]), Float));
-							case "acos": returnValue = OrcinusAPI.acos(cast(parseValue(opcode.args[1]), Float));
-							case "asin": returnValue = OrcinusAPI.asin(cast(parseValue(opcode.args[1]), Float));
-							case "atan": returnValue = OrcinusAPI.atan(cast(parseValue(opcode.args[1]), Float));
-							case "atan2": returnValue = OrcinusAPI.atan2(cast(parseValue(opcode.args[1]), Float), cast(parseValue(opcode.args[2]), Float));
-							case "ceil": returnValue = OrcinusAPI.ceil(cast(parseValue(opcode.args[1]), Float));
-							case "floor": returnValue = OrcinusAPI.floor(cast(parseValue(opcode.args[1]), Float));
-							case "round": returnValue = OrcinusAPI.round(cast(parseValue(opcode.args[1]), Float));
-							case "cos": returnValue = OrcinusAPI.cos(cast(parseValue(opcode.args[1]), Float));
-							case "sin": returnValue = OrcinusAPI.sin(cast(parseValue(opcode.args[1]), Float));
-							case "tan": returnValue = OrcinusAPI.tan(cast(parseValue(opcode.args[1]), Float));
-							case "log": returnValue = OrcinusAPI.log(cast(parseValue(opcode.args[1]), Float));
-							case "sqrt": returnValue = OrcinusAPI.sqrt(cast(parseValue(opcode.args[1]), Float));
-							case "pow": returnValue = OrcinusAPI.pow(cast(parseValue(opcode.args[1]), Float), cast(parseValue(opcode.args[2]), Float));
-							case "exp": returnValue = OrcinusAPI.exp(cast(parseValue(opcode.args[1]), Float));
-							case "random": returnValue = OrcinusAPI.random();
+							case "abs": returnValue = Api.abs(cast(parseValue(opcode.args[1]), Float));
+							case "acos": returnValue = Api.acos(cast(parseValue(opcode.args[1]), Float));
+							case "asin": returnValue = Api.asin(cast(parseValue(opcode.args[1]), Float));
+							case "atan": returnValue = Api.atan(cast(parseValue(opcode.args[1]), Float));
+							case "atan2": returnValue = Api.atan2(cast(parseValue(opcode.args[1]), Float), cast(parseValue(opcode.args[2]), Float));
+							case "ceil": returnValue = Api.ceil(cast(parseValue(opcode.args[1]), Float));
+							case "floor": returnValue = Api.floor(cast(parseValue(opcode.args[1]), Float));
+							case "round": returnValue = Api.round(cast(parseValue(opcode.args[1]), Float));
+							case "cos": returnValue = Api.cos(cast(parseValue(opcode.args[1]), Float));
+							case "sin": returnValue = Api.sin(cast(parseValue(opcode.args[1]), Float));
+							case "tan": returnValue = Api.tan(cast(parseValue(opcode.args[1]), Float));
+							case "log": returnValue = Api.log(cast(parseValue(opcode.args[1]), Float));
+							case "sqrt": returnValue = Api.sqrt(cast(parseValue(opcode.args[1]), Float));
+							case "pow": returnValue = Api.pow(cast(parseValue(opcode.args[1]), Float), cast(parseValue(opcode.args[2]), Float));
+							case "exp": returnValue = Api.exp(cast(parseValue(opcode.args[1]), Float));
+							case "random": returnValue = Api.random();
 						}
 						
 						systemStack.push(returnValue);
@@ -274,8 +274,8 @@ class Orcinus {
 						var command:String = Std.string(parseValue(opcode.args[0]));
 						
 						switch (command) {
-							case "print": OrcinusAPI.print(parseValue(opcode.args[1]));
-							case "whoami": OrcinusAPI.whoAmI();
+							case "print": Api.print(parseValue(opcode.args[1]));
+							case "whoami": Api.whoAmI();
 						}
 						
 					}

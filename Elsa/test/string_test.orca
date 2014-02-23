@@ -1,4 +1,11 @@
 include "string.orca";
 
 var str:string = "1,2,3,4,5";
+
+print(str.length());
+print(str.charAt(3));
+print(str.charCodeAt(3));
+print(str.indexOf('5'));
+print(str.lastIndexOf('1'));
+print(str.substring(1,4));
 print(str.split(','));

@@ -21,9 +21,13 @@ class Debug {
 	 * @param	lineNumber
 	 */
 	public static function reportError(errorType:String, errorMessage:String, lineNumber:Int = 1):Void {
-		if (!supressed) trace(errorType + " :" + errorMessage + " at " + Std.string(lineNumber));
+		if (!supressed) print(errorType + " :" + errorMessage + " at " + Std.string(lineNumber));
 		errorReported = true;
 		throw "aa";
+	}
+	
+	public static function print(message:Dynamic):Void {
+		Sys.println(message);
 	}
 	
 	/**
