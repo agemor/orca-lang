@@ -37,7 +37,7 @@ class NativeLibrary {
 		var print:NativeFunction = new NativeFunction("print", ["*"], "void");
 		print.write("IVK 1");
 		
-		var read:NativeFunction = new NativeFunction("read", [], "void");
+		var read:NativeFunction = new NativeFunction("read", [], "string");
 		read.write("IVK 2");
 		
 		var exit:NativeFunction = new NativeFunction("exit", [], "void");

@@ -27,7 +27,7 @@ class Launcher {
 		
 		var parser:Parser = new Parser();
 		
-		var compiledCode:String = parser.compile(include_test, "test/");
+		var compiledCode:String = parser.compile(temp_test, "test/");
 		//Debug.print(compiledCode);
 		
 		if (!Debug.errorReported){		
