@@ -6,9 +6,9 @@
 
 ## 빌드하기
 
-[Haxe](haxe.org) 를 사용하여 `build-compiler.hxml`과 `build-vm-hxml`로 오르카 컴파일러와 가상 머신의 *C++*버전 실행 파일을 빌드할 수 있다. 
+[Haxe](haxe.org) 를 사용하여 `build-compiler.hxml`과 `build-vm.hxml`로 오르카 컴파일러와 가상 머신의 *C++*버전 실행 파일을 빌드할 수 있다. 
 
-이미 빌드된 버전은 [여기](hyunjun.org/orca/release.zip)에서 다운로드 받을 수 있다.
+이미 빌드된 버전은 [여기](http://hyunjun.org/orca/release.zip)에서 다운로드 받을 수 있다.
 
 ## 실행하기
 
